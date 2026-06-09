@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Planilha de Cálculo — IMA/GCA</title>
+<style>
+  :root{
+    --verde:#1b6e3c; --verde-esc:#11502a; --verde-claro:#e8f3ec;
+    --cinza:#5f6b63; --borda:#d5ddd8; --fundo:#f4f7f5; --erro:#b3261e; --aviso:#8a6d00;
+    --azul:#1a5276;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Segoe UI",system-ui,Arial,sans-serif;background:var(--fundo);color:#222;font-size:15px}
+
+  /* ===== Cabeçalho ===== */
+  header.app{background:var(--verde);color:#fff;padding:14px 22px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  header.app .titulo h1{margin:0;font-size:1.25rem;font-weight:600}
+  header.app .titulo small{opacity:.85}
+  .badge{background:#fff3;border:1px solid #fff6;border-radius:20px;padding:2px 10px;font-size:.75rem}
+  .emissor-chip{margin-left:auto;background:var(--verde-esc);border:none;color:#fff;border-radius:8px;padding:8px 14px;cursor:pointer;font-size:.85rem;text-align:left}
+  .emissor-chip b{display:block;font-size:.9rem}
+
+  /* ===== Abas ===== */
+  nav.abas{display:flex;gap:4px;padding:10px 22px 0;background:#fff;border-bottom:2px solid var(--verde);flex-wrap:wrap}
+  nav.abas button{border:1px solid var(--borda);border-bottom:none;background:#eef2ef;padding:10px 18px;border-radius:8px 8px 0 0;cursor:pointer;font-size:.9rem;color:#333}
+  nav.abas button.ativa{background:var(--verde);color:#fff;border-color:var(--verde);font-weight:600}
+
+  main{max-width:1060px;margin:0 auto;padding:20px 22px 60px}
+  section.aba{display:none}
+  section.aba.ativa{display:block}
+
+  .cartao{background:#fff;border:1px solid var(--borda);border-radius:10px;padding:18px 20px;margin-bottom:18px}
+  .cartao h2{margin:0 0 4px;font-size:1.05rem;color:var(--verde-esc)}
+  .cartao p.desc{margin:0 0 14px;color:var(--cinza);font-size:.85rem}
+
+  form .linha{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:12px}
+  .campo{display:flex;flex-direction:column;gap:4px}
+  .campo label{font-size:.78rem;font-weight:600;color:#384540}
+  .campo input,.campo select{padding:8px 10px;border:1px solid var(--borda);border-radius:6px;font-size:.95rem;min-width:150px}
+  .campo small{color:var(--cinza);font-size:.72rem}
+  .botoes{display:flex;gap:10px;margin-top:6px;flex-wrap:wrap}
+  button.primario{background:var(--azul);color:#fff;border:none;border-radius:6px;padding:10px 22px;font-size:.95rem;cursor:pointer;font-weight:600}
+  button.primario:hover{filter:brightness(1.1)}
+  button.limpar{background:#fff;color:var(--erro);border:1px solid var(--erro);border-radius:6px;padding:10px 18px;cursor:pointer}
+  button.mini{background:var(--verde);color:#fff;border:none;border-radius:5px;padding:5px 10px;cursor:pointer;font-size:.8rem}
+  .msg-erro{display:none;background:#fdecea;border:1px solid var(--erro);color:var(--erro);border-radius:6px;padding:10px 14px;margin-bottom:12px;font-size:.88rem;white-space:pre-line}
+  .msg-aviso{display:none;background:#fff8e1;border:1px solid #e0c200;color:var(--aviso);border-radius:6px;padding:10px 14px;margin-bottom:12px;font-size:.88rem}
+
+  table.resultados{width:100%;border-collapse:collapse;font-size:.85rem}
+  table.resultados th{background:var(--verde-claro);color:var(--verde-esc);padding:8px 6px;border:1px solid var(--borda);text-align:center}
+  table.resultados td{padding:7px 6px;border:1px solid var(--borda);text-align:center}
+  table.resultados td.dinheiro{text-align:right;white-space:nowrap}
+  table.resultados tr.total td{font-weight:700}
+
+  .val-helper{background:var(--verde-claro);border:1px solid var(--borda);border-radius:8px;padding:10px 14px;display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-bottom:14px;font-size:.88rem}
+  .val-helper input{width:80px;padding:6px;border:1px solid var(--borda);border-radius:6px}
+  .val-helper .resultado{font-weight:700;color:var(--verde-esc)}
+
+  .status-selic{display:inline-flex;align-items:center;gap:8px;padding:4px 12px;border-radius:18px;font-size:.8rem;font-weight:600}
+  .status-selic.online{background:#e6f4ea;color:#137333}
+  .status-selic.offline{background:#fff3e0;color:#a05a00}
+  .grade-dados{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+  table.ref{width:100%;border-collapse:collapse;font-size:.82rem}
+  table.ref th{background:var(--verde-claro);padding:5px;border:1px solid var(--borda)}
+  table.ref td{padding:4px 8px;border:1px solid var(--borda);text-align:center}
+
+  footer.app{max-width:1060px;margin:0 auto;padding:0 22px 30px;color:var(--cinza);font-size:.78rem}
+
+  /* ===== Modal Emissor ===== */
+  .modal-fundo{display:none;position:fixed;inset:0;background:#0007;z-index:50;align-items:center;justify-content:center}
+  .modal-fundo.aberto{display:flex}
+  .modal{background:#fff;border-radius:12px;padding:24px 28px;width:min(440px,92vw)}
+  .modal h2{margin:0 0 4px;color:var(--verde-esc);font-size:1.1rem}
+  .modal p{margin:0 0 16px;color:var(--cinza);font-size:.82rem}
+  .modal .campo{margin-bottom:12px}
+  .modal .campo input{width:100%}
+
+  /* ===== Documento de impressão ===== */
+  #printdoc{display:none}
+  @media print{
+    body{background:#fff}
+    .app, header.app, nav.abas, main, footer.app{display:none !important}
+    #printdoc{display:block}
+  }
+  #printdoc{font-family:"Segoe UI",Arial,sans-serif;color:#000;max-width:185mm;margin:0 auto;padding:10mm 6mm}
+  #printdoc .doc-titulo{text-align:center;font-size:15pt;font-weight:700;border:1.5pt solid #000;padding:6pt;margin-bottom:0}
+  #printdoc .doc-subtitulo{text-align:center;font-size:10.5pt;font-weight:600;border:1.5pt solid #000;border-top:none;padding:5pt;margin-bottom:14pt}
+  #printdoc table{width:100%;border-collapse:collapse}
+  #printdoc td{border:1pt solid #000;padding:6pt 8pt;vertical-align:middle}
+  #printdoc td.rotulo{width:62%}
+  #printdoc td.rotulo .l1{font-weight:700;font-size:11.5pt}
+  #printdoc td.rotulo .l2{font-size:8.5pt;color:#333}
+  #printdoc td.valor{font-size:11.5pt;text-align:right;white-space:nowrap}
+  #printdoc tr.destaque td{background:#eee}
+  #printdoc tr.destaque td.valor{font-weight:700;font-size:12.5pt}
+  #printdoc .doc-rodape{margin-top:18pt;border-top:1pt solid #000;padding-top:8pt;font-size:10pt;text-align:center;line-height:1.5}
+  #printdoc .doc-emissao{margin-top:10pt;font-size:7.5pt;color:#555;text-align:center}
+</style>
+</head>
+<body>
+
+<header class="app">
+  <div class="titulo">
+    <h1>Planilha de Cálculo <span class="badge">versão web — protótipo</span></h1>
+    <small>IMA — Instituto Mineiro de Agropecuária · GCA — Gerência de Controle da Arrecadação</small>
+  </div>
+  <button class="emissor-chip" id="chipEmissor" onclick="abreModalEmissor()">
+    <b id="chipNome">Identificar emissor</b>
+    <span id="chipDetalhe">clique para preencher</span>
+  </button>
+</header>
+
+<nav class="abas">
+  <button class="ativa" data-aba="ai" onclick="trocaAba('ai')">Auto de Infração</button>
+  <button data-aba="lt" onclick="trocaAba('lt')">Captação de Leite</button>
+  <button data-aba="dae" onclick="trocaAba('dae')">Atualização de DAE</button>
+  <button data-aba="ref" onclick="trocaAba('ref')">Dados de referência</button>
+</nav>
+
+<main>
+
+  <!-- ============ AUTO DE INFRAÇÃO ============ -->
+  <section class="aba ativa" id="aba-ai">
+    <div class="cartao">
+      <h2>Auto de Infração — Crédito Não Tributário</h2>
+      <p class="desc">Atualização de valores por correção monetária pela taxa SELIC (sem multa). Para o mês da data de atualização considera-se sempre 1%. Data retroativa é permitida para fins de reimpressão.</p>
+      <div class="msg-erro" id="erro-ai"></div>
+      <div class="msg-aviso" id="aviso-ai"></div>
+      <form id="form-ai" onsubmit="return calculaAI(event)">
+        <div class="linha">
+          <div class="campo">
+            <label>Valor Original *</label>
+            <input type="number" id="ai-valor" step="0.01" min="0.01" required>
+            <small>Valor do débito informado ao autuado</small>
+          </div>
+          <div class="campo">
+            <label>Tipo do Valor *</label>
+            <select id="ai-tipo" required onchange="document.getElementById('ai-campo-ano').style.display = this.value==='UFEMG' ? 'flex':'none'">
+              <option value="">Selecione…</option>
+              <option value="REAL">REAL (R$)</option>
+              <option value="UFEMG">UFEMG</option>
+            </select>
+            <small>Como o valor consta no A.I.</small>
+          </div>
+          <div class="campo" id="ai-campo-ano" style="display:none">
+            <label>Ano de emissão do A.I.</label>
+            <input type="number" id="ai-ano" min="2000" max="2099" placeholder="ex.: 2023">
+            <small>Somente GDA — se vazio, usa o ano da notificação</small>
+          </div>
+        </div>
+        <div class="linha">
+          <div class="campo">
+            <label>Data da Notificação *</label>
+            <input type="date" id="ai-notif" required>
+            <small>Data de ciência do débito</small>
+          </div>
+          <div class="campo">
+            <label>Data de Atualização *</label>
+            <input type="date" id="ai-atual" required>
+            <small>Até quando o valor será atualizado</small>
+          </div>
+        </div>
+        <div class="botoes">
+          <button type="submit" class="primario">Calcular</button>
+          <button type="button" class="limpar" onclick="limpaAba('ai')">Limpar dados</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="val-helper">
+      <span>Validade do DAE (opcional): digite os dias →</span>
+      <input type="number" id="ai-dias" min="0" max="60" oninput="mostraValidade('ai')">
+      <span class="resultado" id="ai-validade"></span>
+    </div>
+
+    <div class="cartao" id="ai-res-cartao" style="display:none">
+      <h2>Resultados</h2>
+      <table class="resultados" id="ai-tabela">
+        <thead><tr>
+          <th>Valor Original</th><th>Tipo</th><th>Ano UFEMG</th><th>Notificação</th><th>Atualização</th>
+          <th>Valor Convertido</th><th>Índice</th><th>Valor Correção</th><th>VALOR ATUALIZADO</th><th></th>
+        </tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============ CAPTAÇÃO DE LEITE ============ -->
+  <section class="aba" id="aba-lt">
+    <div class="cartao">
+      <h2>Captação de Leite — Crédito Tributário</h2>
+      <p class="desc">Taxa de 0,15 UFEMG por mil litros (ou fração). Vencimento no 15º dia do mês seguinte à captação. Multa por atraso (0,15%/dia até 30 dias; 9% de 31 a 60; 12% acima de 60) e correção pela SELIC.</p>
+      <div class="msg-erro" id="erro-lt"></div>
+      <form id="form-lt" onsubmit="return calculaLT(event)">
+        <div class="linha">
+          <div class="campo">
+            <label>Mês/Ano da Captação *</label>
+            <input type="month" id="lt-mesano" required>
+            <small>Deve ser anterior ao mês atual</small>
+          </div>
+          <div class="campo">
+            <label>Quantidade de Litros *</label>
+            <input type="number" id="lt-litros" min="1" step="1" required>
+            <small>Litros captados no mês</small>
+          </div>
+          <div class="campo">
+            <label>Validade do DAE *</label>
+            <input type="date" id="lt-validade">
+            <small>Data até a qual o valor será atualizado</small>
+          </div>
+        </div>
+        <div class="botoes">
+          <button type="submit" class="primario">Calcular</button>
+          <button type="button" class="limpar" onclick="limpaAba('lt')">Limpar dados</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="cartao" id="lt-res-cartao" style="display:none">
+      <h2>Resultados</h2>
+      <table class="resultados" id="lt-tabela">
+        <thead><tr>
+          <th>Mês/Ano</th><th>Litros</th><th>Validade DAE</th><th>Valor Captação</th><th>Atraso (dias)</th>
+          <th>Multa</th><th>Valor Multa</th><th>Índice SELIC</th><th>Valor Correção</th><th>VALOR ATUALIZADO</th><th></th>
+        </tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============ ATUALIZAÇÃO DE DAE ============ -->
+  <section class="aba" id="aba-dae">
+    <div class="cartao">
+      <h2>Atualização de DAE — GTA/PTV vencidos</h2>
+      <p class="desc">Atualiza o valor de um DAE vencido para uma nova data de validade: multa por atraso (0,15%/dia até 30 dias; 9% de 31 a 60; 12% acima de 60) e correção pela SELIC.</p>
+      <div class="msg-erro" id="erro-dae"></div>
+      <form id="form-dae" onsubmit="return calculaDAE(event)">
+        <div class="linha">
+          <div class="campo">
+            <label>Valor do DAE devido (R$) *</label>
+            <input type="number" id="dae-valor" step="0.01" min="0.01" required>
+          </div>
+          <div class="campo">
+            <label>Validade do DAE devido *</label>
+            <input type="date" id="dae-validade-orig" required>
+            <small>Deve ser menor ou igual a hoje</small>
+          </div>
+          <div class="campo">
+            <label>Validade do novo DAE *</label>
+            <input type="date" id="dae-validade-nova" required>
+            <small>Deve ser maior ou igual a hoje</small>
+          </div>
+        </div>
+        <div class="botoes">
+          <button type="submit" class="primario">Calcular</button>
+          <button type="button" class="limpar" onclick="limpaAba('dae')">Limpar dados</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="val-helper">
+      <span>Validade do novo DAE (opcional): digite os dias →</span>
+      <input type="number" id="dae-dias" min="0" max="60" oninput="mostraValidade('dae')">
+      <span class="resultado" id="dae-validade"></span>
+    </div>
+
+    <div class="cartao" id="dae-res-cartao" style="display:none">
+      <h2>Resultados</h2>
+      <table class="resultados" id="dae-tabela">
+        <thead><tr>
+          <th>Valor Devido</th><th>Validade Original</th><th>Nova Validade</th><th>Atraso (dias)</th>
+          <th>Multa</th><th>Valor Multa</th><th>Índice SELIC</th><th>Valor Correção</th><th>VALOR ATUALIZADO</th><th></th>
+        </tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============ DADOS DE REFERÊNCIA ============ -->
+  <section class="aba" id="aba-ref">
+    <div class="cartao">
+      <h2>Taxa SELIC mensal <span class="status-selic offline" id="selic-status">carregando…</span></h2>
+      <p class="desc" id="selic-desc">Série 4390 do Banco Central (juros acumulados no mês). O mês corrente não possui taxa fechada: nos cálculos, o mês da data de atualização vale sempre 1%.</p>
+      <div class="grade-dados">
+        <div><h3 style="font-size:.85rem;margin:4px 0">Últimos 13 meses</h3><table class="ref" id="tab-selic"></table></div>
+        <div><h3 style="font-size:.85rem;margin:4px 0">UFEMG por exercício</h3><table class="ref" id="tab-ufemg"></table></div>
+        <div>
+          <h3 style="font-size:.85rem;margin:4px 0">Parâmetros</h3>
+          <table class="ref" id="tab-params"></table>
+          <h3 style="font-size:.85rem;margin:14px 0 4px">Feriados nacionais</h3>
+          <div id="info-feriados" style="font-size:.82rem;color:var(--cinza)"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="app">
+  Protótipo da Planilha de Cálculo v4.0 (Excel) em versão web — os cálculos seguem as mesmas regras; confira os resultados com a planilha oficial durante a fase de validação.<br>
+  Os dados do emissor ficam armazenados <b>somente neste navegador</b> e aparecem apenas nos documentos impressos.<br>
+  Suporte: GCA — gca@ima.mg.gov.br · diogo.quintino@ima.mg.gov.br
+</footer>
+
+<!-- ============ MODAL EMISSOR ============ -->
+<div class="modal-fundo" id="modalEmissor">
+  <div class="modal">
+    <h2>Identificação do Emissor</h2>
+    <p>Estes dados constarão no rodapé da Planilha de Cálculo impressa. Ficam salvos somente neste navegador.</p>
+    <div class="campo"><label>MASP ou CPF *</label><input id="em-masp" maxlength="14" inputmode="numeric"></div>
+    <div class="campo"><label>Nome completo *</label><input id="em-nome"></div>
+    <div class="campo"><label>Unidade Administrativa *</label><input id="em-ua" placeholder="ex.: ESEC Belo Horizonte"></div>
+    <div class="campo"><label>Município *</label><input id="em-local"></div>
+    <div class="msg-erro" id="erro-em"></div>
+    <div class="botoes">
+      <button class="primario" onclick="salvaEmissor()">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ DOCUMENTO DE IMPRESSÃO ============ -->
+<div id="printdoc"></div>
+
+<script src="dados.js"></script>
+<script>
+"use strict";
+/* =====================================================================
+   Planilha de Cálculo IMA/GCA — versão web (protótipo)
+   Réplica das regras da Planilha_de_Calculo_4_0.xlsb:
+   - Correção: soma das taxas SELIC mensais fechadas, do mês seguinte ao
+     vencimento/notificação até o mês anterior ao da atualização, MAIS 1%
+     fixo para o mês da atualização. Mês sem taxa fechada conta 1%.
+   - Multas (Leite/DAE): 0,15%/dia (até 30), 9% (31-60), 12% (>60).
+   ===================================================================== */
+
+const fmtBRL = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
+const fmtInt = new Intl.NumberFormat("pt-BR");
+
+// ---------- utilitários de data ----------
+const hoje = () => { const d = new Date(); d.setHours(0,0,0,0); return d; };
+const iso = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+const deISO = s => { const [a,m,d] = s.split("-").map(Number); return new Date(a, m-1, d); };
+const dataBR = s => { const [a,m,d] = s.split("-"); return `${d}/${m}/${a}`; };
+const ymDe = s => s.slice(0,7);                                  // "YYYY-MM-DD" -> "YYYY-MM"
+const ymHoje = () => iso(hoje()).slice(0,7);
+function addMes(ym, n){ let [a,m] = ym.split("-").map(Number); m += n;
+  a += Math.floor((m-1)/12); m = ((m-1) % 12 + 12) % 12 + 1;
+  return `${a}-${String(m).padStart(2,"0")}`; }
+function diffMeses(ymA, ymB){ const [a1,m1]=ymA.split("-").map(Number), [a2,m2]=ymB.split("-").map(Number);
+  return (a2-a1)*12 + (m2-m1); }
+const diffDias = (dA, dB) => Math.round((dB - dA) / 86400000);
+const mesAnoBR = ym => { const [a,m] = ym.split("-"); return `${m}/${a}`; };
+
+// ---------- SELIC ----------
+let SELIC = { ...DADOS.selicSnapshot };
+let selicOnline = false;
+
+async function carregaSelic(){
+  try{
+    const h = hoje();
+    const fim = `${String(h.getDate()).padStart(2,"0")}/${String(h.getMonth()+1).padStart(2,"0")}/${h.getFullYear()}`;
+    const url = `https://api.bcb.gov.br/dados/serie/bcdata.sgs.4390/dados?formato=json&dataInicial=01/01/2000&dataFinal=${fim}`;
+    const r = await fetch(url);
+    if(!r.ok) throw new Error(r.status);
+    const lista = await r.json();
+    const novo = {};
+    for(const o of lista){ const [d,m,a] = o.data.split("/"); novo[`${a}-${m}`] = parseFloat(o.valor); }
+    if(Object.keys(novo).length < 100) throw new Error("retorno inesperado");
+    SELIC = novo; selicOnline = true;
+  }catch(e){ selicOnline = false; /* mantém a cópia local embutida */ }
+  pintaStatusSelic(); montaTabelasRef();
+}
+
+// Taxa fechada do mês (null = mês em aberto / sem taxa)
+function selicMes(ym){
+  if(ym >= ymHoje()) return null;
+  return (ym in SELIC) ? SELIC[ym] : null;
+}
+
+// Índice acumulado (em %): meses entre ymBase (exclusivo) e ymAtualizacao
+// (exclusivo) pela taxa fechada (sem taxa => 1%), + 1% do mês da atualização.
+function somaIndice(ymBase, ymAtualizacao){
+  let soma = 0;
+  for(let m = addMes(ymBase,1); m < ymAtualizacao; m = addMes(m,1)){
+    const v = selicMes(m);
+    soma += (v === null ? 1 : v);
+  }
+  return soma + 1;
+}
+
+// ---------- feriados / dias úteis ----------
+const FERIADOS = new Set(DADOS.feriados);
+const diaUtil = d => d.getDay() !== 0 && d.getDay() !== 6 && !FERIADOS.has(iso(d));
+function validadePorDias(dias){
+  const d = hoje(); d.setDate(d.getDate() + Number(dias));
+  const alvo = iso(d);
+  while(!diaUtil(d)) d.setDate(d.getDate() - 1);   // dia útil anterior
+  return { data: iso(d), ajustada: iso(d) !== alvo };
+}
+function mostraValidade(prefixo){
+  const dias = document.getElementById(`${prefixo}-dias`).value;
+  const alvo = document.getElementById(`${prefixo}-validade`);
+  if(dias === "" || Number(dias) < 0){ alvo.textContent = ""; return; }
+  const v = validadePorDias(dias);
+  alvo.textContent = `Val.: ${dataBR(v.data)}` + (v.ajustada ? " (*data ajustada para dia útil*)" : "");
+}
+
+// ---------- emissor ----------
+const CHAVE_EMISSOR = "pc_emissor_v1";
+function maspFormatado(s){
+  const n = s.replace(/\D/g,"");
+  if(n.length > 8) return `${n.slice(0,3)}.${n.slice(3,6)}.${n.slice(6,9)}-${n.slice(9,11)}`;
+  if(n.length > 1) return `${n.slice(0,-1)}-${n.slice(-1)}`;
+  return n;
+}
+function emissor(){ try{ return JSON.parse(localStorage.getItem(CHAVE_EMISSOR)); }catch(e){ return null; } }
+function pintaChip(){
+  const e = emissor();
+  document.getElementById("chipNome").textContent = e ? e.nome : "Identificar emissor";
+  document.getElementById("chipDetalhe").textContent = e ? `${maspFormatado(e.masp)} · ${e.ua}` : "clique para preencher";
+}
+function abreModalEmissor(){
+  const e = emissor() || {};
+  document.getElementById("em-masp").value = e.masp || "";
+  document.getElementById("em-nome").value = e.nome || "";
+  document.getElementById("em-ua").value = e.ua || "";
+  document.getElementById("em-local").value = e.local || "";
+  document.getElementById("modalEmissor").classList.add("aberto");
+}
+function salvaEmissor(){
+  const masp = document.getElementById("em-masp").value.replace(/\D/g,"");
+  const nome = document.getElementById("em-nome").value.trim();
+  const ua = document.getElementById("em-ua").value.trim();
+  const local = document.getElementById("em-local").value.trim();
+  const erro = document.getElementById("erro-em");
+  if(!masp || !nome || !ua || !local){
+    erro.textContent = "ATENÇÃO! Preencha todos os campos obrigatórios — sem eles a Planilha de Cálculo não poderá ser impressa.";
+    erro.style.display = "block"; return;
+  }
+  localStorage.setItem(CHAVE_EMISSOR, JSON.stringify({ masp, nome, ua, local }));
+  erro.style.display = "none";
+  document.getElementById("modalEmissor").classList.remove("aberto");
+  pintaChip();
+}
+
+// ---------- infra de telas ----------
+function trocaAba(id){
+  document.querySelectorAll("section.aba").forEach(s => s.classList.remove("ativa"));
+  document.getElementById(`aba-${id}`).classList.add("ativa");
+  document.querySelectorAll("nav.abas button").forEach(b => b.classList.toggle("ativa", b.dataset.aba === id));
+}
+function mostraErro(aba, texto){
+  const el = document.getElementById(`erro-${aba}`);
+  el.textContent = texto; el.style.display = texto ? "block" : "none";
+}
+function mostraAviso(aba, texto){
+  const el = document.getElementById(`aviso-${aba}`);
+  if(el){ el.textContent = texto; el.style.display = texto ? "block" : "none"; }
+}
+function limpaAba(aba){
+  document.getElementById(`form-${aba}`).reset();
+  document.querySelector(`#${aba}-tabela tbody`).innerHTML = "";
+  document.getElementById(`${aba}-res-cartao`).style.display = "none";
+  mostraErro(aba, ""); mostraAviso(aba, "");
+  linhas[aba] = [];
+}
+const linhas = { ai: [], lt: [], dae: [] };
+const pct = v => v.toFixed(2).replace(".", ",") + "%";
+
+// =====================================================================
+// AUTO DE INFRAÇÃO
+// =====================================================================
+function calculaAI(ev){
+  ev.preventDefault(); mostraErro("ai",""); mostraAviso("ai","");
+  const valor = Number(document.getElementById("ai-valor").value);
+  const tipo = document.getElementById("ai-tipo").value;
+  let ano = document.getElementById("ai-ano").value.trim();
+  const notifISO = document.getElementById("ai-notif").value;
+  const atualISO = document.getElementById("ai-atual").value;
+  const h = iso(hoje());
+
+  if(!(valor > 0)) return mostraErro("ai","Digite um Valor Original maior que zero."), false;
+  if(notifISO < "2000-01-01") return mostraErro("ai","Data de Notificação com ano muito antigo — verifique a digitação."), false;
+  if(notifISO > h) return mostraErro("ai","A Data de Notificação não pode ser posterior à data atual."), false;
+  if(atualISO > h) return mostraErro("ai","A Data de Atualização não pode ser posterior à data de hoje."), false;
+  if(atualISO < notifISO) return mostraErro("ai","A Data de Atualização não pode ser anterior à Data de Notificação."), false;
+
+  let anoUfemg = null, valorConvertido = valor, subConversao = "Valor Original já foi informado em Reais";
+  if(tipo === "UFEMG"){
+    if(ano){
+      if(ano.length === 2) ano = "20" + ano;
+      if(ano.length !== 4 || isNaN(Number(ano))) return mostraErro("ai","O Ano de Emissão deve ter 4 dígitos (ex.: 2023)."), false;
+      if(Number(ano) > hoje().getFullYear()) return mostraErro("ai",`O Ano de Emissão (${ano}) não pode ser maior que o ano atual.`), false;
+      if(Number(notifISO.slice(0,4)) < Number(ano)) return mostraErro("ai","A Data de Notificação não pode ser anterior ao Ano de Emissão."), false;
+      anoUfemg = Number(ano);
+    } else {
+      anoUfemg = Number(notifISO.slice(0,4));
+    }
+    const u = DADOS.ufemg[anoUfemg];
+    if(u === undefined) return mostraErro("ai",`Não há valor de UFEMG cadastrado para o ano ${anoUfemg}. Anos disponíveis: ${Object.keys(DADOS.ufemg).join(", ")}.`), false;
+    valorConvertido = valor * u;
+    subConversao = `Valor convertido em Reais pela UFEMG ${anoUfemg} (R$ ${u.toString().replace(".",",")})`;
+  }
+
+  const ymN = ymDe(notifISO), ymA = ymDe(atualISO);
+  const meses = diffMeses(ymN, ymA);
+  let indice = null, correcao = 0;
+  if(meses >= 1){
+    indice = somaIndice(ymN, ymA);
+    correcao = valorConvertido * indice / 100;
+  }
+  const atualizado = valorConvertido + correcao;
+  if(ymA < ymHoje()) mostraAviso("ai","Cálculo retroativo aplicado: o resultado equivale ao preenchimento na data informada.");
+
+  const linha = { valor, tipo, anoUfemg, notifISO, atualISO, valorConvertido, subConversao, meses, indice, correcao, atualizado };
+  linhas.ai.push(linha);
+  const tb = document.querySelector("#ai-tabela tbody");
+  const tr = document.createElement("tr");
+  tr.innerHTML = `<td class="dinheiro">${tipo==="REAL" ? fmtBRL.format(valor) : fmtInt.format(valor)+" UFEMG"}</td>
+    <td>${tipo}</td><td>${anoUfemg ?? "—"}</td><td>${dataBR(notifISO)}</td><td>${dataBR(atualISO)}</td>
+    <td class="dinheiro">${fmtBRL.format(valorConvertido)}</td><td>${indice===null ? "—" : pct(indice)}</td>
+    <td class="dinheiro">${indice===null ? "—" : fmtBRL.format(correcao)}</td>
+    <td class="dinheiro"><b>${fmtBRL.format(atualizado)}</b></td>
+    <td><button class="mini" onclick="imprimeAI(${linhas.ai.length-1})">🖨 Imprimir</button></td>`;
+  tb.appendChild(tr);
+  document.getElementById("ai-res-cartao").style.display = "block";
+  return false;
+}
+
+function imprimeAI(i){
+  const r = linhas.ai[i];
+  const dtIniIndice = r.meses >= 1
+    ? dataBR(addMes(ymDe(r.notifISO),1) + "-01")
+    : null;
+  const semCorrecao = "Não há correção no mesmo mês da Notificação";
+  imprimeDocumento(
+    "AUTO DE INFRAÇÃO - Crédito Não Tributário (correção monetária pela taxa SELIC)",
+    [
+      { t:"Valor Original", s:"Tipo de valor: " + (r.tipo==="REAL" ? "REAL (R$)" : "UFEMG"),
+        v: r.tipo==="REAL" ? fmtBRL.format(r.valor) : fmtInt.format(r.valor) + " UFEMG" },
+      { t:"Data da Notificação", s:"Data em que o crédito tornou-se exigível - DEC 46668/14", v: dataBR(r.notifISO) },
+      { t:"Valor de Cálculo", s:r.subConversao, v: fmtBRL.format(r.valorConvertido) },
+      { t:"Data Inicial do Índice de Correção", s: r.indice===null ? semCorrecao : "Primeiro dia do mês seguinte à Data de Notificação", v: r.indice===null ? "-" : dtIniIndice },
+      { t:"Data Final do Índice de Correção", s: r.indice===null ? semCorrecao : "Data informada. Poderá divergir da data de emissão desta Planilha", v: r.indice===null ? "-" : dataBR(r.atualISO) },
+      { t:"Índice de Correção", s: r.indice===null ? semCorrecao : "SELIC acumulada: Data Inicial até a Data Final do Índice", v: r.indice===null ? "-" : pct(r.indice) },
+      { t:"Valor Correção", s: r.indice===null ? semCorrecao : "Valor de Cálculo x Índice de Correção", v: r.indice===null ? "-" : fmtBRL.format(r.correcao) },
+      { t:"VALOR ATUALIZADO", s: r.indice===null ? "Valor de Cálculo (sem correção)" : "Valor de Cálculo + Valor Correção", v: fmtBRL.format(r.atualizado), destaque:true },
+    ]);
+}
+
+// =====================================================================
+// CAPTAÇÃO DE LEITE
+// =====================================================================
+function calculaLT(ev){
+  ev.preventDefault(); mostraErro("lt","");
+  const mesano = document.getElementById("lt-mesano").value;          // "YYYY-MM"
+  const litros = Number(document.getElementById("lt-litros").value);
+  const validadeISO = document.getElementById("lt-validade").value;
+
+  if(!mesano || !(litros > 0) || !validadeISO) return mostraErro("lt","Preencha Mês/Ano, Litros e Validade do DAE."), false;
+  if(mesano >= ymHoje()) return mostraErro("lt","Mês/Ano de Captação não pode ser maior nem igual ao mês atual."), false;
+
+  const ymVenc = addMes(mesano, 1);                                   // mês seguinte à captação
+  const vencISO = ymVenc + "-15";                                     // 15º dia do mês seguinte
+  const anoUfemg = Number(ymVenc.slice(0,4));
+  const u = DADOS.ufemg[anoUfemg];
+  if(u === undefined) return mostraErro("lt",`Não há valor de UFEMG cadastrado para o ano ${anoUfemg}.`), false;
+
+  const valorCaptacao = Math.round((litros * (u * DADOS.params.leiteFracaoUfemg) / 1000) * 1e6) / 1e6;
+  const atraso = diffDias(deISO(vencISO), deISO(validadeISO));
+  const ymVal = ymDe(validadeISO);
+
+  let multaRotulo = "—", multaValor = 0, indice = null, correcao = 0;
+  if(atraso > 0){
+    if(atraso < 31){ multaRotulo = "0,15%/dia"; multaValor = DADOS.params.multaAte30PorDia * atraso * valorCaptacao; }
+    else if(atraso <= 60){ multaRotulo = "9%"; multaValor = DADOS.params.multa31a60 * valorCaptacao; }
+    else { multaRotulo = "12%"; multaValor = DADOS.params.multaApos60 * valorCaptacao; }
+    if(!(atraso < 31 && ymVal === ymVenc)){                           // mesmo mês do vencimento: só multa
+      indice = somaIndice(ymVenc, ymVal);
+      correcao = (valorCaptacao + multaValor) * indice / 100;
+    }
+  }
+  const atualizado = valorCaptacao + multaValor + correcao;
+
+  const linha = { mesano, litros, validadeISO, vencISO, anoUfemg, ufemgValor:u, valorCaptacao, atraso, multaRotulo, multaValor, indice, correcao, atualizado };
+  linhas.lt.push(linha);
+  const tb = document.querySelector("#lt-tabela tbody");
+  const tr = document.createElement("tr");
+  tr.innerHTML = `<td>${mesAnoBR(mesano)}</td><td>${fmtInt.format(litros)}</td><td>${dataBR(validadeISO)}</td>
+    <td class="dinheiro">${fmtBRL.format(valorCaptacao)}</td><td>${atraso > 0 ? atraso : 0}</td>
+    <td>${atraso > 0 ? multaRotulo : "—"}</td><td class="dinheiro">${atraso > 0 ? fmtBRL.format(multaValor) : "—"}</td>
+    <td>${indice===null ? "—" : pct(indice)}</td><td class="dinheiro">${indice===null ? "—" : fmtBRL.format(correcao)}</td>
+    <td class="dinheiro"><b>${fmtBRL.format(atualizado)}</b></td>
+    <td><button class="mini" onclick="imprimeLT(${linhas.lt.length-1})">🖨 Imprimir</button></td>`;
+  tb.appendChild(tr);
+  document.getElementById("lt-res-cartao").style.display = "block";
+  return false;
+}
+
+function imprimeLT(i){
+  const r = linhas.lt[i];
+  const semCor = "Não há correção no mês seguinte à captação";
+  imprimeDocumento(
+    "CAPTAÇÃO DE LEITE - Crédito Tributário (multa + correção monetária pela taxa SELIC)",
+    [
+      { t:"Mês/Ano da Captação", s:"", v: mesAnoBR(r.mesano) },
+      { t:"Data de Atualização do Valor", s:"", v: dataBR(r.validadeISO) },
+      { t:"Quantidade de litros informada", s:"", v: fmtInt.format(r.litros) },
+      { t:"Valor da Captação", s:`${DADOS.params.leiteFracaoUfemg.toString().replace(".",",")} UFEMG (${r.anoUfemg}) por MIL litros ou fração`, v: fmtBRL.format(r.valorCaptacao) },
+      { t:"Valor da Multa", s: r.atraso > 0 ? `Atraso: ${r.atraso} dias = ${r.multaRotulo}` : `No prazo até ${dataBR(r.vencISO)}`, v: r.atraso > 0 ? fmtBRL.format(r.multaValor) : " - " },
+      { t:"Índice de Correção", s: r.indice===null ? semCor : `Período: ${dataBR(r.vencISO)} a ${dataBR(r.validadeISO)}`, v: r.indice===null ? " - " : pct(r.indice) },
+      { t:"Valor Correção", s: r.indice===null ? semCor : "(Valor da Captação + Valor da Multa) x Índice de Correção", v: r.indice===null ? " - " : fmtBRL.format(r.correcao) },
+      { t:"VALOR ATUALIZADO", s:"Valor da Captação + Valor da Multa + Valor Correção", v: fmtBRL.format(r.atualizado), destaque:true },
+    ]);
+}
+
+// =====================================================================
+// ATUALIZAÇÃO DE DAE
+// =====================================================================
+function calculaDAE(ev){
+  ev.preventDefault(); mostraErro("dae","");
+  const valor = Number(document.getElementById("dae-valor").value);
+  const origISO = document.getElementById("dae-validade-orig").value;
+  const novaISO = document.getElementById("dae-validade-nova").value;
+  const h = iso(hoje());
+
+  if(!(valor > 0)) return mostraErro("dae","Digite um valor maior que 0 (zero)."), false;
+  if(origISO > h) return mostraErro("dae","A validade do DAE devido deve ser menor ou igual a hoje."), false;
+  if(novaISO < h) return mostraErro("dae","A validade do NOVO DAE deve ser maior ou igual a hoje."), false;
+  if(origISO === novaISO) return mostraErro("dae","Validade do NOVO DAE não pode ser a mesma do DAE DEVIDO."), false;
+
+  const atraso = diffDias(deISO(origISO), deISO(novaISO));
+  const ymO = ymDe(origISO), ymN = ymDe(novaISO);
+  let multaRotulo = "—", multaValor = 0, indice = null, correcao = 0;
+  if(atraso > 0){
+    if(atraso < 31){ multaRotulo = "0,15%/dia"; multaValor = DADOS.params.multaAte30PorDia * atraso * valor; }
+    else if(atraso <= 60){ multaRotulo = "9%"; multaValor = DADOS.params.multa31a60 * valor; }
+    else { multaRotulo = "12%"; multaValor = DADOS.params.multaApos60 * valor; }
+    if(ymO !== ymN){
+      indice = somaIndice(ymO, ymN);
+      correcao = (valor + multaValor) * indice / 100;
+    }
+  }
+  const atualizado = valor + multaValor + correcao;
+
+  const linha = { valor, origISO, novaISO, atraso, multaRotulo, multaValor, indice, correcao, atualizado };
+  linhas.dae.push(linha);
+  const tb = document.querySelector("#dae-tabela tbody");
+  const tr = document.createElement("tr");
+  tr.innerHTML = `<td class="dinheiro">${fmtBRL.format(valor)}</td><td>${dataBR(origISO)}</td><td>${dataBR(novaISO)}</td>
+    <td>${atraso > 0 ? atraso : 0}</td><td>${atraso > 0 ? multaRotulo : "—"}</td>
+    <td class="dinheiro">${atraso > 0 ? fmtBRL.format(multaValor) : "—"}</td>
+    <td>${indice===null ? "—" : pct(indice)}</td><td class="dinheiro">${indice===null ? "—" : fmtBRL.format(correcao)}</td>
+    <td class="dinheiro"><b>${fmtBRL.format(atualizado)}</b></td>
+    <td><button class="mini" onclick="imprimeDAE(${linhas.dae.length-1})">🖨 Imprimir</button></td>`;
+  tb.appendChild(tr);
+  document.getElementById("dae-res-cartao").style.display = "block";
+  return false;
+}
+
+function imprimeDAE(i){
+  const r = linhas.dae[i];
+  const semCor = "Não há correção no mesmo mês do vencimento";
+  imprimeDocumento(
+    "GTA / PTV VENCIDOS - Crédito Tributário (multa + correção monetária pela taxa SELIC)",
+    [
+      { t:"Valor do DAE devido", s:"", v: fmtBRL.format(r.valor) },
+      { t:"Validade do DAE devido", s:"", v: dataBR(r.origISO) },
+      { t:"Validade do novo DAE", s:"", v: dataBR(r.novaISO) },
+      { t:"Valor da Multa", s: r.atraso > 0 ? `Atraso: ${r.atraso} dias = ${r.multaRotulo}` : "Sem atraso", v: r.atraso > 0 ? fmtBRL.format(r.multaValor) : " - " },
+      { t:"Índice de Correção", s: r.indice===null ? semCor : `Período: ${dataBR(r.origISO)} a ${dataBR(r.novaISO)}`, v: r.indice===null ? " - " : pct(r.indice) },
+      { t:"Valor Correção", s: r.indice===null ? semCor : "(Valor do DAE + Valor da Multa) x Índice de Correção", v: r.indice===null ? " - " : fmtBRL.format(r.correcao) },
+      { t:"VALOR ATUALIZADO", s:"Valor do DAE + Valor da Multa + Valor Correção", v: fmtBRL.format(r.atualizado), destaque:true },
+    ]);
+}
+
+// =====================================================================
+// DOCUMENTO DE IMPRESSÃO (réplica do Modelo / Plan7)
+// =====================================================================
+function imprimeDocumento(subtitulo, itens){
+  const e = emissor();
+  if(!e){ abreModalEmissor(); return; }
+  const agora = new Date();
+  const linhasHTML = itens.map(it => `
+    <tr${it.destaque ? ' class="destaque"' : ""}>
+      <td class="rotulo"><div class="l1">${it.t}</div>${it.s ? `<div class="l2">${it.s}</div>` : ""}</td>
+      <td class="valor">${it.v}</td>
+    </tr>`).join("");
+  document.getElementById("printdoc").innerHTML = `
+    <div class="doc-titulo">Planilha de Cálculo - Atualização de Valores</div>
+    <div class="doc-subtitulo">${subtitulo}</div>
+    <table>${linhasHTML}</table>
+    <div class="doc-rodape">
+      ${e.nome} - ${maspFormatado(e.masp)}<br>
+      ${e.ua}<br>
+      ${e.local} - ${dataBR(iso(hoje()))}
+    </div>
+    <div class="doc-emissao">Documento gerado pela Planilha de Cálculo IMA/GCA (versão web — protótipo) em ${agora.toLocaleString("pt-BR")}</div>`;
+  window.print();
+}
+
+// =====================================================================
+// ABA DADOS DE REFERÊNCIA
+// =====================================================================
+function pintaStatusSelic(){
+  const el = document.getElementById("selic-status");
+  if(selicOnline){ el.textContent = "API do Banco Central · ao vivo"; el.className = "status-selic online"; }
+  else { el.textContent = `sem conexão — usando cópia local de ${dataBR(DADOS.geradoEm)}`; el.className = "status-selic offline"; }
+}
+function montaTabelasRef(){
+  const ymH = ymHoje();
+  let html = "<tr><th>Mês</th><th>SELIC (%)</th></tr>";
+  for(let k = 13; k >= 1; k--){
+    const m = addMes(ymH, -k);
+    const v = SELIC[m];
+    html += `<tr><td>${mesAnoBR(m)}</td><td>${v === undefined ? "—" : v.toString().replace(".",",")}</td></tr>`;
+  }
+  html += `<tr><td>${mesAnoBR(ymH)}</td><td><i>em aberto (vale 1%)</i></td></tr>`;
+  document.getElementById("tab-selic").innerHTML = html;
+
+  let hu = "<tr><th>Ano</th><th>UFEMG (R$)</th></tr>";
+  Object.keys(DADOS.ufemg).sort().reverse().forEach(a => {
+    hu += `<tr><td>${a}</td><td>${DADOS.ufemg[a].toFixed(4).replace(".",",")}</td></tr>`;
+  });
+  document.getElementById("tab-ufemg").innerHTML = hu;
+
+  document.getElementById("tab-params").innerHTML = `
+    <tr><th>Parâmetro</th><th>Valor</th></tr>
+    <tr><td>Multa até 30 dias</td><td>0,15% por dia</td></tr>
+    <tr><td>Multa 31 a 60 dias</td><td>9%</td></tr>
+    <tr><td>Multa acima de 60 dias</td><td>12%</td></tr>
+    <tr><td>Leite: por 1000 L (ou fração)</td><td>${DADOS.params.leiteFracaoUfemg.toString().replace(".",",")} UFEMG</td></tr>`;
+
+  const hISO = iso(hoje());
+  const proximos = DADOS.feriados.filter(f => f >= hISO).slice(0,5).map(dataBR).join(" · ");
+  document.getElementById("info-feriados").textContent =
+    `${DADOS.feriados.length} datas cadastradas (até ${dataBR(DADOS.feriados[DADOS.feriados.length-1])}). Próximos: ${proximos}`;
+}
+
+// ---------- inicialização ----------
+pintaChip();
+if(!emissor()) abreModalEmissor();
+montaTabelasRef();
+carregaSelic();
+</script>
+</body>
+</html>
