@@ -650,11 +650,16 @@ function populaUnidades(){
   dl.innerHTML = UNIDADES_IMA.map(u => `<option value="${u}">`).join("");
 }
 
+// índice case-insensitive construído uma vez
+const _MAPA_UPPER = Object.fromEntries(
+  Object.entries(MAPA_MUN_UA).map(([k,v]) => [k.toUpperCase(), v])
+);
+
 function filtraUA(mun){
   const uaEl = document.getElementById("em-ua");
   const dl   = document.getElementById("lista-ua");
   const hint = document.getElementById("ua-hint");
-  const info = MAPA_MUN_UA[mun.trim()];
+  const info = _MAPA_UPPER[mun.trim().toUpperCase()];
   if(info){
     dl.innerHTML = `<option value="${info.esec}"><option value="${info.cr}">`;
     hint.textContent = `${info.esec} · ${info.cr}`;
