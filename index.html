@@ -79,15 +79,15 @@
   @media print{
     @page{size:A4;margin:0}
     body > *{display:none !important}
-    #printdoc{display:block !important;padding:14mm 16mm 12mm;font-family:"Segoe UI",Arial,sans-serif;color:#000}
+    #printdoc{display:block !important;padding:14mm 16mm 28mm;font-family:"Segoe UI",Arial,sans-serif;color:#000}
   }
   #printdoc{font-family:"Segoe UI",Arial,sans-serif;color:#000;max-width:185mm;margin:0 auto;padding:10mm 6mm}
   #printdoc .doc-cabecalho{display:flex;align-items:flex-start;gap:10pt;border-bottom:1.5pt solid #000;padding-bottom:8pt;margin-bottom:10pt}
   #printdoc .doc-brasao{height:62pt;width:auto;flex-shrink:0}
   #printdoc .doc-inst{flex:1;text-align:center;line-height:1.45;padding-top:4pt}
   #printdoc .doc-inst .inst1{font-size:8.5pt;display:block}
-  #printdoc .doc-inst .inst2{font-size:10.5pt;font-weight:700;color:#003399;display:block}
-  #printdoc .doc-inst .inst3{font-size:9pt;color:#003399;display:block}
+  #printdoc .doc-inst .inst2{font-size:10.5pt;font-weight:700;display:block}
+  #printdoc .doc-inst .inst3{font-size:9pt;display:block}
   #printdoc .doc-carimbo{height:54pt;width:auto;flex-shrink:0}
   #printdoc .doc-titulo{text-align:center;font-size:13pt;font-weight:700;text-decoration:underline;padding:6pt 0 2pt;margin-bottom:0}
   #printdoc .doc-subtitulo{text-align:center;font-size:9.5pt;font-style:italic;border:1pt solid #000;padding:4pt;margin-bottom:12pt}
@@ -95,12 +95,13 @@
   #printdoc td{border:1pt solid #000;padding:5pt 8pt;vertical-align:middle}
   #printdoc td.rotulo{width:62%}
   #printdoc td.rotulo .l1{font-weight:700;font-size:11pt}
-  #printdoc td.rotulo .l2{font-size:8pt;color:#333}
+  #printdoc td.rotulo .l2{font-size:8pt;color:#000}
   #printdoc td.valor{font-size:11pt;text-align:right;white-space:nowrap}
   #printdoc tr.destaque td{background:#eee}
   #printdoc tr.destaque td.valor{font-weight:700;font-size:12pt}
   #printdoc .doc-rodape{margin-top:16pt;padding-top:7pt;font-size:9.5pt;text-align:center;line-height:1.7}
-  #printdoc .doc-endereco{margin-top:20pt;border-top:1pt solid #000;padding-top:5pt;font-size:7.5pt;text-align:center;line-height:1.5;color:#444}
+  #printfooter{display:none}
+  @media print{#printfooter{display:block !important;position:fixed;bottom:0;left:0;right:0;padding:5pt 16mm 8pt;border-top:1pt solid #000;font-size:7.5pt;text-align:center;line-height:1.5;color:#000;background:#fff}}
 </style>
 </head>
 <body>
@@ -346,6 +347,10 @@
 
 <!-- ============ DOCUMENTO DE IMPRESSÃO ============ -->
 <div id="printdoc"></div>
+<div id="printfooter">
+  Cidade Administrativa Tancredo Neves · Rodovia Papa João Paulo II, 4001 · Serra Verde<br>
+  Edifício Gerais · 10º andar · Lado Ímpar · Belo Horizonte/MG · CEP 31.630-901
+</div>
 
 <script>
 "use strict";
@@ -897,10 +902,6 @@ function imprimeDocumento(subtitulo, itens){
       ${e.nome} — ${maspFormatado(e.masp)}<br>
       ${e.ua}<br>
       ${rodapeL3}
-    </div>
-    <div class="doc-endereco">
-      Cidade Administrativa Tancredo Neves · Rodovia Papa João Paulo II, 4001 · Serra Verde<br>
-      Edifício Gerais · 10º andar · Lado Ímpar · Belo Horizonte/MG · CEP 31.630-901
     </div>`;
   window.print();
 }
