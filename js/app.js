@@ -633,7 +633,7 @@ function montaTabelasRef(){
   const hISO = iso(hoje());
   const proximos = FERIADOS_FIXOS.filter(f => f >= hISO).slice(0,5).map(dataBR).join(" · ");
   document.getElementById("info-feriados").textContent =
-    `Lista fixa até ${dataBR(FERIADOS_FIXOS[FERIADOS_FIXOS.length-1])} + BrasilAPI ao vivo. Próximos: ${proximos}`;
+    `Feriados federais via BrasilAPI. Próximos: ${proximos}`;
 }
 
 // ---------- inicialização ----------

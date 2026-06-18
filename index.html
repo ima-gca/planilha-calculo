@@ -33,7 +33,7 @@
   <section class="aba ativa" id="aba-ai">
     <div class="cartao">
       <h2>Auto de Infração — Crédito Não Tributário</h2>
-      <p class="desc">Atualização de valores por correção monetária pela taxa SELIC (sem multa). Para o mês da data de atualização considera-se sempre 1%. Data retroativa é permitida para fins de reimpressão.</p>
+      <p class="desc">Atualização de valores por correção monetária pela taxa SELIC (sem multa). Para o mês da data de atualização considera-se sempre 1%.<br>Data retroativa é permitida para fins de reimpressão.</p>
       <div class="msg-erro" id="erro-ai"></div>
       <div class="msg-aviso" id="aviso-ai"></div>
       <form id="form-ai" onsubmit="return calculaAI(event)">
@@ -99,7 +99,7 @@
   <section class="aba" id="aba-lt">
     <div class="cartao">
       <h2>Captação de Leite — Crédito Tributário</h2>
-      <p class="desc">Taxa de 0,15 UFEMG por mil litros (ou fração). Vencimento no 15º dia do mês seguinte à captação. Multa por atraso (0,15%/dia até 30 dias; 9% de 31 a 60; 12% acima de 60) e correção pela SELIC.</p>
+      <p class="desc">Taxa de 0,15 UFEMG por mil litros (ou fração). Vencimento no 15º dia do mês seguinte à captação.<br>Multa por atraso (0,15%/dia até 30 dias; 9% de 31 a 60; 12% acima de 60) e correção pela SELIC.</p>
       <div class="msg-erro" id="erro-lt"></div>
       <form id="form-lt" onsubmit="return calculaLT(event)">
         <div class="linha">
@@ -142,7 +142,7 @@
   <section class="aba" id="aba-dae">
     <div class="cartao">
       <h2>Atualização de DAE — GTA/PTV vencidos</h2>
-      <p class="desc">Atualiza o valor de um DAE vencido para uma nova data de validade: multa por atraso (0,15%/dia até 30 dias; 9% de 31 a 60; 12% acima de 60) e correção pela SELIC.</p>
+      <p class="desc">Atualiza o valor de um DAE vencido para uma nova data de validade.<br>Multa por atraso (0,15%/dia até 30 dias; 9% de 31 a 60; 12% acima de 60) e correção pela SELIC.</p>
       <div class="msg-erro" id="erro-dae"></div>
       <form id="form-dae" onsubmit="return calculaDAE(event)">
         <div class="linha">
@@ -190,7 +190,7 @@
   <section class="aba" id="aba-ref">
     <div class="cartao">
       <h2>Taxa SELIC mensal <span class="status-selic offline" id="selic-status">carregando…</span></h2>
-      <p class="desc" id="selic-desc">Série 4390 do Banco Central (juros acumulados no mês). O mês corrente não possui taxa fechada: nos cálculos, o mês da data de atualização vale sempre 1%.</p>
+      <p class="desc" id="selic-desc">O mês corrente não possui taxa fechada: nos cálculos, o mês da data de atualização vale sempre 1%.</p>
       <div class="grade-dados">
         <div><h3 style="font-size:.85rem;margin:4px 0">Últimos 13 meses</h3><table class="ref" id="tab-selic"></table></div>
         <div><h3 style="font-size:.85rem;margin:4px 0">UFEMG por exercício</h3><table class="ref" id="tab-ufemg"></table></div>
