@@ -324,16 +324,16 @@
       <input id="em-nome">
     </div>
     <div class="campo">
-      <label>Unidade Administrativa *</label>
-      <input id="em-ua" list="lista-ua" placeholder="Digite ou selecione…" autocomplete="off">
-      <datalist id="lista-ua"></datalist>
-      <small id="ua-hint" style="color:var(--verde-esc)"></small>
-    </div>
-    <div class="campo">
       <label>Município (MG) *</label>
       <input id="em-local" list="lista-municipios-mg" placeholder="Digite o município…" autocomplete="off" oninput="filtraUA(this.value)">
       <datalist id="lista-municipios-mg"></datalist>
       <small id="municipios-status" style="color:var(--cinza)">carregando lista de municípios…</small>
+    </div>
+    <div class="campo">
+      <label>Unidade Administrativa *</label>
+      <input id="em-ua" list="lista-ua" placeholder="Selecione o município primeiro…" autocomplete="off" disabled>
+      <datalist id="lista-ua"></datalist>
+      <small id="ua-hint" style="color:var(--verde-esc)"></small>
     </div>
     <div class="campo">
       <label>E-mail / Contato</label>
@@ -600,10 +600,11 @@ function abreModalEmissor(){
   const e = emissor() || {};
   document.getElementById("em-masp").value = e.masp || "";
   document.getElementById("em-nome").value = e.nome || "";
-  document.getElementById("em-ua").value = e.ua || "";
   document.getElementById("em-local").value = e.local || "";
   document.getElementById("em-email").value = e.email || "";
   document.getElementById("em-masp-hint").textContent = "";
+  if(e.local) filtraUA(e.local);
+  document.getElementById("em-ua").value = e.ua || "";
   document.getElementById("modalEmissor").classList.add("aberto");
 }
 function salvaEmissor(){
@@ -650,15 +651,21 @@ function populaUnidades(){
 }
 
 function filtraUA(mun){
-  const dl = document.getElementById("lista-ua");
+  const uaEl = document.getElementById("em-ua");
+  const dl   = document.getElementById("lista-ua");
   const hint = document.getElementById("ua-hint");
   const info = MAPA_MUN_UA[mun.trim()];
   if(info){
     dl.innerHTML = `<option value="${info.esec}"><option value="${info.cr}">`;
-    if(hint) hint.textContent = `${info.esec} · ${info.cr}`;
+    hint.textContent = `${info.esec} · ${info.cr}`;
+    uaEl.disabled = false;
+    uaEl.placeholder = "Digite ou selecione…";
   } else {
     dl.innerHTML = UNIDADES_IMA.map(u => `<option value="${u}">`).join("");
-    if(hint) hint.textContent = "";
+    hint.textContent = "";
+    uaEl.disabled = true;
+    uaEl.value = "";
+    uaEl.placeholder = "Selecione o município primeiro…";
   }
 }
 
