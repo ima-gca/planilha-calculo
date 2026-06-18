@@ -13,9 +13,11 @@
   *{box-sizing:border-box}
   body{margin:0;font-family:"Segoe UI",system-ui,Arial,sans-serif;background:var(--fundo);color:#222;font-size:15px}
 
-  header.app{background:var(--verde);color:#fff;padding:14px 22px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
-  header.app .titulo h1{margin:0;font-size:1.25rem;font-weight:600}
-  header.app .titulo small{opacity:.85}
+  header.app{background:var(--verde);color:#fff;padding:16px 22px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  header.app .titulo{flex:1;text-align:center}
+  header.app .titulo h1{margin:0;font-size:1.3rem;font-weight:700;letter-spacing:.3px}
+  header.app .titulo .sub1{display:block;font-size:.85rem;opacity:.92;margin-top:3px}
+  header.app .titulo .sub2{display:block;font-size:.78rem;opacity:.8}
   .emissor-chip{margin-left:auto;background:var(--verde-esc);border:none;color:#fff;border-radius:8px;padding:8px 14px;cursor:pointer;font-size:.85rem;text-align:left}
   .emissor-chip b{display:block;font-size:.9rem}
 
@@ -43,6 +45,7 @@
   button.primario:hover{filter:brightness(1.1)}
   button.limpar{background:#fff;color:var(--erro);border:1px solid var(--erro);border-radius:6px;padding:10px 18px;cursor:pointer}
   button.mini{background:var(--verde);color:#fff;border:none;border-radius:5px;padding:5px 10px;cursor:pointer;font-size:.8rem}
+  button.mini.apaga{background:var(--erro)}
   .msg-erro{display:none;background:#fdecea;border:1px solid var(--erro);color:var(--erro);border-radius:6px;padding:10px 14px;margin-bottom:12px;font-size:.88rem;white-space:pre-line}
   .msg-aviso{display:none;background:#fff8e1;border:1px solid #e0c200;color:var(--aviso);border-radius:6px;padding:10px 14px;margin-bottom:12px;font-size:.88rem}
 
@@ -110,7 +113,8 @@
 <header class="app">
   <div class="titulo">
     <h1>Planilha de Cálculo</h1>
-    <small>IMA — Instituto Mineiro de Agropecuária · GCA — Gerência de Controle da Arrecadação</small>
+    <span class="sub1">Instituto Mineiro de Agropecuária — IMA</span>
+    <span class="sub2">Gerência de Controle da Arrecadação — GCA</span>
   </div>
   <button class="emissor-chip" id="chipEmissor" onclick="abreModalEmissor()">
     <b id="chipNome">Identificar emissor</b>
@@ -186,7 +190,7 @@
       <table class="resultados" id="ai-tabela">
         <thead><tr>
           <th>Valor Original</th><th>Tipo</th><th>Ano UFEMG</th><th>Notificação</th><th>Atualização</th>
-          <th>Valor Convertido</th><th>Índice</th><th>Valor Correção</th><th>VALOR ATUALIZADO</th><th></th>
+          <th>Valor Convertido</th><th>Índice</th><th>Valor Correção</th><th>VALOR ATUALIZADO</th><th>Emissão</th><th></th>
         </tr></thead>
         <tbody></tbody>
       </table>
@@ -229,7 +233,7 @@
       <table class="resultados" id="lt-tabela">
         <thead><tr>
           <th>Mês/Ano</th><th>Litros</th><th>Validade DAE</th><th>Valor Captação</th><th>Atraso (dias)</th>
-          <th>Multa</th><th>Valor Multa</th><th>Índice SELIC</th><th>Valor Correção</th><th>VALOR ATUALIZADO</th><th></th>
+          <th>Multa</th><th>Valor Multa</th><th>Índice SELIC</th><th>Valor Correção</th><th>VALOR ATUALIZADO</th><th>Emissão</th><th></th>
         </tr></thead>
         <tbody></tbody>
       </table>
@@ -277,7 +281,7 @@
       <table class="resultados" id="dae-tabela">
         <thead><tr>
           <th>Valor Devido</th><th>Validade Original</th><th>Nova Validade</th><th>Atraso (dias)</th>
-          <th>Multa</th><th>Valor Multa</th><th>Índice SELIC</th><th>Valor Correção</th><th>VALOR ATUALIZADO</th><th></th>
+          <th>Multa</th><th>Valor Multa</th><th>Índice SELIC</th><th>Valor Correção</th><th>VALOR ATUALIZADO</th><th>Emissão</th><th></th>
         </tr></thead>
         <tbody></tbody>
       </table>
@@ -740,8 +744,9 @@ function calculaAI(ev){
   const atualizado = valorConvertido + correcao;
   if(ymA < ymHoje()) mostraAviso("ai","Cálculo retroativo aplicado: o resultado equivale ao preenchimento na data informada.");
 
-  const linha = { valor, tipo, anoUfemg, anoExplicito: !!ano, notifISO, atualISO, valorConvertido, subConversao, meses, indice, correcao, atualizado };
+  const linha = { valor, tipo, anoUfemg, anoExplicito: !!ano, notifISO, atualISO, valorConvertido, subConversao, meses, indice, correcao, atualizado, emitidoISO: iso(hoje()) };
   linhas.ai.push(linha);
+  const idx_ai = linhas.ai.length - 1;
   const tb = document.querySelector("#ai-tabela tbody");
   const tr = document.createElement("tr");
   tr.innerHTML = `<td class="dinheiro">${tipo==="REAL" ? fmtBRL.format(valor) : fmtInt.format(valor)+" UFEMG"}</td>
@@ -749,14 +754,27 @@ function calculaAI(ev){
     <td class="dinheiro">${fmtBRL.format(valorConvertido)}</td><td>${indice===null ? "—" : pct(indice)}</td>
     <td class="dinheiro">${indice===null ? "—" : fmtBRL.format(correcao)}</td>
     <td class="dinheiro"><b>${fmtBRL.format(atualizado)}</b></td>
-    <td><button class="mini" onclick="imprimeAI(${linhas.ai.length-1})">🖨 Imprimir</button></td>`;
+    <td>${dataBR(linha.emitidoISO)}</td>
+    <td style="white-space:nowrap"><button class="mini" onclick="imprimeAI(${idx_ai})">🖨</button> <button class="mini apaga" onclick="apagaLinha('ai',${idx_ai},this)" title="Apagar">✕</button></td>`;
   tb.appendChild(tr);
   document.getElementById("ai-res-cartao").style.display = "block";
   return false;
 }
 
+function apagaLinha(tipo, idx, btn){
+  linhas[tipo][idx] = null;
+  const tr = btn.closest("tr");
+  const tb = tr.parentElement;
+  tr.remove();
+  if(!tb.children.length){
+    const ids = {ai:"ai-res-cartao", lt:"lt-res-cartao", dae:"dae-res-cartao"};
+    document.getElementById(ids[tipo]).style.display = "none";
+  }
+}
+
 function imprimeAI(i){
   const r = linhas.ai[i];
+  if(!r) return;
   const dtIniIndice = r.meses >= 1 ? dataBR(addMes(ymDe(r.notifISO),1) + "-01") : null;
   const semCorrecao = "Não há correção no mesmo mês da Notificação";
   imprimeDocumento(
@@ -811,8 +829,9 @@ function calculaLT(ev){
   }
   const atualizado = valorCaptacao + multaValor + correcao;
 
-  const linha = { mesano, litros, validadeISO, vencISO, anoUfemg, ufemgValor:u, valorCaptacao, atraso, multaRotulo, multaValor, indice, correcao, atualizado };
+  const linha = { mesano, litros, validadeISO, vencISO, anoUfemg, ufemgValor:u, valorCaptacao, atraso, multaRotulo, multaValor, indice, correcao, atualizado, emitidoISO: iso(hoje()) };
   linhas.lt.push(linha);
+  const idx_lt = linhas.lt.length - 1;
   const tb = document.querySelector("#lt-tabela tbody");
   const tr = document.createElement("tr");
   tr.innerHTML = `<td>${mesAnoBR(mesano)}</td><td>${fmtInt.format(litros)}</td><td>${dataBR(validadeISO)}</td>
@@ -820,7 +839,8 @@ function calculaLT(ev){
     <td>${atraso > 0 ? multaRotulo : "—"}</td><td class="dinheiro">${atraso > 0 ? fmtBRL.format(multaValor) : "—"}</td>
     <td>${indice===null ? "—" : pct(indice)}</td><td class="dinheiro">${indice===null ? "—" : fmtBRL.format(correcao)}</td>
     <td class="dinheiro"><b>${fmtBRL.format(atualizado)}</b></td>
-    <td><button class="mini" onclick="imprimeLT(${linhas.lt.length-1})">🖨 Imprimir</button></td>`;
+    <td>${dataBR(linha.emitidoISO)}</td>
+    <td style="white-space:nowrap"><button class="mini" onclick="imprimeLT(${idx_lt})">🖨</button> <button class="mini apaga" onclick="apagaLinha('lt',${idx_lt},this)" title="Apagar">✕</button></td>`;
   tb.appendChild(tr);
   document.getElementById("lt-res-cartao").style.display = "block";
   return false;
@@ -828,6 +848,7 @@ function calculaLT(ev){
 
 function imprimeLT(i){
   const r = linhas.lt[i];
+  if(!r) return;
   const semCor = "Não há correção no mês seguinte à captação";
   imprimeDocumento(
     "CAPTAÇÃO DE LEITE — Crédito Tributário (multa + correção monetária pela taxa SELIC)",
@@ -869,8 +890,9 @@ function calculaDAE(ev){
   }
   const atualizado = valor + multaValor + correcao;
 
-  const linha = { valor, origISO, novaISO, atraso, multaRotulo, multaValor, indice, correcao, atualizado };
+  const linha = { valor, origISO, novaISO, atraso, multaRotulo, multaValor, indice, correcao, atualizado, emitidoISO: iso(hoje()) };
   linhas.dae.push(linha);
+  const idx_dae = linhas.dae.length - 1;
   const tb = document.querySelector("#dae-tabela tbody");
   const tr = document.createElement("tr");
   tr.innerHTML = `<td class="dinheiro">${fmtBRL.format(valor)}</td><td>${dataBR(origISO)}</td><td>${dataBR(novaISO)}</td>
@@ -878,7 +900,8 @@ function calculaDAE(ev){
     <td class="dinheiro">${atraso > 0 ? fmtBRL.format(multaValor) : "—"}</td>
     <td>${indice===null ? "—" : pct(indice)}</td><td class="dinheiro">${indice===null ? "—" : fmtBRL.format(correcao)}</td>
     <td class="dinheiro"><b>${fmtBRL.format(atualizado)}</b></td>
-    <td><button class="mini" onclick="imprimeDAE(${linhas.dae.length-1})">🖨 Imprimir</button></td>`;
+    <td>${dataBR(linha.emitidoISO)}</td>
+    <td style="white-space:nowrap"><button class="mini" onclick="imprimeDAE(${idx_dae})">🖨</button> <button class="mini apaga" onclick="apagaLinha('dae',${idx_dae},this)" title="Apagar">✕</button></td>`;
   tb.appendChild(tr);
   document.getElementById("dae-res-cartao").style.display = "block";
   return false;
@@ -886,6 +909,7 @@ function calculaDAE(ev){
 
 function imprimeDAE(i){
   const r = linhas.dae[i];
+  if(!r) return;
   const semCor = "Não há correção no mesmo mês do vencimento";
   imprimeDocumento(
     "GTA / PTV VENCIDOS — Crédito Tributário (multa + correção monetária pela taxa SELIC)",
