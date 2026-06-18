@@ -78,8 +78,17 @@ const SELIC_SNAPSHOT = {
 // TODO: substituir pela lista oficial completa fornecida pela GCA/IMA
 // =====================================================================
 
-const UNIDADES_IMA = [
+const GERENCIAS_SEDE = [
   "GCA — Gerência de Controle da Arrecadação",
+  "GCF — Gerência de Contabilidade e Finanças",
+  "GDA — Gerência de Defesa Sanitária Animal",
+  "GDV — Gerência de Defesa Sanitária Vegetal",
+  "GIP — Gerência de Inspeção de Produtos de Origem Animal",
+  "GIV — Gerência de Inspeção de Produtos de Origem Vegetal",
+  "PRD — Procuradoria"
+];
+
+const UNIDADES_IMA = [
   "Escritório Regional de Belo Horizonte",
   "Escritório Regional de Uberlândia",
   "Escritório Regional de Uberaba",
@@ -317,7 +326,7 @@ async function carregaMunicipiosMG(){
 
 function populaUnidades(){
   const dl = document.getElementById("lista-ua");
-  dl.innerHTML = UNIDADES_IMA.map(u => `<option value="${u}">`).join("");
+  dl.innerHTML = [...GERENCIAS_SEDE, ...UNIDADES_IMA].map(u => `<option value="${u}">`).join("");
 }
 
 // índice case-insensitive construído uma vez
@@ -329,14 +338,16 @@ function filtraUA(mun){
   const uaEl = document.getElementById("em-ua");
   const dl   = document.getElementById("lista-ua");
   const hint = document.getElementById("ua-hint");
+  const ehSede = mun.trim().toUpperCase() === "BELO HORIZONTE";
   const info = _MAPA_UPPER[mun.trim().toUpperCase()];
   if(info){
-    dl.innerHTML = `<option value="${info.esec}"><option value="${info.cr}">`;
-    hint.textContent = `${info.esec} · ${info.cr}`;
+    const opcoes = ehSede ? [info.esec, info.cr, ...GERENCIAS_SEDE] : [info.esec, info.cr];
+    dl.innerHTML = opcoes.map(u => `<option value="${u}">`).join("");
+    hint.textContent = ehSede ? `${info.esec} · ${info.cr} · Gerências da Sede` : `${info.esec} · ${info.cr}`;
     uaEl.disabled = false;
     uaEl.placeholder = "Digite ou selecione…";
   } else {
-    dl.innerHTML = UNIDADES_IMA.map(u => `<option value="${u}">`).join("");
+    dl.innerHTML = [...GERENCIAS_SEDE, ...UNIDADES_IMA].map(u => `<option value="${u}">`).join("");
     hint.textContent = "";
     uaEl.disabled = true;
     uaEl.value = "";
