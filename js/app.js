@@ -170,6 +170,14 @@ function somaIndice(ymBase, ymAtualizacao){
 
 // ---------- feriados / dias úteis ----------
 const FERIADOS = new Set(FERIADOS_FIXOS);
+const FERIADOS_NOMES = new Map();
+
+// nomes dos feriados de data fixa (fallback offline)
+const _NOMES_FIXOS = {
+  "01-01":"Ano Novo","04-21":"Tiradentes","05-01":"Dia do Trabalho",
+  "09-07":"Independência do Brasil","10-12":"Nossa Senhora Aparecida",
+  "11-02":"Finados","11-15":"Proclamação da República","12-25":"Natal"
+};
 
 async function carregaFeriadosBrasil(){
   const anoAtual = hoje().getFullYear();
@@ -178,9 +186,28 @@ async function carregaFeriadosBrasil(){
       const r = await fetch(`https://brasilapi.com.br/api/feriados/v1/${ano}`);
       if(!r.ok) continue;
       const lista = await r.json();
-      for(const f of lista) FERIADOS.add(f.date);
+      for(const f of lista){
+        FERIADOS.add(f.date);
+        FERIADOS_NOMES.set(f.date, f.name);
+      }
     }catch(e){}
   }
+  _exibeFeriados();
+}
+
+function _nomeFeriado(iso){
+  return FERIADOS_NOMES.get(iso) || _NOMES_FIXOS[iso.slice(5)] || "";
+}
+
+function _exibeFeriados(){
+  const hISO = iso(hoje());
+  const proximos = [...FERIADOS].filter(f => f >= hISO).sort().slice(0, 6);
+  const linhas = proximos.map(f => {
+    const nome = _nomeFeriado(f);
+    return dataBR(f) + (nome ? " &mdash; " + nome : "");
+  });
+  const el = document.getElementById("info-feriados");
+  if(el) el.innerHTML = "Feriados federais via BrasilAPI.<br>Próximos:<br>" + linhas.join("<br>");
 }
 
 const diaUtil = d => d.getDay() !== 0 && d.getDay() !== 6 && !FERIADOS.has(iso(d));
@@ -630,10 +657,8 @@ function montaTabelasRef(){
     <tr><td>Multa acima de 60 dias</td><td>12%</td></tr>
     <tr><td>Leite: por 1000 L (ou fração)</td><td>${PARAMS.leiteFracaoUfemg.toString().replace(".",",")} UFEMG</td></tr>`;
 
-  const hISO = iso(hoje());
-  const proximos = FERIADOS_FIXOS.filter(f => f >= hISO).slice(0,5).map(dataBR).join(" · ");
-  document.getElementById("info-feriados").textContent =
-    `Feriados federais via BrasilAPI. Próximos: ${proximos}`;
+  // exibição inicial com dados fixos; _exibeFeriados() atualiza após fetch
+  _exibeFeriados();
 }
 
 // ---------- inicialização ----------
