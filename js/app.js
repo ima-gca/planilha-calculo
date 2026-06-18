@@ -647,33 +647,76 @@ carregaFeriadosBrasil();
 carregaMunicipiosMG();
 
 // =====================================================================
-// VERIFICAÇÃO ANUAL DA UFEMG
+// VERIFICAÇÃO / ATUALIZAÇÃO DA UFEMG — executada uma vez no load
 // =====================================================================
-async function verificaUFEMG(){
-  const ano = hoje().getFullYear();
-  if(UFEMG[ano] !== undefined) return;  // dado presente, ok
+const UFEMG_CACHE_KEY = "ufemg-cache-v1";
 
-  // Tenta buscar a página da SEF-MG (pode falhar por CORS)
+function _carregaCacheUFEMG(){
   try {
-    const ctrl = new AbortController();
-    setTimeout(() => ctrl.abort(), 6000);
-    const r = await fetch(
-      "https://www.fazenda.mg.gov.br/empresas/legislacao_tributaria/resolucoes/ufemg.html",
-      { signal: ctrl.signal }
-    );
-    if(r.ok){
-      const txt = await r.text();
-      // Tenta extrair linha "XXXX ... R$ YY,YY" ou "XXXX ... YY,YY"
-      const re = new RegExp(String(ano) + "[^\d]+([\d]{2,3}[,\.][\d]{2})");
-      const m = txt.match(re);
-      if(m){
-        const v = parseFloat(m[1].replace(",","."));
-        if(!isNaN(v) && v > 0){ UFEMG[ano] = v; return; }
-      }
-    }
-  } catch(e) { /* CORS ou timeout — esperado */ }
+    const raw = localStorage.getItem(UFEMG_CACHE_KEY);
+    if(!raw) return;
+    const obj = JSON.parse(raw);
+    // cache válido por 30 dias
+    if(Date.now() - obj.ts > 30 * 86400000) return;
+    Object.assign(UFEMG, obj.data);
+  } catch(e) {}
+}
 
-  // Ano não coberto: exibe popup de aviso
-  document.getElementById("popup-ufemg-ano").textContent = ano;
+function _salvaCacheUFEMG(){
+  try {
+    const data = {};
+    for(let a = 2002; a <= hoje().getFullYear(); a++){
+      if(UFEMG[a] !== undefined) data[a] = UFEMG[a];
+    }
+    localStorage.setItem(UFEMG_CACHE_KEY, JSON.stringify({ ts: Date.now(), data }));
+  } catch(e) {}
+}
+
+async function verificaUFEMG(){
+  // 1. Aplica cache local (evita refetch se ainda válido)
+  _carregaCacheUFEMG();
+
+  const anoAtual = hoje().getFullYear();
+  const precisaFetch = UFEMG[anoAtual] === undefined;
+
+  // 2. Tenta buscar a página da SEF-MG (uma única vez por load)
+  if(precisaFetch){
+    try {
+      const ctrl = new AbortController();
+      setTimeout(() => ctrl.abort(), 8000);
+      const r = await fetch(
+        "https://www.fazenda.mg.gov.br/empresas/legislacao_tributaria/resolucoes/ufemg.html",
+        { signal: ctrl.signal }
+      );
+      if(r.ok){
+        const txt = await r.text();
+        // Extrai todos os pares (ano 20xx, valor R$ X,XXXX) da página
+        const re = /\b(20\d{2})\b[^<\n]{0,150}?(\d+[,.]\d{3,4})\b/g;
+        let m;
+        while((m = re.exec(txt)) !== null){
+          const a = parseInt(m[1]);
+          const v = parseFloat(m[2].replace(",","."));
+          if(a >= 2002 && a <= anoAtual + 1 && v > 0 && v < 100){
+            UFEMG[a] = v;
+          }
+        }
+        _salvaCacheUFEMG();
+      }
+    } catch(e) { /* CORS ou timeout — comportamento esperado em produção */ }
+  }
+
+  // 3. Verifica se o ano atual está coberto
+  if(UFEMG[anoAtual] !== undefined) return;  // tudo ok
+
+  // Não foi possível obter o valor — já mostrou popup nesta sessão?
+  if(sessionStorage.getItem("ufemg-popup-visto")) return;
+  sessionStorage.setItem("ufemg-popup-visto", "1");
+
+  // Encontra o último ano com valor conhecido
+  let ultimoAno = anoAtual - 1;
+  while(ultimoAno >= 2002 && UFEMG[ultimoAno] === undefined) ultimoAno--;
+
+  document.getElementById("popup-ufemg-ano-atual").textContent = anoAtual;
+  document.getElementById("popup-ufemg-ultimo").textContent   = ultimoAno >= 2002 ? ultimoAno : "—";
   document.getElementById("popup-ufemg").classList.add("aberto");
 }
