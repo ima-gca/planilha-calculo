@@ -207,7 +207,7 @@ function _exibeFeriados(){
     return dataBR(f) + (nome ? " &mdash; " + nome : "");
   });
   const el = document.getElementById("info-feriados");
-  if(el) el.innerHTML = "Feriados federais via BrasilAPI.<br>Próximos:<br>" + linhas.join("<br>");
+  if(el) el.innerHTML = "Próximos:<br>" + linhas.join("<br>");
 }
 
 const diaUtil = d => d.getDay() !== 0 && d.getDay() !== 6 && !FERIADOS.has(iso(d));
