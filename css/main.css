@@ -70,11 +70,13 @@
 
   .aviso-legal{border-color:var(--erro)}
   .aviso-legal h2{color:var(--erro);text-align:center}
-  .lista-legal{margin:0;padding-left:22px;font-size:.88rem;line-height:1.55;color:#222}
-  .lista-legal > li{margin-bottom:12px}
+  .lista-legal{margin:0;padding-left:22px;font-size:.88rem;line-height:1.4;color:#222}
+  .lista-legal > li{margin-top:18px}
+  .lista-legal > li:first-child{margin-top:0}
   .lista-legal .titulo-item{color:var(--erro);font-weight:700}
-  .lista-legal .sub-titulo{margin:4px 0;text-decoration:underline;font-weight:600}
-  .lista-legal ul{margin:4px 0;padding-left:18px}
+  .lista-legal .sub-titulo{margin:4px 0 0;text-decoration:underline;font-weight:600}
+  .lista-legal ul{margin:0;padding-left:18px}
+  .lista-legal ul li{margin:0}
   .btn-link{display:inline-block;background:var(--azul);color:#fff;text-decoration:none;border-radius:6px;padding:10px 22px;font-size:.92rem;font-weight:600;margin-top:6px}
   .btn-link:hover{filter:brightness(1.1)}
 
