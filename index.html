@@ -21,7 +21,8 @@
 </header>
 
 <nav class="abas">
-  <button class="ativa" data-aba="ai" onclick="trocaAba('ai')">Auto de Infração</button>
+  <button class="ativa" data-aba="inicio" onclick="trocaAba('inicio')">Início</button>
+  <button data-aba="ai" onclick="trocaAba('ai')">Auto de Infração</button>
   <button data-aba="lt" onclick="trocaAba('lt')">Captação de Leite</button>
   <button data-aba="dae" onclick="trocaAba('dae')">Atualização de DAE</button>
   <button data-aba="ref" onclick="trocaAba('ref')">Dados de referência</button>
@@ -29,8 +30,58 @@
 
 <main>
 
+  <!-- ============ INÍCIO ============ -->
+  <section class="aba ativa" id="aba-inicio">
+    <div class="cartao">
+      <h2>Bem-vindo à Planilha de Cálculo</h2>
+      <p class="desc">Selecione abaixo o tipo de cálculo que deseja realizar.</p>
+      <div class="grade-links">
+        <button type="button" class="card-link" onclick="trocaAba('ai')">
+          <h3>Auto de Infração</h3>
+          <p>Crédito não tributário. Atualização de valores por correção monetária pela taxa SELIC, sem multa.</p>
+        </button>
+        <button type="button" class="card-link" onclick="trocaAba('lt')">
+          <h3>Captação de Leite</h3>
+          <p>Crédito tributário sobre litros captados. Multa por atraso e correção pela SELIC.</p>
+        </button>
+        <button type="button" class="card-link" onclick="trocaAba('dae')">
+          <h3>Atualização de DAE</h3>
+          <p>Atualiza o valor de um DAE vencido (GTA/PTV) para uma nova data de validade.</p>
+        </button>
+      </div>
+    </div>
+
+    <div class="cartao aviso-legal">
+      <h2>LEMBRE-SE! (vide Instrução de Trabalho DPGF-GCA 001/2025)</h2>
+      <p>O DAE a ser emitido deverá contemplar o VALOR DEVIDO somado aos acréscimos (abaixo) pertinentes a cada caso.</p>
+      <ol class="lista-legal">
+        <li><span class="titulo-item">MULTA por atraso:</span>
+          <ul>
+            <li>Até <b>30 dias</b>: <b>0,15% por dia</b> de atraso</li>
+            <li>De <b>31 a 60 dias</b>: <b>9%</b></li>
+            <li>A partir do <b>61º dia</b>: <b>12%</b></li>
+          </ul>
+        </li>
+        <li><span class="titulo-item">JUROS (SELIC):</span>
+          <p class="sub-titulo">Data de Referência:</p>
+          <ul>
+            <li><b>Crédito Tributário:</b> dia seguinte à data em que o pagamento deveria ter sido efetuado;</li>
+            <li><b>Crédito Não Tributário:</b> data em que o devedor tomou ciência do débito.</li>
+          </ul>
+        </li>
+        <li><span class="titulo-item">OBSERVAÇÕES:</span>
+          <ul>
+            <li><b>NÃO HÁ INCIDÊNCIA de juros</b> para valores pagos dentro do mês da data de referência.</li>
+            <li>Para o cálculo dos <b>JUROS</b>, considera-se o <b>somatório</b> dos índices da SELIC do <b>mês seguinte</b> à data de referência até a SELIC do <b>mês anterior ao atual</b>.</li>
+            <li>Para o <b>mês atual</b>, sempre é considerado o índice de <b>1%</b>, pois ainda não foi divulgado o índice.</li>
+          </ul>
+        </li>
+      </ol>
+    </div>
+  </section>
+
   <!-- ============ AUTO DE INFRAÇÃO ============ -->
-  <section class="aba ativa" id="aba-ai">
+  <section class="aba" id="aba-ai">
     <div class="cartao">
       <h2>Auto de Infração — Crédito Não Tributário</h2>
       <p class="desc">Atualização de valores por correção monetária pela taxa SELIC (sem multa). Para o mês da data de atualização considera-se sempre 1%.<br>Data retroativa é permitida para fins de reimpressão.</p>
