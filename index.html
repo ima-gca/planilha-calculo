@@ -9,19 +9,20 @@
 <body>
 
 <header class="app">
+  <div class="header-spacer"></div>
   <div class="titulo">
     <h1>Planilha de Cálculo</h1>
     <span class="sub1">Instituto Mineiro de Agropecuária — IMA</span>
     <span class="sub2">Gerência de Controle da Arrecadação — GCA</span>
   </div>
-</header>
-
-<nav class="abas">
   <button class="emissor-chip" id="chipEmissor" onclick="abreModalEmissor()">
     <span id="chipNome">Identificar emissor</span>
     <span id="chipMunicipio">clique para preencher</span>
     <span id="chipUA"></span>
   </button>
+</header>
+
+<nav class="abas">
   <button class="ativa" data-aba="inicio" onclick="trocaAba('inicio')">Início</button>
   <button data-aba="ai" onclick="trocaAba('ai')">Auto de Infração</button>
   <button data-aba="lt" onclick="trocaAba('lt')">Captação de Leite</button>

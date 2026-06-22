@@ -8,18 +8,19 @@
   html{overflow-y:scroll}
   body{margin:0;font-family:"Segoe UI",system-ui,Arial,sans-serif;background:var(--fundo);color:#222;font-size:14px}
 
-  header.app{background:var(--verde);color:#fff;padding:6px 20px}
-  header.app .titulo{text-align:center}
-  header.app .titulo h1{margin:0;font-size:1.1rem;font-weight:700;letter-spacing:.3px}
+  header.app{background:var(--verde);color:#fff;padding:8px 20px;display:flex;align-items:center;gap:10px}
+  header.app .header-spacer{width:210px;flex-shrink:0}
+  header.app .titulo{flex:1;text-align:center}
+  header.app .titulo h1{margin:0;font-size:1.15rem;font-weight:700;letter-spacing:.3px}
   header.app .titulo .sub1{display:block;font-size:.72rem;opacity:.92;margin-top:1px}
   header.app .titulo .sub2{display:block;font-size:.68rem;opacity:.8}
+  .emissor-chip{width:210px;flex-shrink:0;background:var(--verde-esc);border:none;color:#fff;border-radius:6px;padding:5px 10px;cursor:pointer;text-align:left;font-size:.72rem;line-height:1.35;display:flex;flex-direction:column}
+  .emissor-chip span{display:block}
+  .emissor-chip span:first-child{font-weight:700}
 
-  nav.abas{display:flex;align-items:center;gap:4px;padding:6px 16px 0;background:#fff;border-bottom:2px solid var(--verde);flex-wrap:wrap}
+  nav.abas{display:flex;gap:4px;padding:10px 22px 0;background:#fff;border-bottom:2px solid var(--verde);flex-wrap:wrap}
   nav.abas button{border:1px solid var(--borda);border-bottom:none;background:#eef2ef;padding:7px 14px;border-radius:8px 8px 0 0;cursor:pointer;font-size:.82rem;color:#333}
   nav.abas button.ativa{background:var(--verde);color:#fff;border-color:var(--verde);font-weight:600}
-  .emissor-chip{background:var(--verde-esc);border:none;color:#fff;border-radius:6px;padding:4px 10px;cursor:pointer;text-align:left;font-size:.68rem;line-height:1.35;display:flex;flex-direction:column;margin:0 10px 6px 0}
-  .emissor-chip span{display:block}
-  .emissor-chip span:first-child{font-weight:700;font-size:.72rem}
 
   main{max-width:1060px;margin:0 auto;padding:14px 16px 40px}
   section.aba{display:none}
