@@ -137,7 +137,7 @@ const dataBR = s => { const [a,m,d] = s.split("-"); return `${d}/${m}/${a}`; };
 const MESES_EXTENSO = ["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"];
 const dataExtenso = s => { const [a,m,d] = s.split("-").map(Number); return `${d} de ${MESES_EXTENSO[m-1]} de ${a}`; };
 const _PREP_MINUSCULAS = new Set(["de","da","do","das","dos","e"]);
-const capitalizaLocal = nome => nome.trim().split(/\s+/).map(p => {
+const capitalizaNome = nome => nome.trim().split(/\s+/).map(p => {
   const min = p.toLowerCase();
   return _PREP_MINUSCULAS.has(min) ? min : min.charAt(0).toUpperCase() + min.slice(1);
 }).join(" ");
@@ -280,8 +280,8 @@ const CHAVE_EMISSOR = "pc_emissor_v1";
 function emissor(){ try{ return JSON.parse(localStorage.getItem(CHAVE_EMISSOR)); }catch(e){ return null; } }
 function pintaChip(){
   const e = emissor();
-  document.getElementById("chipNome").textContent = e ? `${e.nome} — ${maspFormatado(e.masp)}` : "Identificar emissor";
-  document.getElementById("chipMunicipio").textContent = e ? e.local : "clique para preencher";
+  document.getElementById("chipNome").textContent = e ? `${capitalizaNome(e.nome)} — ${maspFormatado(e.masp)}` : "Identificar emissor";
+  document.getElementById("chipMunicipio").textContent = e ? capitalizaNome(e.local) : "clique para preencher";
   document.getElementById("chipUA").textContent = e ? e.ua : "";
 }
 function abreModalEmissor(){
@@ -311,7 +311,7 @@ function salvaEmissor(){
     erro.textContent = "CPF inválido — verifique os dígitos.";
     erro.style.display = "block"; return;
   }
-  localStorage.setItem(CHAVE_EMISSOR, JSON.stringify({ masp, nome, ua, local, email }));
+  localStorage.setItem(CHAVE_EMISSOR, JSON.stringify({ masp, nome: capitalizaNome(nome), ua, local: capitalizaNome(local), email }));
   erro.style.display = "none";
   document.getElementById("modalEmissor").classList.remove("aberto");
   pintaChip();
@@ -637,9 +637,9 @@ function imprimeDocumento(subtitulo, itens){
     <div class="doc-titulo">Planilha de Cálculo</div>
     <div class="doc-subtitulo">${subtitulo}</div>
     <table>${linhasHTML}</table>
-    <div class="doc-local-data">${capitalizaLocal(e.local)}/MG, ${dataExtenso(iso(hoje()))}</div>
+    <div class="doc-local-data">${capitalizaNome(e.local)}/MG, ${dataExtenso(iso(hoje()))}</div>
     <div class="doc-rodape">
-      ${e.nome} — ${maspFormatado(e.masp)}<br>
+      ${capitalizaNome(e.nome)} — ${maspFormatado(e.masp)}<br>
       ${e.ua}${rodapeEmail}
     </div>`;
   window.print();
