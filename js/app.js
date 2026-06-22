@@ -682,6 +682,11 @@ function montaTabelasRef(){
   _exibeFeriados();
 }
 
+// ---------- limites de data (não permitir futuro) ----------
+document.getElementById("ai-notif").max = iso(hoje());
+document.getElementById("ai-ano").max = hoje().getFullYear();
+document.getElementById("lt-mesano").max = addMes(ymHoje(), -1);
+
 // ---------- inicialização ----------
 populaUnidades();
 pintaChip();
