@@ -277,7 +277,21 @@ function maspFormatado(s){
 
 // ---------- emissor ----------
 const CHAVE_EMISSOR = "pc_emissor_v1";
-function emissor(){ try{ return JSON.parse(localStorage.getItem(CHAVE_EMISSOR)); }catch(e){ return null; } }
+function _uaValida(ua, local){
+  if([...GERENCIAS_SEDE, ...UNIDADES_IMA].includes(ua)) return true;
+  const info = _MAPA_UPPER[(local || "").trim().toUpperCase()];
+  return !!info && (ua === info.esec || ua === info.cr);
+}
+function emissor(){
+  try{
+    const e = JSON.parse(localStorage.getItem(CHAVE_EMISSOR));
+    if(e && !_uaValida(e.ua, e.local)){
+      localStorage.removeItem(CHAVE_EMISSOR);
+      return null;
+    }
+    return e;
+  }catch(err){ return null; }
+}
 const abreviaUA = ua => ua.includes(" — ") ? ua.split(" — ")[0] : ua;
 function pintaChip(){
   const e = emissor();
@@ -385,6 +399,15 @@ function limpaAba(aba){
   document.getElementById(`${aba}-res-cartao`).style.display = "none";
   mostraErro(aba, ""); mostraAviso(aba, "");
   linhas[aba] = [];
+}
+function validaDataFutura(el, aba){
+  mostraErro(aba, el.value && el.value > iso(hoje()) ? "A data informada não pode ser posterior à data atual." : "");
+}
+function validaAnoFuturo(el, aba){
+  mostraErro(aba, el.value && Number(el.value) > hoje().getFullYear() ? "O ano informado não pode ser posterior ao ano atual." : "");
+}
+function validaMesFuturo(el, aba){
+  mostraErro(aba, el.value && el.value >= ymHoje() ? "O mês/ano informado não pode ser igual ou posterior ao mês atual." : "");
 }
 const linhas = { ai: [], lt: [], dae: [] };
 const pct = v => v.toFixed(2).replace(".", ",") + "%";
@@ -696,6 +719,7 @@ carregaSelic();
 verificaUFEMG();
 carregaFeriadosBrasil();
 carregaMunicipiosMG();
+document.getElementById("app-version").textContent = `Versão ${APP_VERSION}`;
 
 // =====================================================================
 // VERIFICAÇÃO / ATUALIZAÇÃO DA UFEMG — executada uma vez no load
