@@ -14,13 +14,14 @@
     <span class="sub1">Instituto Mineiro de Agropecuária — IMA</span>
     <span class="sub2">Gerência de Controle da Arrecadação — GCA</span>
   </div>
-  <button class="emissor-chip" id="chipEmissor" onclick="abreModalEmissor()">
-    <b id="chipNome">Identificar emissor</b>
-    <span id="chipDetalhe">clique para preencher</span>
-  </button>
 </header>
 
 <nav class="abas">
+  <button class="emissor-chip" id="chipEmissor" onclick="abreModalEmissor()">
+    <span id="chipNome">Identificar emissor</span>
+    <span id="chipMunicipio">clique para preencher</span>
+    <span id="chipUA"></span>
+  </button>
   <button class="ativa" data-aba="inicio" onclick="trocaAba('inicio')">Início</button>
   <button data-aba="ai" onclick="trocaAba('ai')">Auto de Infração</button>
   <button data-aba="lt" onclick="trocaAba('lt')">Captação de Leite</button>

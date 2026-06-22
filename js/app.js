@@ -280,8 +280,9 @@ const CHAVE_EMISSOR = "pc_emissor_v1";
 function emissor(){ try{ return JSON.parse(localStorage.getItem(CHAVE_EMISSOR)); }catch(e){ return null; } }
 function pintaChip(){
   const e = emissor();
-  document.getElementById("chipNome").textContent = e ? e.nome : "Identificar emissor";
-  document.getElementById("chipDetalhe").textContent = e ? `${maspFormatado(e.masp)} · ${e.ua}` : "clique para preencher";
+  document.getElementById("chipNome").textContent = e ? `${e.nome} — ${maspFormatado(e.masp)}` : "Identificar emissor";
+  document.getElementById("chipMunicipio").textContent = e ? e.local : "clique para preencher";
+  document.getElementById("chipUA").textContent = e ? e.ua : "";
 }
 function abreModalEmissor(){
   const e = emissor() || {};
