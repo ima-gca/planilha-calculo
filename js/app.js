@@ -319,7 +319,6 @@ function preencheCamposEmissor(e){
   document.getElementById("em-masp").value = e.masp || "";
   document.getElementById("em-nome").value = e.nome || "";
   document.getElementById("em-local").value = e.local || "";
-  document.getElementById("em-email").value = e.email || "";
   document.getElementById("em-masp-hint").textContent = "";
   if(e.local){
     filtraUA(e.local);
@@ -361,7 +360,6 @@ function salvaEmissor(){
   const nome = document.getElementById("em-nome").value.trim();
   const ua = document.getElementById("em-ua").value.trim();
   const local = document.getElementById("em-local").value.trim();
-  const email = document.getElementById("em-email").value.trim();
   const erro = document.getElementById("erro-em");
 
   if(!masp || !nome || !ua || !local){
@@ -372,7 +370,7 @@ function salvaEmissor(){
     erro.textContent = "CPF inválido — verifique os dígitos.";
     erro.style.display = "block"; return;
   }
-  const novo = { masp, nome: capitalizaNome(nome), ua, local: capitalizaNome(local), email };
+  const novo = { masp, nome: capitalizaNome(nome), ua, local: capitalizaNome(local) };
   const lista = listaEmissores().filter(e => e.masp !== masp);
   lista.push(novo);
   localStorage.setItem(CHAVE_EMISSORES, JSON.stringify(lista));
@@ -762,7 +760,6 @@ function imprimeDocumento(subtitulo, itens){
       <td class="rotulo"><div class="l1">${it.t}</div>${it.s ? `<div class="l2">${it.s}</div>` : ""}</td>
       <td class="valor">${it.v}</td>
     </tr>`).join("");
-  const rodapeEmail = e.email ? `<br>${e.email}` : "";
   document.getElementById("printheader").innerHTML = `
     <img class="doc-brasao" id="img-brasao" src="img/brasao-mg.png" alt="Brasão de Minas Gerais">
     <div class="doc-inst">
@@ -778,7 +775,7 @@ function imprimeDocumento(subtitulo, itens){
     <div class="doc-local-data">${capitalizaNome(e.local)}/MG, ${dataExtenso(iso(hoje()))}</div>
     <div class="doc-rodape">
       ${capitalizaNome(e.nome)} — ${maspFormatado(e.masp)}<br>
-      ${e.ua}${rodapeEmail}
+      ${e.ua}
     </div>`;
 
   const imgBrasao = document.getElementById("img-brasao");
