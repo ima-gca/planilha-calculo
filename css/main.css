@@ -22,6 +22,14 @@
   nav.abas button{border:1px solid var(--borda);border-bottom:none;background:#eef2ef;padding:7px 14px;border-radius:8px 8px 0 0;cursor:pointer;font-size:.82rem;color:#333}
   nav.abas button.ativa{background:var(--verde);color:#fff;border-color:var(--verde);font-weight:600}
 
+  @media (max-width:600px){
+    header.app{flex-direction:column;gap:2px;padding:8px 12px}
+    header.app .header-spacer{display:none}
+    header.app .titulo h1{font-size:1.05rem}
+    .emissor-chip{width:auto;align-items:center;text-align:center}
+    .emissor-chip span{white-space:normal;overflow:visible;text-overflow:clip}
+  }
+
   main{max-width:1060px;margin:0 auto;padding:14px 16px 40px}
   section.aba{display:none}
   section.aba.ativa{display:block}

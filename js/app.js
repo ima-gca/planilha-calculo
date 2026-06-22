@@ -278,11 +278,12 @@ function maspFormatado(s){
 // ---------- emissor ----------
 const CHAVE_EMISSOR = "pc_emissor_v1";
 function emissor(){ try{ return JSON.parse(localStorage.getItem(CHAVE_EMISSOR)); }catch(e){ return null; } }
+const abreviaUA = ua => ua.includes(" — ") ? ua.split(" — ")[0] : ua;
 function pintaChip(){
   const e = emissor();
   document.getElementById("chipNome").textContent = e ? `${capitalizaNome(e.nome)} — ${maspFormatado(e.masp)}` : "Identificar emissor";
   document.getElementById("chipMunicipio").textContent = e ? capitalizaNome(e.local) : "clique para preencher";
-  document.getElementById("chipUA").textContent = e ? e.ua : "";
+  document.getElementById("chipUA").textContent = e ? abreviaUA(e.ua) : "";
 }
 function abreModalEmissor(){
   const e = emissor() || {};
