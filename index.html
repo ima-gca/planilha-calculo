@@ -121,7 +121,7 @@
         <div class="linha">
           <div class="campo">
             <label>Data da Notificação *</label>
-            <input type="date" id="ai-notif" required onchange="validaDataFutura(this,'ai')">
+            <input type="date" id="ai-notif" required onchange="validaDataFutura(this,'ai'); validaNotifVsAno(this)">
             <small>Data de ciência do débito</small>
           </div>
           <div class="campo">
@@ -320,7 +320,7 @@
 
 <script>
   // Bump a cada deploy: força o navegador a buscar js/css novos (evita cache de CDN/navegador).
-  const APP_VERSION = "2026.06.22-4";
+  const APP_VERSION = "2026.06.22-5";
   document.write('<script src="js/mapa-municipios.js?v=' + APP_VERSION + '"><' + '/script>');
   document.write('<script src="js/app.js?v=' + APP_VERSION + '"><' + '/script>');
 </script>

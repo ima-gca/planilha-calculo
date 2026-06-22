@@ -418,11 +418,19 @@ function validaMesFuturo(el, aba){
     mostraErro(aba, "Não é permitido informar mês/ano igual ou posterior ao mês atual. O campo foi limpo.");
   }
 }
+function validaNotifVsAno(el){
+  const ano = document.getElementById("ai-ano").value.trim();
+  if(ano && el.value && Number(el.value.slice(0,4)) < Number(ano)){
+    el.value = "";
+    mostraErro("ai", "A Data de Notificação não pode ser anterior ao Ano de Emissão. O campo foi limpo.");
+  }
+}
 function limpaDatasAI(){
   const ano = document.getElementById("ai-ano").value.trim();
   const algumaDataPreenchida = document.getElementById("ai-notif").value || document.getElementById("ai-atual").value;
   document.getElementById("ai-notif").value = "";
   document.getElementById("ai-atual").value = "";
+  document.getElementById("ai-notif").min = ano ? `${ano}-01-01` : "";
   mostraErro("ai", "");
   mostraAviso("ai", (ano && algumaDataPreenchida) ? "O Ano de Emissão foi alterado: redigite as datas de Notificação e Atualização." : "");
 }
