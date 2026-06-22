@@ -394,20 +394,28 @@ function mostraAviso(aba, texto){
   if(el){ el.textContent = texto; el.style.display = texto ? "block" : "none"; }
 }
 function limpaAba(aba){
-  document.getElementById(`form-${aba}`).reset();
+  const form = document.getElementById(`form-${aba}`);
+  form.reset();
+  form.querySelectorAll(".invalido").forEach(el => el.classList.remove("invalido"));
   document.querySelector(`#${aba}-tabela tbody`).innerHTML = "";
   document.getElementById(`${aba}-res-cartao`).style.display = "none";
   mostraErro(aba, ""); mostraAviso(aba, "");
   linhas[aba] = [];
 }
 function validaDataFutura(el, aba){
-  mostraErro(aba, el.value && el.value > iso(hoje()) ? "A data informada não pode ser posterior à data atual." : "");
+  const invalido = el.value && el.value > iso(hoje());
+  el.classList.toggle("invalido", !!invalido);
+  mostraErro(aba, invalido ? "A data informada não pode ser posterior à data atual." : "");
 }
 function validaAnoFuturo(el, aba){
-  mostraErro(aba, el.value && Number(el.value) > hoje().getFullYear() ? "O ano informado não pode ser posterior ao ano atual." : "");
+  const invalido = el.value && Number(el.value) > hoje().getFullYear();
+  el.classList.toggle("invalido", !!invalido);
+  mostraErro(aba, invalido ? "O ano informado não pode ser posterior ao ano atual." : "");
 }
 function validaMesFuturo(el, aba){
-  mostraErro(aba, el.value && el.value >= ymHoje() ? "O mês/ano informado não pode ser igual ou posterior ao mês atual." : "");
+  const invalido = el.value && el.value >= ymHoje();
+  el.classList.toggle("invalido", !!invalido);
+  mostraErro(aba, invalido ? "O mês/ano informado não pode ser igual ou posterior ao mês atual." : "");
 }
 const linhas = { ai: [], lt: [], dae: [] };
 const pct = v => v.toFixed(2).replace(".", ",") + "%";
@@ -707,8 +715,10 @@ function montaTabelasRef(){
 
 // ---------- limites de data (não permitir futuro) ----------
 document.getElementById("ai-notif").max = iso(hoje());
+document.getElementById("ai-atual").max = iso(hoje());
 document.getElementById("ai-ano").max = hoje().getFullYear();
 document.getElementById("lt-mesano").max = addMes(ymHoje(), -1);
+document.getElementById("dae-validade-orig").max = iso(hoje());
 
 // ---------- inicialização ----------
 populaUnidades();
