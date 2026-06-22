@@ -394,37 +394,35 @@ function mostraAviso(aba, texto){
   if(el){ el.textContent = texto; el.style.display = texto ? "block" : "none"; }
 }
 function limpaAba(aba){
-  const form = document.getElementById(`form-${aba}`);
-  form.reset();
-  form.querySelectorAll(".invalido").forEach(el => el.classList.remove("invalido"));
+  document.getElementById(`form-${aba}`).reset();
   document.querySelector(`#${aba}-tabela tbody`).innerHTML = "";
   document.getElementById(`${aba}-res-cartao`).style.display = "none";
   mostraErro(aba, ""); mostraAviso(aba, "");
   linhas[aba] = [];
 }
 function validaDataFutura(el, aba){
-  const invalido = el.value && el.value > iso(hoje());
-  el.classList.toggle("invalido", !!invalido);
-  mostraErro(aba, invalido ? "A data informada não pode ser posterior à data atual." : "");
+  if(el.value && el.value > iso(hoje())){
+    el.value = "";
+    mostraErro(aba, "Não é permitido informar data posterior à data atual. O campo foi limpo.");
+  }
 }
 function validaAnoFuturo(el, aba){
-  const invalido = el.value && Number(el.value) > hoje().getFullYear();
-  el.classList.toggle("invalido", !!invalido);
-  mostraErro(aba, invalido ? "O ano informado não pode ser posterior ao ano atual." : "");
+  if(el.value && Number(el.value) > hoje().getFullYear()){
+    el.value = "";
+    mostraErro(aba, "Não é permitido informar ano posterior ao ano atual. O campo foi limpo.");
+  }
 }
 function validaMesFuturo(el, aba){
-  const invalido = el.value && el.value >= ymHoje();
-  el.classList.toggle("invalido", !!invalido);
-  mostraErro(aba, invalido ? "O mês/ano informado não pode ser igual ou posterior ao mês atual." : "");
+  if(el.value && el.value >= ymHoje()){
+    el.value = "";
+    mostraErro(aba, "Não é permitido informar mês/ano igual ou posterior ao mês atual. O campo foi limpo.");
+  }
 }
 function limpaDatasAI(){
   const ano = document.getElementById("ai-ano").value.trim();
   const algumaDataPreenchida = document.getElementById("ai-notif").value || document.getElementById("ai-atual").value;
-  ["ai-notif", "ai-atual"].forEach(id => {
-    const el = document.getElementById(id);
-    el.value = "";
-    el.classList.remove("invalido");
-  });
+  document.getElementById("ai-notif").value = "";
+  document.getElementById("ai-atual").value = "";
   mostraErro("ai", "");
   mostraAviso("ai", (ano && algumaDataPreenchida) ? "O Ano de Emissão foi alterado: redigite as datas de Notificação e Atualização." : "");
 }
@@ -667,16 +665,15 @@ function imprimeDocumento(subtitulo, itens){
       <td class="valor">${it.v}</td>
     </tr>`).join("");
   const rodapeEmail = e.email ? `<br>${e.email}` : "";
-  document.getElementById("printdoc").innerHTML = `
-    <div class="doc-cabecalho">
-      <img class="doc-brasao" src="img/brasao-mg.png" alt="Brasão de Minas Gerais" onerror="this.onerror=null;this.src='${BRASAO_FALLBACK}'">
-      <div class="doc-inst">
-        <div class="inst1">GOVERNO DO ESTADO DE MINAS GERAIS</div>
-        <div class="inst2">INSTITUTO MINEIRO DE AGROPECUÁRIA - IMA</div>
-        <div class="inst3">GERÊNCIA DE CONTROLE DA ARRECADAÇÃO - GCA</div>
-      </div>
-      <img class="doc-carimbo" src="img/carimbo-pagina.png" alt="Carimbo IMA">
+  document.getElementById("printheader").innerHTML = `
+    <img class="doc-brasao" id="img-brasao" src="img/brasao-mg.png" alt="Brasão de Minas Gerais">
+    <div class="doc-inst">
+      <div class="inst1">GOVERNO DO ESTADO DE MINAS GERAIS</div>
+      <div class="inst2">INSTITUTO MINEIRO DE AGROPECUÁRIA - IMA</div>
+      <div class="inst3">GERÊNCIA DE CONTROLE DA ARRECADAÇÃO - GCA</div>
     </div>
+    <img class="doc-carimbo" src="img/carimbo-pagina.png" alt="Carimbo IMA">`;
+  document.getElementById("printdoc").innerHTML = `
     <div class="doc-titulo">Planilha de Cálculo</div>
     <div class="doc-subtitulo">${subtitulo}</div>
     <table>${linhasHTML}</table>
@@ -685,7 +682,13 @@ function imprimeDocumento(subtitulo, itens){
       ${capitalizaNome(e.nome)} — ${maspFormatado(e.masp)}<br>
       ${e.ua}${rodapeEmail}
     </div>`;
-  window.print();
+
+  const imgBrasao = document.getElementById("img-brasao");
+  imgBrasao.onerror = () => { imgBrasao.onerror = null; imgBrasao.src = BRASAO_FALLBACK; };
+  const imagens = [...document.querySelectorAll("#printheader img")];
+  Promise.all(imagens.map(img => (img.complete && img.naturalWidth > 0) ? Promise.resolve() :
+    new Promise(resolve => { img.addEventListener("load", resolve, { once: true }); img.addEventListener("error", resolve, { once: true }); })
+  )).then(() => window.print());
 }
 
 // =====================================================================

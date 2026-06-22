@@ -45,7 +45,6 @@
   .campo{display:flex;flex-direction:column;gap:4px}
   .campo label{font-size:.78rem;font-weight:600;color:#384540}
   .campo input,.campo select{padding:8px 10px;border:1px solid var(--borda);border-radius:6px;font-size:.95rem;min-width:150px}
-  .campo input.invalido{background:#fff3cd;border:2px solid var(--erro);color:var(--erro);font-weight:700}
   .campo small{color:var(--cinza);font-size:.72rem}
   .campo .hint-ok{color:#137333;font-size:.72rem;font-weight:600}
   .campo .hint-erro{color:var(--erro);font-size:.72rem;font-weight:600}
@@ -105,31 +104,30 @@
   .modal .campo input{width:100%}
 
   /* ===== Documento de impressão ===== */
-  #printdoc{display:none}
+  #printdoc,#printheader{display:none}
   @media print{
     @page{size:A4;margin:0}
     body > *{display:none !important}
-    #printdoc{display:block !important;padding:14mm 16mm 28mm;font-family:"Segoe UI",Arial,sans-serif;color:#000}
+    #printheader{display:flex !important}
+    #printdoc{display:block !important;padding:8mm 16mm 28mm;font-family:"Segoe UI",Arial,sans-serif;color:#000}
   }
+  #printheader{align-items:center;gap:10pt;padding:8pt 16mm 5pt;border-bottom:1pt solid #000;font-family:"Segoe UI",Arial,sans-serif;color:#000;background:#fff}
+  #printheader .doc-brasao{height:46pt;width:auto;flex-shrink:0}
+  #printheader .doc-inst{flex:1;text-align:center;line-height:1.4}
+  #printheader .doc-inst .inst1,#printheader .doc-inst .inst2,#printheader .doc-inst .inst3{font-size:9.5pt;display:block}
+  #printheader .doc-carimbo{height:40pt;width:auto;flex-shrink:0}
   #printdoc{font-family:"Segoe UI",Arial,sans-serif;color:#000;max-width:185mm;margin:0 auto;padding:10mm 6mm}
-  #printdoc .doc-cabecalho{display:flex;align-items:flex-start;gap:10pt;border-bottom:1pt solid #000;padding-bottom:5pt;margin-bottom:10pt}
-  #printdoc .doc-brasao{height:62pt;width:auto;flex-shrink:0}
-  #printdoc .doc-inst{flex:1;text-align:center;line-height:1.45;padding-top:4pt}
-  #printdoc .doc-inst .inst1{font-size:8.5pt;display:block}
-  #printdoc .doc-inst .inst2{font-size:10.5pt;display:block}
-  #printdoc .doc-inst .inst3{font-size:9pt;display:block}
-  #printdoc .doc-carimbo{height:54pt;width:auto;flex-shrink:0}
-  #printdoc .doc-titulo{text-align:center;font-size:13pt;font-weight:700;text-decoration:underline;padding:6pt 0 2pt;margin-bottom:0}
-  #printdoc .doc-subtitulo{text-align:center;font-size:9.5pt;font-style:italic;border:1pt solid #000;padding:4pt;margin-bottom:12pt}
+  #printdoc .doc-titulo{text-align:center;font-size:15pt;font-weight:700;text-decoration:underline;padding:6pt 0 2pt;margin-bottom:0}
+  #printdoc .doc-subtitulo{text-align:center;font-size:11pt;font-style:italic;border:1pt solid #000;padding:5pt;margin-bottom:14pt}
   #printdoc table{width:100%;border-collapse:collapse}
-  #printdoc td{border:1pt solid #000;padding:5pt 8pt;vertical-align:middle}
+  #printdoc td{border:1pt solid #000;padding:7pt 9pt;vertical-align:middle}
   #printdoc td.rotulo{width:62%}
-  #printdoc td.rotulo .l1{font-weight:700;font-size:11pt}
-  #printdoc td.rotulo .l2{font-size:8pt;color:#000}
-  #printdoc td.valor{font-size:11pt;text-align:right;white-space:nowrap}
+  #printdoc td.rotulo .l1{font-weight:700;font-size:13pt}
+  #printdoc td.rotulo .l2{font-size:9.5pt;color:#000}
+  #printdoc td.valor{font-size:13pt;text-align:right;white-space:nowrap}
   #printdoc tr.destaque td{background:#eee}
-  #printdoc tr.destaque td.valor{font-weight:700;font-size:12pt}
-  #printdoc .doc-local-data{text-align:right;font-size:9pt;margin-top:14pt;margin-bottom:4pt;padding-right:4pt}
-  #printdoc .doc-rodape{margin-top:42pt;font-size:9.5pt;text-align:center;line-height:1.7}
+  #printdoc tr.destaque td.valor{font-weight:700;font-size:14.5pt}
+  #printdoc .doc-local-data{text-align:right;font-size:10.5pt;margin-top:16pt;margin-bottom:4pt;padding-right:4pt}
+  #printdoc .doc-rodape{margin-top:44pt;font-size:11pt;text-align:center;line-height:1.7}
   #printfooter{display:none}
   @media print{#printfooter{display:block !important;position:fixed;bottom:0;left:0;right:0;padding:5pt 16mm 8pt;border-top:1pt solid #000;font-size:7.5pt;text-align:center;line-height:1.5;color:#000;background:#fff}}
