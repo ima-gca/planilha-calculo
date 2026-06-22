@@ -12,12 +12,12 @@
   #version-banner button{margin-left:10px;background:#fff;color:var(--aviso);border:none;border-radius:5px;padding:4px 12px;cursor:pointer;font-weight:600;font-size:.82rem}
 
   header.app{background:var(--verde);color:#fff;padding:8px 20px;display:flex;align-items:center;gap:10px}
-  header.app .header-spacer{width:170px;flex-shrink:0}
+  header.app .header-spacer{width:190px;flex-shrink:0}
   header.app .titulo{flex:1;text-align:center}
   header.app .titulo h1{margin:0;font-size:1.15rem;font-weight:700;letter-spacing:.3px}
   header.app .titulo .sub1{display:block;font-size:.72rem;opacity:.92;margin-top:1px}
   header.app .titulo .sub2{display:block;font-size:.68rem;opacity:.8}
-  .emissor-chip{width:170px;flex-shrink:0;background:transparent;border:none;color:#fff;opacity:.65;padding:0;cursor:pointer;text-align:left;font-size:.6rem;font-weight:400;line-height:1.3;display:flex;flex-direction:column}
+  .emissor-chip{width:190px;flex-shrink:0;background:transparent;border:none;color:#fff;opacity:.65;padding:0;cursor:pointer;text-align:left;font-size:.68rem;font-weight:400;line-height:1.3;display:flex;flex-direction:column}
   .emissor-chip:hover{opacity:1}
   .emissor-chip span{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
@@ -101,7 +101,7 @@
   .modal h2{margin:0 0 4px;color:var(--verde-esc);font-size:1.1rem}
   .modal p{margin:0 0 16px;color:var(--cinza);font-size:.82rem}
   .modal .campo{margin-bottom:12px}
-  .modal .campo input{width:100%}
+  .modal .campo input,.modal .campo select{width:100%}
 
   /* ===== Documento de impressão ===== */
   #printdoc,#printheader{display:none}
@@ -111,14 +111,14 @@
     #printheader{display:flex !important}
     #printdoc{display:block !important;padding:8mm 16mm 28mm;font-family:"Segoe UI",Arial,sans-serif;color:#000}
   }
-  #printheader{align-items:center;gap:10pt;padding:8pt 16mm 5pt;border-bottom:1pt solid #000;font-family:"Segoe UI",Arial,sans-serif;color:#000;background:#fff}
-  #printheader .doc-brasao{height:46pt;width:auto;flex-shrink:0}
+  #printheader{align-items:center;gap:14pt;padding:12pt 16mm 8pt;border-bottom:1pt solid #000;font-family:"Segoe UI",Arial,sans-serif;color:#000;background:#fff}
+  #printheader .doc-brasao{height:60pt;width:auto;flex-shrink:0}
   #printheader .doc-inst{flex:1;text-align:center;line-height:1.4}
-  #printheader .doc-inst .inst1,#printheader .doc-inst .inst2,#printheader .doc-inst .inst3{font-size:9.5pt;display:block}
-  #printheader .doc-carimbo{height:40pt;width:auto;flex-shrink:0}
+  #printheader .doc-inst .inst1,#printheader .doc-inst .inst2,#printheader .doc-inst .inst3{font-size:10.5pt;display:block}
+  #printheader .doc-carimbo{height:52pt;width:auto;flex-shrink:0}
   #printdoc{font-family:"Segoe UI",Arial,sans-serif;color:#000;max-width:185mm;margin:0 auto;padding:10mm 6mm}
-  #printdoc .doc-titulo{text-align:center;font-size:15pt;font-weight:700;text-decoration:underline;padding:6pt 0 2pt;margin-bottom:0}
-  #printdoc .doc-subtitulo{text-align:center;font-size:11pt;font-style:italic;border:1pt solid #000;padding:5pt;margin-bottom:8mm}
+  #printdoc .doc-titulo{text-align:center;font-size:15pt;font-weight:700;text-decoration:underline;padding:6pt 0 0;margin-bottom:0}
+  #printdoc .doc-subtitulo{text-align:center;font-size:11pt;font-style:italic;border:1pt solid #000;border-bottom:none;padding:5pt;margin-top:8mm;margin-bottom:0}
   #printdoc table{width:100%;border-collapse:collapse}
   #printdoc td{border:1pt solid #000;padding:7pt 9pt;vertical-align:middle}
   #printdoc td.rotulo{width:68%}
@@ -130,4 +130,4 @@
   #printdoc .doc-local-data{text-align:right;font-size:10.5pt;margin-top:16pt;margin-bottom:4pt;padding-right:4pt}
   #printdoc .doc-rodape{margin-top:96pt;font-size:11pt;text-align:center;line-height:1.7}
   #printfooter{display:none}
-  @media print{#printfooter{display:block !important;position:fixed;bottom:0;left:0;right:0;padding:5pt 16mm 8pt;border-top:1pt solid #000;font-size:7.5pt;text-align:center;line-height:1.5;color:#000;background:#fff}}
+  @media print{#printfooter{display:block !important;position:fixed;bottom:4mm;left:0;right:0;padding:5pt 16mm 8pt;border-top:1pt solid #000;font-size:7.5pt;text-align:center;line-height:1.5;color:#000;background:#fff}}

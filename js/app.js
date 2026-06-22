@@ -275,39 +275,85 @@ function maspFormatado(s){
   return n;
 }
 
-// ---------- emissor ----------
+// ---------- emissor(es) ----------
 const CHAVE_EMISSOR = "pc_emissor_v1";
+const CHAVE_EMISSORES = "pc_emissores_v1";
+const CHAVE_EMISSOR_ATIVO = "pc_emissor_ativo_v1";
+function _migraEmissorAntigo(){
+  if(localStorage.getItem(CHAVE_EMISSORES)) return;
+  try{
+    const e = JSON.parse(localStorage.getItem(CHAVE_EMISSOR));
+    if(e && e.masp){
+      localStorage.setItem(CHAVE_EMISSORES, JSON.stringify([e]));
+      localStorage.setItem(CHAVE_EMISSOR_ATIVO, e.masp);
+    }
+  }catch(err){}
+  localStorage.removeItem(CHAVE_EMISSOR);
+}
 function _uaValida(ua, local){
   if([...GERENCIAS_SEDE, ...UNIDADES_IMA].includes(ua)) return true;
   const info = _MAPA_UPPER[(local || "").trim().toUpperCase()];
   return !!info && (ua === info.esec || ua === info.cr);
 }
+function listaEmissores(){
+  let lista;
+  try{ lista = JSON.parse(localStorage.getItem(CHAVE_EMISSORES)) || []; }catch(err){ lista = []; }
+  const validos = lista.filter(e => _uaValida(e.ua, e.local));
+  if(validos.length !== lista.length) localStorage.setItem(CHAVE_EMISSORES, JSON.stringify(validos));
+  return validos;
+}
 function emissor(){
-  try{
-    const e = JSON.parse(localStorage.getItem(CHAVE_EMISSOR));
-    if(e && !_uaValida(e.ua, e.local)){
-      localStorage.removeItem(CHAVE_EMISSOR);
-      return null;
-    }
-    return e;
-  }catch(err){ return null; }
+  const lista = listaEmissores();
+  if(!lista.length) return null;
+  const ativo = localStorage.getItem(CHAVE_EMISSOR_ATIVO);
+  return lista.find(e => e.masp === ativo) || lista[0];
 }
 const abreviaUA = ua => ua.includes(" — ") ? ua.split(" — ")[0] : ua;
 function pintaChip(){
   const e = emissor();
-  document.getElementById("chipNome").textContent = e ? `${capitalizaNome(e.nome)} — ${maspFormatado(e.masp)}` : "Identificar emissor";
+  document.getElementById("chipNome").textContent = e ? capitalizaNome(e.nome) : "Identificar emissor";
   document.getElementById("chipMunicipio").textContent = e ? capitalizaNome(e.local) : "clique para preencher";
   document.getElementById("chipUA").textContent = e ? abreviaUA(e.ua) : "";
 }
-function abreModalEmissor(){
-  const e = emissor() || {};
+function preencheCamposEmissor(e){
   document.getElementById("em-masp").value = e.masp || "";
   document.getElementById("em-nome").value = e.nome || "";
   document.getElementById("em-local").value = e.local || "";
   document.getElementById("em-email").value = e.email || "";
   document.getElementById("em-masp-hint").textContent = "";
-  if(e.local) filtraUA(e.local);
+  if(e.local){
+    filtraUA(e.local);
+  } else {
+    document.getElementById("em-ua").disabled = true;
+    document.getElementById("em-ua").placeholder = "Selecione o município primeiro…";
+    document.getElementById("ua-hint").textContent = "";
+  }
   document.getElementById("em-ua").value = e.ua || "";
+  document.getElementById("erro-em").style.display = "none";
+}
+function limpaCamposEmissor(){
+  preencheCamposEmissor({});
+}
+function selecionaEmissor(masp){
+  if(masp === "__novo__"){ limpaCamposEmissor(); return; }
+  const e = listaEmissores().find(x => x.masp === masp);
+  if(e) preencheCamposEmissor(e);
+}
+function abreModalEmissor(){
+  const lista = listaEmissores();
+  const ativo = emissor();
+  const sel = document.getElementById("em-selecionar");
+  const campoSel = document.getElementById("em-campo-selecionar");
+  if(lista.length){
+    sel.innerHTML = lista.map(e => `<option value="${e.masp}">${e.nome}</option>`).join("") +
+      `<option value="__novo__">+ Novo emissor</option>`;
+    sel.value = ativo ? ativo.masp : "__novo__";
+    campoSel.style.display = "flex";
+  } else {
+    sel.innerHTML = "";
+    campoSel.style.display = "none";
+  }
+  preencheCamposEmissor(ativo || {});
   document.getElementById("modalEmissor").classList.add("aberto");
 }
 function salvaEmissor(){
@@ -326,7 +372,11 @@ function salvaEmissor(){
     erro.textContent = "CPF inválido — verifique os dígitos.";
     erro.style.display = "block"; return;
   }
-  localStorage.setItem(CHAVE_EMISSOR, JSON.stringify({ masp, nome: capitalizaNome(nome), ua, local: capitalizaNome(local), email }));
+  const novo = { masp, nome: capitalizaNome(nome), ua, local: capitalizaNome(local), email };
+  const lista = listaEmissores().filter(e => e.masp !== masp);
+  lista.push(novo);
+  localStorage.setItem(CHAVE_EMISSORES, JSON.stringify(lista));
+  localStorage.setItem(CHAVE_EMISSOR_ATIVO, masp);
   erro.style.display = "none";
   document.getElementById("modalEmissor").classList.remove("aberto");
   pintaChip();
@@ -791,6 +841,7 @@ document.getElementById("dae-validade-orig").min = DATA_MINIMA;
 document.getElementById("dae-validade-nova").min = DATA_MINIMA;
 
 // ---------- inicialização ----------
+_migraEmissorAntigo();
 populaUnidades();
 pintaChip();
 if(!emissor()) abreModalEmissor();

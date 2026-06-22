@@ -277,6 +277,10 @@
   <div class="modal">
     <h2>Identificação do Emissor</h2>
     <p>Estes dados constarão no rodapé da Planilha de Cálculo impressa. Ficam salvos somente neste navegador.</p>
+    <div class="campo" id="em-campo-selecionar" style="display:none">
+      <label>Emissor salvo</label>
+      <select id="em-selecionar" onchange="selecionaEmissor(this.value)"></select>
+    </div>
     <div class="campo">
       <label>MASP ou CPF *</label>
       <input id="em-masp" maxlength="14" inputmode="numeric" oninput="validaIdentificador(this)">
@@ -306,6 +310,7 @@
     <div class="msg-erro" id="erro-em"></div>
     <div class="botoes">
       <button class="primario" onclick="salvaEmissor()">Confirmar</button>
+      <button type="button" class="limpar" onclick="limpaCamposEmissor()">Limpar campos</button>
     </div>
   </div>
 </div>
@@ -320,7 +325,7 @@
 
 <script>
   // Bump a cada deploy: força o navegador a buscar js/css novos (evita cache de CDN/navegador).
-  const APP_VERSION = "2026.06.22-6";
+  const APP_VERSION = "2026.06.22-7";
   document.write('<script src="js/mapa-municipios.js?v=' + APP_VERSION + '"><' + '/script>');
   document.write('<script src="js/app.js?v=' + APP_VERSION + '"><' + '/script>');
 </script>
