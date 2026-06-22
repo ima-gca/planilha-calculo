@@ -127,12 +127,20 @@ const UNIDADES_IMA = [
 // Planilha de Cálculo IMA/GCA
 // =====================================================================
 const fmtBRL = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
+const fmtBRL6 = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL", minimumFractionDigits: 6, maximumFractionDigits: 6 });
 const fmtInt = new Intl.NumberFormat("pt-BR");
 
 const hoje = () => { const d = new Date(); d.setHours(0,0,0,0); return d; };
 const iso = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
 const deISO = s => { const [a,m,d] = s.split("-").map(Number); return new Date(a, m-1, d); };
 const dataBR = s => { const [a,m,d] = s.split("-"); return `${d}/${m}/${a}`; };
+const MESES_EXTENSO = ["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"];
+const dataExtenso = s => { const [a,m,d] = s.split("-").map(Number); return `${d} de ${MESES_EXTENSO[m-1]} de ${a}`; };
+const _PREP_MINUSCULAS = new Set(["de","da","do","das","dos","e"]);
+const capitalizaLocal = nome => nome.trim().split(/\s+/).map(p => {
+  const min = p.toLowerCase();
+  return _PREP_MINUSCULAS.has(min) ? min : min.charAt(0).toUpperCase() + min.slice(1);
+}).join(" ");
 const ymDe = s => s.slice(0,7);
 const ymHoje = () => iso(hoje()).slice(0,7);
 function addMes(ym, n){ let [a,m] = ym.split("-").map(Number); m += n;
@@ -428,8 +436,8 @@ function calculaAI(ev){
   const tr = document.createElement("tr");
   tr.innerHTML = `<td class="dinheiro">${tipo==="REAL" ? fmtBRL.format(valor) : fmtInt.format(valor)+" UFEMG"}</td>
     <td>${tipo}</td><td>${anoUfemg ?? "—"}</td><td>${dataBR(notifISO)}</td><td>${dataBR(atualISO)}</td>
-    <td class="dinheiro">${fmtBRL.format(valorConvertido)}</td><td>${indice===null ? "—" : pct(indice)}</td>
-    <td class="dinheiro">${indice===null ? "—" : fmtBRL.format(correcao)}</td>
+    <td class="dinheiro">${fmtBRL6.format(valorConvertido)}</td><td>${indice===null ? "—" : pct(indice)}</td>
+    <td class="dinheiro">${indice===null ? "—" : fmtBRL6.format(correcao)}</td>
     <td class="dinheiro"><b>${fmtBRL.format(atualizado)}</b></td>
     <td>${dataBR(linha.emitidoISO)}</td>
     <td style="white-space:nowrap"><button class="mini" onclick="imprimeAI(${idx_ai})">🖨</button> <button class="mini apaga" onclick="apagaLinha('ai',${idx_ai},this)" title="Apagar">✕</button></td>`;
@@ -463,11 +471,11 @@ function imprimeAI(i){
                             `Tipo de valor: UFEMG (${r.anoUfemg})`,
         v: r.tipo==="REAL" ? fmtBRL.format(r.valor) : fmtInt.format(r.valor) + " UFEMG" },
       { t:"Data da Notificação", s:"Data em que o crédito tornou-se exigível - DEC 46668/14", v: dataBR(r.notifISO) },
-      { t:"Valor de Cálculo", s:r.subConversao, v: fmtBRL.format(r.valorConvertido) },
+      { t:"Valor de Cálculo", s:r.subConversao, v: fmtBRL6.format(r.valorConvertido) },
       { t:"Data Inicial do Índice de Correção", s: r.indice===null ? semCorrecao : "Primeiro dia do mês seguinte à Data de Notificação", v: r.indice===null ? "—" : dtIniIndice },
       { t:"Data Final do Índice de Correção", s: r.indice===null ? semCorrecao : "Data informada. Poderá divergir da data de emissão desta Planilha", v: r.indice===null ? "—" : dataBR(r.atualISO) },
       { t:"Índice de Correção", s: r.indice===null ? semCorrecao : "SELIC acumulada: Data Inicial até a Data Final do Índice", v: r.indice===null ? "—" : pct(r.indice) },
-      { t:"Valor Correção", s: r.indice===null ? semCorrecao : "Valor de Cálculo × Índice de Correção", v: r.indice===null ? "—" : fmtBRL.format(r.correcao) },
+      { t:"Valor Correção", s: r.indice===null ? semCorrecao : "Valor de Cálculo × Índice de Correção", v: r.indice===null ? "—" : fmtBRL6.format(r.correcao) },
       { t:"VALOR ATUALIZADO", s: r.indice===null ? "Valor de Cálculo (sem correção)" : "Valor de Cálculo + Valor Correção", v: fmtBRL.format(r.atualizado), destaque:true },
     ]);
 }
@@ -512,9 +520,9 @@ function calculaLT(ev){
   const tb = document.querySelector("#lt-tabela tbody");
   const tr = document.createElement("tr");
   tr.innerHTML = `<td>${mesAnoBR(mesano)}</td><td>${fmtInt.format(litros)}</td><td>${dataBR(validadeISO)}</td>
-    <td class="dinheiro">${fmtBRL.format(valorCaptacao)}</td><td>${atraso > 0 ? atraso : 0}</td>
-    <td>${atraso > 0 ? multaRotulo : "—"}</td><td class="dinheiro">${atraso > 0 ? fmtBRL.format(multaValor) : "—"}</td>
-    <td>${indice===null ? "—" : pct(indice)}</td><td class="dinheiro">${indice===null ? "—" : fmtBRL.format(correcao)}</td>
+    <td class="dinheiro">${fmtBRL6.format(valorCaptacao)}</td><td>${atraso > 0 ? atraso : 0}</td>
+    <td>${atraso > 0 ? multaRotulo : "—"}</td><td class="dinheiro">${atraso > 0 ? fmtBRL6.format(multaValor) : "—"}</td>
+    <td>${indice===null ? "—" : pct(indice)}</td><td class="dinheiro">${indice===null ? "—" : fmtBRL6.format(correcao)}</td>
     <td class="dinheiro"><b>${fmtBRL.format(atualizado)}</b></td>
     <td>${dataBR(linha.emitidoISO)}</td>
     <td style="white-space:nowrap"><button class="mini" onclick="imprimeLT(${idx_lt})">🖨</button> <button class="mini apaga" onclick="apagaLinha('lt',${idx_lt},this)" title="Apagar">✕</button></td>`;
@@ -533,10 +541,10 @@ function imprimeLT(i){
       { t:"Mês/Ano da Captação", s:"", v: mesAnoBR(r.mesano) },
       { t:"Data de Atualização do Valor", s:"", v: dataBR(r.validadeISO) },
       { t:"Quantidade de litros informada", s:"", v: fmtInt.format(r.litros) },
-      { t:"Valor da Captação", s:`${PARAMS.leiteFracaoUfemg.toString().replace(".",",")} UFEMG (${r.anoUfemg}) por MIL litros ou fração`, v: fmtBRL.format(r.valorCaptacao) },
-      { t:"Valor da Multa", s: r.atraso > 0 ? `Atraso: ${r.atraso} dias = ${r.multaRotulo}` : `No prazo até ${dataBR(r.vencISO)}`, v: r.atraso > 0 ? fmtBRL.format(r.multaValor) : "—" },
+      { t:"Valor da Captação", s:`${PARAMS.leiteFracaoUfemg.toString().replace(".",",")} UFEMG (${r.anoUfemg}) por MIL litros ou fração`, v: fmtBRL6.format(r.valorCaptacao) },
+      { t:"Valor da Multa", s: r.atraso > 0 ? `Atraso: ${r.atraso} dias = ${r.multaRotulo}` : `No prazo até ${dataBR(r.vencISO)}`, v: r.atraso > 0 ? fmtBRL6.format(r.multaValor) : "—" },
       { t:"Índice de Correção", s: r.indice===null ? semCor : `Período: ${dataBR(r.vencISO)} a ${dataBR(r.validadeISO)}`, v: r.indice===null ? "—" : pct(r.indice) },
-      { t:"Valor Correção", s: r.indice===null ? semCor : "(Valor da Captação + Valor da Multa) × Índice de Correção", v: r.indice===null ? "—" : fmtBRL.format(r.correcao) },
+      { t:"Valor Correção", s: r.indice===null ? semCor : "(Valor da Captação + Valor da Multa) × Índice de Correção", v: r.indice===null ? "—" : fmtBRL6.format(r.correcao) },
       { t:"VALOR ATUALIZADO", s:"Valor da Captação + Valor da Multa + Valor Correção", v: fmtBRL.format(r.atualizado), destaque:true },
     ]);
 }
@@ -574,8 +582,8 @@ function calculaDAE(ev){
   const tr = document.createElement("tr");
   tr.innerHTML = `<td class="dinheiro">${fmtBRL.format(valor)}</td><td>${dataBR(origISO)}</td><td>${dataBR(novaISO)}</td>
     <td>${atraso > 0 ? atraso : 0}</td><td>${atraso > 0 ? multaRotulo : "—"}</td>
-    <td class="dinheiro">${atraso > 0 ? fmtBRL.format(multaValor) : "—"}</td>
-    <td>${indice===null ? "—" : pct(indice)}</td><td class="dinheiro">${indice===null ? "—" : fmtBRL.format(correcao)}</td>
+    <td class="dinheiro">${atraso > 0 ? fmtBRL6.format(multaValor) : "—"}</td>
+    <td>${indice===null ? "—" : pct(indice)}</td><td class="dinheiro">${indice===null ? "—" : fmtBRL6.format(correcao)}</td>
     <td class="dinheiro"><b>${fmtBRL.format(atualizado)}</b></td>
     <td>${dataBR(linha.emitidoISO)}</td>
     <td style="white-space:nowrap"><button class="mini" onclick="imprimeDAE(${idx_dae})">🖨</button> <button class="mini apaga" onclick="apagaLinha('dae',${idx_dae},this)" title="Apagar">✕</button></td>`;
@@ -594,9 +602,9 @@ function imprimeDAE(i){
       { t:"Valor do DAE devido", s:"", v: fmtBRL.format(r.valor) },
       { t:"Validade do DAE devido", s:"", v: dataBR(r.origISO) },
       { t:"Validade do novo DAE", s:"", v: dataBR(r.novaISO) },
-      { t:"Valor da Multa", s: r.atraso > 0 ? `Atraso: ${r.atraso} dias = ${r.multaRotulo}` : "Sem atraso", v: r.atraso > 0 ? fmtBRL.format(r.multaValor) : "—" },
+      { t:"Valor da Multa", s: r.atraso > 0 ? `Atraso: ${r.atraso} dias = ${r.multaRotulo}` : "Sem atraso", v: r.atraso > 0 ? fmtBRL6.format(r.multaValor) : "—" },
       { t:"Índice de Correção", s: r.indice===null ? semCor : `Período: ${dataBR(r.origISO)} a ${dataBR(r.novaISO)}`, v: r.indice===null ? "—" : pct(r.indice) },
-      { t:"Valor Correção", s: r.indice===null ? semCor : "(Valor do DAE + Valor da Multa) × Índice de Correção", v: r.indice===null ? "—" : fmtBRL.format(r.correcao) },
+      { t:"Valor Correção", s: r.indice===null ? semCor : "(Valor do DAE + Valor da Multa) × Índice de Correção", v: r.indice===null ? "—" : fmtBRL6.format(r.correcao) },
       { t:"VALOR ATUALIZADO", s:"Valor do DAE + Valor da Multa + Valor Correção", v: fmtBRL.format(r.atualizado), destaque:true },
     ]);
 }
@@ -628,7 +636,7 @@ function imprimeDocumento(subtitulo, itens){
     <div class="doc-titulo">Planilha de Cálculo</div>
     <div class="doc-subtitulo">${subtitulo}</div>
     <table>${linhasHTML}</table>
-    <div class="doc-local-data">${e.local}, ${dataBR(iso(hoje()))}</div>
+    <div class="doc-local-data">${capitalizaLocal(e.local)}/MG, ${dataExtenso(iso(hoje()))}</div>
     <div class="doc-rodape">
       ${e.nome} — ${maspFormatado(e.masp)}<br>
       ${e.ua}${rodapeEmail}

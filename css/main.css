@@ -98,7 +98,7 @@
     #printdoc{display:block !important;padding:14mm 16mm 28mm;font-family:"Segoe UI",Arial,sans-serif;color:#000}
   }
   #printdoc{font-family:"Segoe UI",Arial,sans-serif;color:#000;max-width:185mm;margin:0 auto;padding:10mm 6mm}
-  #printdoc .doc-cabecalho{display:flex;align-items:flex-start;gap:10pt;border-bottom:1.5pt solid #000;padding-bottom:8pt;margin-bottom:10pt}
+  #printdoc .doc-cabecalho{display:flex;align-items:flex-start;gap:10pt;border-bottom:1pt solid #000;padding-bottom:5pt;margin-bottom:10pt}
   #printdoc .doc-brasao{height:62pt;width:auto;flex-shrink:0}
   #printdoc .doc-inst{flex:1;text-align:center;line-height:1.45;padding-top:4pt}
   #printdoc .doc-inst .inst1{font-size:8.5pt;display:block}
@@ -116,6 +116,6 @@
   #printdoc tr.destaque td{background:#eee}
   #printdoc tr.destaque td.valor{font-weight:700;font-size:12pt}
   #printdoc .doc-local-data{text-align:right;font-size:9pt;margin-top:14pt;margin-bottom:4pt;padding-right:4pt}
-  #printdoc .doc-rodape{margin-top:10pt;border-top:1pt solid #000;padding-top:7pt;font-size:9.5pt;text-align:center;line-height:1.7}
+  #printdoc .doc-rodape{margin-top:42pt;font-size:9.5pt;text-align:center;line-height:1.7}
   #printfooter{display:none}
   @media print{#printfooter{display:block !important;position:fixed;bottom:0;left:0;right:0;padding:5pt 16mm 8pt;border-top:1pt solid #000;font-size:7.5pt;text-align:center;line-height:1.5;color:#000;background:#fff}}
