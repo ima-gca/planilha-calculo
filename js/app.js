@@ -721,6 +721,20 @@ carregaFeriadosBrasil();
 carregaMunicipiosMG();
 document.getElementById("app-version").textContent = `Versão ${APP_VERSION}`;
 
+// ---------- checagem periódica de nova versão publicada ----------
+async function verificaNovaVersao(){
+  try{
+    const r = await fetch(`version.json?t=${Date.now()}`, { cache: "no-store" });
+    if(!r.ok) return;
+    const dados = await r.json();
+    if(dados.version && dados.version !== APP_VERSION){
+      document.getElementById("version-banner").style.display = "block";
+    }
+  }catch(e){}
+}
+verificaNovaVersao();
+setInterval(verificaNovaVersao, 10 * 60 * 1000);
+
 // =====================================================================
 // VERIFICAÇÃO / ATUALIZAÇÃO DA UFEMG — executada uma vez no load
 // =====================================================================

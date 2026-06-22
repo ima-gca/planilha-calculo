@@ -8,6 +8,9 @@
   html{overflow-y:scroll}
   body{margin:0;font-family:"Segoe UI",system-ui,Arial,sans-serif;background:var(--fundo);color:#222;font-size:14px}
 
+  #version-banner{display:none;position:sticky;top:0;z-index:100;background:var(--aviso);color:#fff;text-align:center;padding:8px 16px;font-size:.85rem}
+  #version-banner button{margin-left:10px;background:#fff;color:var(--aviso);border:none;border-radius:5px;padding:4px 12px;cursor:pointer;font-weight:600;font-size:.82rem}
+
   header.app{background:var(--verde);color:#fff;padding:8px 20px;display:flex;align-items:center;gap:10px}
   header.app .header-spacer{width:170px;flex-shrink:0}
   header.app .titulo{flex:1;text-align:center}
