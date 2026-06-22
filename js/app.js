@@ -395,15 +395,25 @@ function mostraAviso(aba, texto){
 }
 function limpaAba(aba){
   document.getElementById(`form-${aba}`).reset();
+  if(aba === "ai") document.getElementById("ai-atual").value = iso(hoje());
   document.querySelector(`#${aba}-tabela tbody`).innerHTML = "";
   document.getElementById(`${aba}-res-cartao`).style.display = "none";
   mostraErro(aba, ""); mostraAviso(aba, "");
   linhas[aba] = [];
 }
+const DATA_MINIMA = "2010-01-01";
+const MES_MINIMO = "2010-01";
+const ANO_MINIMO = 2010;
 function validaDataFutura(el, aba){
   if(el.value && el.value > iso(hoje())){
     el.value = "";
     mostraErro(aba, "Não é permitido informar data posterior à data atual. O campo foi limpo.");
+  }
+}
+function validaDataMinima(el, aba){
+  if(el.value && el.value < DATA_MINIMA){
+    el.value = "";
+    mostraErro(aba, "Não é permitido informar data anterior a 2010. O campo foi limpo.");
   }
 }
 function validaAnoFuturo(el, aba){
@@ -412,27 +422,53 @@ function validaAnoFuturo(el, aba){
     mostraErro(aba, "Não é permitido informar ano posterior ao ano atual. O campo foi limpo.");
   }
 }
+function validaAnoMinimo(el, aba){
+  if(el.value && Number(el.value) < ANO_MINIMO){
+    el.value = "";
+    mostraErro(aba, "Não é permitido informar ano anterior a 2010. O campo foi limpo.");
+  }
+}
 function validaMesFuturo(el, aba){
   if(el.value && el.value >= ymHoje()){
     el.value = "";
     mostraErro(aba, "Não é permitido informar mês/ano igual ou posterior ao mês atual. O campo foi limpo.");
   }
 }
-function validaNotifVsAno(el){
-  const ano = document.getElementById("ai-ano").value.trim();
-  if(ano && el.value && Number(el.value.slice(0,4)) < Number(ano)){
+function validaMesMinimo(el, aba){
+  if(el.value && el.value < MES_MINIMO){
     el.value = "";
-    mostraErro("ai", "A Data de Notificação não pode ser anterior ao Ano de Emissão. O campo foi limpo.");
+    mostraErro(aba, "Não é permitido informar mês/ano anterior a 2010. O campo foi limpo.");
+  }
+}
+function validaVsAnoEmissao(el, aba){
+  const ano = document.getElementById("ai-ano").value.trim();
+  if(!ano || !el.value) return;
+  const anoData = Number(el.value.slice(0,4));
+  if(anoData < Number(ano)){
+    el.value = "";
+    mostraErro(aba, "A data não pode ser anterior ao Ano de Emissão. O campo foi limpo.");
+  } else if(anoData === Number(ano)){
+    mostraAviso(aba, "A data informada é do mesmo ano do Ano de Emissão — confirme se é posterior à emissão do A.I.");
+  }
+}
+function validaAtualVsNotif(){
+  const notif = document.getElementById("ai-notif").value;
+  const atualEl = document.getElementById("ai-atual");
+  if(notif && atualEl.value && atualEl.value < notif){
+    atualEl.value = "";
+    mostraErro("ai", "A Data de Atualização não pode ser anterior à Data de Notificação. O campo foi limpo.");
   }
 }
 function limpaDatasAI(){
   const ano = document.getElementById("ai-ano").value.trim();
-  const algumaDataPreenchida = document.getElementById("ai-notif").value || document.getElementById("ai-atual").value;
+  const notifPreenchida = document.getElementById("ai-notif").value;
   document.getElementById("ai-notif").value = "";
-  document.getElementById("ai-atual").value = "";
-  document.getElementById("ai-notif").min = ano ? `${ano}-01-01` : "";
+  document.getElementById("ai-atual").value = iso(hoje());
+  const minAno = ano ? `${ano}-01-01` : DATA_MINIMA;
+  document.getElementById("ai-notif").min = minAno;
+  document.getElementById("ai-atual").min = minAno;
   mostraErro("ai", "");
-  mostraAviso("ai", (ano && algumaDataPreenchida) ? "O Ano de Emissão foi alterado: redigite as datas de Notificação e Atualização." : "");
+  mostraAviso("ai", (ano && notifPreenchida) ? "O Ano de Emissão foi alterado: redigite a Data de Notificação." : "");
 }
 const linhas = { ai: [], lt: [], dae: [] };
 const pct = v => v.toFixed(2).replace(".", ",") + "%";
@@ -450,7 +486,7 @@ function calculaAI(ev){
   const h = iso(hoje());
 
   if(!(valor > 0)) return mostraErro("ai","Digite um Valor Original maior que zero."), false;
-  if(notifISO < "2000-01-01") return mostraErro("ai","Data de Notificação com ano muito antigo — verifique a digitação."), false;
+  if(notifISO < DATA_MINIMA) return mostraErro("ai","Data de Notificação não pode ser anterior a 2010."), false;
   if(notifISO > h) return mostraErro("ai","A Data de Notificação não pode ser posterior à data atual."), false;
   if(atualISO > h) return mostraErro("ai","A Data de Atualização não pode ser posterior à data de hoje."), false;
   if(atualISO < notifISO) return mostraErro("ai","A Data de Atualização não pode ser anterior à Data de Notificação."), false;
@@ -540,7 +576,9 @@ function calculaLT(ev){
   const validadeISO = document.getElementById("lt-validade").value;
 
   if(!mesano || !(litros > 0) || !validadeISO) return mostraErro("lt","Preencha Mês/Ano, Litros e Validade do DAE."), false;
+  if(mesano < MES_MINIMO) return mostraErro("lt","Mês/Ano de Captação não pode ser anterior a 2010."), false;
   if(mesano >= ymHoje()) return mostraErro("lt","Mês/Ano de Captação não pode ser maior nem igual ao mês atual."), false;
+  if(validadeISO < DATA_MINIMA) return mostraErro("lt","Validade do DAE não pode ser anterior a 2010."), false;
 
   const ymVenc = addMes(mesano, 1);
   const vencISO = ymVenc + "-15";
@@ -610,7 +648,9 @@ function calculaDAE(ev){
   const h = iso(hoje());
 
   if(!(valor > 0)) return mostraErro("dae","Digite um valor maior que 0 (zero)."), false;
+  if(origISO < DATA_MINIMA) return mostraErro("dae","Validade do DAE devido não pode ser anterior a 2010."), false;
   if(origISO > h) return mostraErro("dae","A validade do DAE devido deve ser menor ou igual a hoje."), false;
+  if(novaISO < DATA_MINIMA) return mostraErro("dae","Validade do NOVO DAE não pode ser anterior a 2010."), false;
   if(novaISO < h) return mostraErro("dae","A validade do NOVO DAE deve ser maior ou igual a hoje."), false;
   if(origISO === novaISO) return mostraErro("dae","Validade do NOVO DAE não pode ser a mesma do DAE DEVIDO."), false;
 
@@ -735,12 +775,20 @@ function montaTabelasRef(){
   _exibeFeriados();
 }
 
-// ---------- limites de data (não permitir futuro) ----------
+// ---------- limites de data (não permitir futuro nem anterior a 2010) ----------
 document.getElementById("ai-notif").max = iso(hoje());
+document.getElementById("ai-notif").min = DATA_MINIMA;
 document.getElementById("ai-atual").max = iso(hoje());
+document.getElementById("ai-atual").min = DATA_MINIMA;
+document.getElementById("ai-atual").value = iso(hoje());
 document.getElementById("ai-ano").max = hoje().getFullYear();
+document.getElementById("ai-ano").min = ANO_MINIMO;
 document.getElementById("lt-mesano").max = addMes(ymHoje(), -1);
+document.getElementById("lt-mesano").min = MES_MINIMO;
+document.getElementById("lt-validade").min = DATA_MINIMA;
 document.getElementById("dae-validade-orig").max = iso(hoje());
+document.getElementById("dae-validade-orig").min = DATA_MINIMA;
+document.getElementById("dae-validade-nova").min = DATA_MINIMA;
 
 // ---------- inicialização ----------
 populaUnidades();
