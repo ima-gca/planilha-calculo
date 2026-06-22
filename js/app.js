@@ -417,6 +417,17 @@ function validaMesFuturo(el, aba){
   el.classList.toggle("invalido", !!invalido);
   mostraErro(aba, invalido ? "O mês/ano informado não pode ser igual ou posterior ao mês atual." : "");
 }
+function limpaDatasAI(){
+  const ano = document.getElementById("ai-ano").value.trim();
+  const algumaDataPreenchida = document.getElementById("ai-notif").value || document.getElementById("ai-atual").value;
+  ["ai-notif", "ai-atual"].forEach(id => {
+    const el = document.getElementById(id);
+    el.value = "";
+    el.classList.remove("invalido");
+  });
+  mostraErro("ai", "");
+  mostraAviso("ai", (ano && algumaDataPreenchida) ? "O Ano de Emissão foi alterado: redigite as datas de Notificação e Atualização." : "");
+}
 const linhas = { ai: [], lt: [], dae: [] };
 const pct = v => v.toFixed(2).replace(".", ",") + "%";
 

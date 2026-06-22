@@ -114,7 +114,7 @@
           </div>
           <div class="campo" id="ai-campo-ano" style="display:none">
             <label>Ano de emissão do A.I.</label>
-            <input type="number" id="ai-ano" min="2000" max="2099" placeholder="ex.: 2023" oninput="validaAnoFuturo(this,'ai')">
+            <input type="number" id="ai-ano" min="2000" max="2099" placeholder="ex.: 2023" oninput="validaAnoFuturo(this,'ai')" onchange="limpaDatasAI()">
             <small style="color:var(--erro);font-weight:600">Somente GDA</small>
           </div>
         </div>
@@ -319,7 +319,7 @@
 
 <script>
   // Bump a cada deploy: força o navegador a buscar js/css novos (evita cache de CDN/navegador).
-  const APP_VERSION = "2026.06.22-2";
+  const APP_VERSION = "2026.06.22-3";
   document.write('<script src="js/mapa-municipios.js?v=' + APP_VERSION + '"><' + '/script>');
   document.write('<script src="js/app.js?v=' + APP_VERSION + '"><' + '/script>');
 </script>
