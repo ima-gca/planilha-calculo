@@ -13,11 +13,10 @@
 </div>
 
 <header class="app">
-  <div class="header-spacer"></div>
   <div class="titulo">
     <h1>Planilha de Cálculo</h1>
-    <span class="sub1"><span class="full">Instituto Mineiro de Agropecuária — IMA</span><span class="curta">IMA</span></span>
-    <span class="sub2"><span class="full">Gerência de Controle da Arrecadação — GCA</span><span class="curta">GCA</span></span>
+    <span class="sub1">Instituto Mineiro de Agropecuária — IMA</span>
+    <span class="sub2">Gerência de Controle da Arrecadação — GCA</span>
   </div>
   <button class="emissor-chip" id="chipEmissor" onclick="abreModalEmissor()">
     <span id="chipNome">Identificar emissor</span>
@@ -28,10 +27,10 @@
 
 <nav class="abas">
   <button class="ativa" data-aba="inicio" onclick="trocaAba('inicio')">Início</button>
-  <button data-aba="ai" onclick="trocaAba('ai')">Auto de Infração</button>
-  <button data-aba="lt" onclick="trocaAba('lt')">Captação de Leite</button>
-  <button data-aba="dae" onclick="trocaAba('dae')">Atualização de DAE</button>
-  <button data-aba="ref" onclick="trocaAba('ref')">Dados de referência</button>
+  <button data-aba="ai" onclick="trocaAba('ai')"><span class="full">Auto de Infração</span><span class="curta">AI</span></button>
+  <button data-aba="lt" onclick="trocaAba('lt')"><span class="full">Captação de Leite</span><span class="curta">Leite</span></button>
+  <button data-aba="dae" onclick="trocaAba('dae')"><span class="full">Atualização de DAE</span><span class="curta">DAE</span></button>
+  <button data-aba="ref" onclick="trocaAba('ref')"><span class="full">Dados de referência</span><span class="curta">Referência</span></button>
 </nav>
 
 <main>
@@ -320,7 +319,7 @@
 
 <script>
   // Bump a cada deploy: força o navegador a buscar js/css novos (evita cache de CDN/navegador).
-  const APP_VERSION = "2026.06.22-9";
+  const APP_VERSION = "2026.06.22-10";
   document.write('<script src="js/mapa-municipios.js?v=' + APP_VERSION + '"><' + '/script>');
   document.write('<script src="js/app.js?v=' + APP_VERSION + '"><' + '/script>');
 </script>
