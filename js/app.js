@@ -518,6 +518,38 @@ function validaAtualVsNotif(){
     mostraErro("ai", "A Data de Atualização não pode ser anterior à Data de Notificação. O campo foi limpo.");
   }
 }
+function validaCampoNotif(el){
+  mostraErro("ai", ""); mostraAviso("ai", "");
+  validaDataFutura(el, "ai");
+  validaDataMinima(el, "ai");
+  validaVsAnoEmissao(el, "ai");
+  validaAtualVsNotif();
+}
+function validaCampoAtual(el){
+  mostraErro("ai", ""); mostraAviso("ai", "");
+  validaDataFutura(el, "ai");
+  validaDataMinima(el, "ai");
+  validaVsAnoEmissao(el, "ai");
+  validaAtualVsNotif();
+}
+function validaCampoMesLT(el){
+  mostraErro("lt", "");
+  validaMesFuturo(el, "lt");
+  validaMesMinimo(el, "lt");
+}
+function validaCampoValidadeLT(el){
+  mostraErro("lt", "");
+  validaDataMinima(el, "lt");
+}
+function validaCampoValidadeOrigDAE(el){
+  mostraErro("dae", "");
+  validaDataFutura(el, "dae");
+  validaDataMinima(el, "dae");
+}
+function validaCampoValidadeNovaDAE(el){
+  mostraErro("dae", "");
+  validaDataMinima(el, "dae");
+}
 function limpaDatasAI(){
   const ano = document.getElementById("ai-ano").value.trim();
   const notifPreenchida = document.getElementById("ai-notif").value;

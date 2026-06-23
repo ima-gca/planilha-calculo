@@ -109,12 +109,12 @@
   /* ===== Documento de impressão ===== */
   #printdoc,#printheader{display:none}
   @media print{
-    @page{size:A4;margin:0}
+    @page{size:A4;margin:10mm 0}
     body > *{display:none !important}
     #printheader{display:flex !important}
-    #printdoc{display:block !important;padding:8mm 16mm 34mm;font-family:"Segoe UI",Arial,sans-serif;color:#000}
+    #printdoc{display:block !important;padding:6mm 16mm 26mm;font-family:"Segoe UI",Arial,sans-serif;color:#000}
   }
-  #printheader{align-items:center;gap:14pt;padding:10pt 16mm 8pt;border-bottom:1pt solid #000;font-family:"Segoe UI",Arial,sans-serif;color:#000;background:#fff}
+  #printheader{align-items:center;gap:14pt;padding:4pt 16mm 8pt;border-bottom:1pt solid #000;font-family:"Segoe UI",Arial,sans-serif;color:#000;background:#fff}
   #printheader .doc-brasao{height:60pt;width:auto;flex-shrink:0}
   #printheader .doc-inst{flex:1;text-align:center;line-height:1.4}
   #printheader .doc-inst .inst1,#printheader .doc-inst .inst2,#printheader .doc-inst .inst3{font-size:10.5pt;display:block}
@@ -133,4 +133,4 @@
   #printdoc .doc-local-data{text-align:right;font-size:10.5pt;margin-top:16pt;margin-bottom:4pt;padding-right:4pt}
   #printdoc .doc-rodape{margin-top:96pt;font-size:11pt;text-align:center;line-height:1.7}
   #printfooter{display:none}
-  @media print{#printfooter{display:block !important;position:fixed;bottom:9mm;left:0;right:0;padding:5pt 16mm 0;border-top:1pt solid #000;font-size:7.5pt;text-align:center;line-height:1.5;color:#000;background:#fff}}
+  @media print{#printfooter{display:block !important;position:fixed;bottom:0;left:0;right:0;padding:5pt 16mm 8pt;border-top:1pt solid #000;font-size:7.5pt;text-align:center;line-height:1.5;color:#000;background:#fff}}
