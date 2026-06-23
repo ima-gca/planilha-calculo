@@ -39,7 +39,10 @@
   <section class="aba ativa" id="aba-inicio">
     <div class="cartao">
       <h2>Bem-vindo à Planilha de Cálculo</h2>
-      <p class="desc">Selecione abaixo o tipo de cálculo que deseja realizar.</p>
+      <details class="disclosure" open>
+        <summary>Aviso de responsabilidade — leia antes de emitir</summary>
+        <p>Esta ferramenta é um <b>auxílio de cálculo</b>. A emissão e os valores informados são de <b>responsabilidade do emissor</b>. Confira todos os dados (datas, valores, índices e UFEMG) antes de gerar e utilizar o documento.</p>
+      </details>
       <div class="grade-links">
         <button type="button" class="card-link" onclick="trocaAba('ai')">
           <h3>Auto de Infração</h3>
@@ -319,7 +322,7 @@
 
 <script>
   // Bump a cada deploy: força o navegador a buscar js/css novos (evita cache de CDN/navegador).
-  const APP_VERSION = "2026.06.22-10";
+  const APP_VERSION = "2026.06.22-11";
   document.write('<script src="js/mapa-municipios.js?v=' + APP_VERSION + '"><' + '/script>');
   document.write('<script src="js/app.js?v=' + APP_VERSION + '"><' + '/script>');
 </script>
