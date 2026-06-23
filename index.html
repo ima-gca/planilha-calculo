@@ -109,12 +109,12 @@
         <div class="linha">
           <div class="campo">
             <label>Data da Notificação *</label>
-            <input type="date" id="ai-notif" required oninput="validaCampoNotif(this)" onchange="validaCampoNotif(this)">
+            <input type="date" id="ai-notif" required oninput="validaCampoNotif(this)">
             <small>Data de ciência do débito</small>
           </div>
           <div class="campo">
             <label>Data de Atualização *</label>
-            <input type="date" id="ai-atual" required oninput="validaCampoAtual(this)" onchange="validaCampoAtual(this)">
+            <input type="date" id="ai-atual" required oninput="validaCampoAtual(this)">
             <small>Até quando o valor será atualizado</small>
           </div>
         </div>
@@ -153,7 +153,7 @@
         <div class="linha">
           <div class="campo">
             <label>Mês/Ano da Captação *</label>
-            <input type="month" id="lt-mesano" required oninput="validaCampoMesLT(this)" onchange="validaCampoMesLT(this)">
+            <input type="month" id="lt-mesano" required oninput="validaCampoMesLT(this)">
             <small>Deve ser anterior ao mês atual</small>
           </div>
           <div class="campo">
@@ -163,7 +163,7 @@
           </div>
           <div class="campo">
             <label>Validade do DAE *</label>
-            <input type="date" id="lt-validade" oninput="validaCampoValidadeLT(this)" onchange="validaCampoValidadeLT(this)">
+            <input type="date" id="lt-validade" oninput="validaCampoValidadeLT(this)">
             <small>Data até a qual o valor será atualizado</small>
           </div>
         </div>
@@ -200,12 +200,12 @@
           </div>
           <div class="campo">
             <label>Validade do DAE devido *</label>
-            <input type="date" id="dae-validade-orig" required oninput="validaCampoValidadeOrigDAE(this)" onchange="validaCampoValidadeOrigDAE(this)">
+            <input type="date" id="dae-validade-orig" required oninput="validaCampoValidadeOrigDAE(this)">
             <small>Deve ser menor ou igual a hoje</small>
           </div>
           <div class="campo">
             <label>Validade do novo DAE *</label>
-            <input type="date" id="dae-validade-nova" required oninput="validaCampoValidadeNovaDAE(this)" onchange="validaCampoValidadeNovaDAE(this)">
+            <input type="date" id="dae-validade-nova" required oninput="validaCampoValidadeNovaDAE(this)">
             <small>Deve ser maior ou igual a hoje</small>
           </div>
         </div>
@@ -308,7 +308,7 @@
 
 <script>
   // Bump a cada deploy: força o navegador a buscar js/css novos (evita cache de CDN/navegador).
-  const APP_VERSION = "2026.06.22-14";
+  const APP_VERSION = "2026.06.22-15";
   document.write('<script src="js/mapa-municipios.js?v=' + APP_VERSION + '"><' + '/script>');
   document.write('<script src="js/app.js?v=' + APP_VERSION + '"><' + '/script>');
 </script>
