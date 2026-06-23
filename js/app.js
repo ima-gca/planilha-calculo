@@ -309,11 +309,14 @@ function emissor(){
   return lista.find(e => e.masp === ativo) || lista[0];
 }
 const abreviaUA = ua => ua.includes(" — ") ? ua.split(" — ")[0] : ua;
+const primeiroNome = nome => capitalizaNome(nome).split(" ")[0];
 function pintaChip(){
   const e = emissor();
   document.getElementById("chipNome").textContent = e ? capitalizaNome(e.nome) : "Identificar emissor";
   document.getElementById("chipMunicipio").textContent = e ? capitalizaNome(e.local) : "clique para preencher";
   document.getElementById("chipUA").textContent = e ? abreviaUA(e.ua) : "";
+  const bv = document.getElementById("boasvindas");
+  if(bv) bv.textContent = e ? `Bem-vindo(a), ${capitalizaNome(e.nome)}` : "Bem-vindo(a) à Planilha de Cálculo";
 }
 function preencheCamposEmissor(e){
   document.getElementById("em-masp").value = e.masp || "";
@@ -371,6 +374,7 @@ function salvaEmissor(){
     erro.style.display = "block"; return;
   }
   const novo = { masp, nome: capitalizaNome(nome), ua, local: capitalizaNome(local) };
+  const jaExistia = listaEmissores().some(e => e.masp === masp);
   const lista = listaEmissores().filter(e => e.masp !== masp);
   lista.push(novo);
   localStorage.setItem(CHAVE_EMISSORES, JSON.stringify(lista));
@@ -378,6 +382,10 @@ function salvaEmissor(){
   erro.style.display = "none";
   document.getElementById("modalEmissor").classList.remove("aberto");
   pintaChip();
+  if(!jaExistia){
+    document.getElementById("popup-bv-titulo").textContent = `Bem-vindo(a), ${capitalizaNome(novo.nome)}`;
+    document.getElementById("popup-boasvindas").classList.add("aberto");
+  }
 }
 
 // ---------- municípios e unidades ----------
@@ -452,14 +460,17 @@ function limpaAba(aba){
 const DATA_MINIMA = "2010-01-01";
 const MES_MINIMO = "2010-01";
 const ANO_MINIMO = 2010;
+// só valida quando o ano já tem 4 dígitos significativos — evita disparo a
+// cada tecla enquanto o usuário digita o ano (ex.: "2", "20", "202" no <input type=date>)
+const _anoPleno = s => !!s && Number(s.slice(0,4)) >= 1000;
 function validaDataFutura(el, aba){
-  if(el.value && el.value > iso(hoje())){
+  if(_anoPleno(el.value) && el.value > iso(hoje())){
     el.value = "";
     mostraErro(aba, "Não é permitido informar data posterior à data atual. O campo foi limpo.");
   }
 }
 function validaDataMinima(el, aba){
-  if(el.value && el.value < DATA_MINIMA){
+  if(_anoPleno(el.value) && el.value < DATA_MINIMA){
     el.value = "";
     mostraErro(aba, "Não é permitido informar data anterior a 2010. O campo foi limpo.");
   }
@@ -471,26 +482,26 @@ function validaAnoFuturo(el, aba){
   }
 }
 function validaAnoMinimo(el, aba){
-  if(el.value && Number(el.value) < ANO_MINIMO){
+  if(el.value && el.value.length >= 4 && Number(el.value) < ANO_MINIMO){
     el.value = "";
     mostraErro(aba, "Não é permitido informar ano anterior a 2010. O campo foi limpo.");
   }
 }
 function validaMesFuturo(el, aba){
-  if(el.value && el.value >= ymHoje()){
+  if(_anoPleno(el.value) && el.value >= ymHoje()){
     el.value = "";
     mostraErro(aba, "Não é permitido informar mês/ano igual ou posterior ao mês atual. O campo foi limpo.");
   }
 }
 function validaMesMinimo(el, aba){
-  if(el.value && el.value < MES_MINIMO){
+  if(_anoPleno(el.value) && el.value < MES_MINIMO){
     el.value = "";
     mostraErro(aba, "Não é permitido informar mês/ano anterior a 2010. O campo foi limpo.");
   }
 }
 function validaVsAnoEmissao(el, aba){
   const ano = document.getElementById("ai-ano").value.trim();
-  if(!ano || !el.value) return;
+  if(!ano || !_anoPleno(el.value)) return;
   const anoData = Number(el.value.slice(0,4));
   if(anoData < Number(ano)){
     el.value = "";
@@ -502,7 +513,7 @@ function validaVsAnoEmissao(el, aba){
 function validaAtualVsNotif(){
   const notif = document.getElementById("ai-notif").value;
   const atualEl = document.getElementById("ai-atual");
-  if(notif && atualEl.value && atualEl.value < notif){
+  if(_anoPleno(notif) && _anoPleno(atualEl.value) && atualEl.value < notif){
     atualEl.value = "";
     mostraErro("ai", "A Data de Atualização não pode ser anterior à Data de Notificação. O campo foi limpo.");
   }

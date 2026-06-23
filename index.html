@@ -38,25 +38,11 @@
   <!-- ============ INÍCIO ============ -->
   <section class="aba ativa" id="aba-inicio">
     <div class="cartao">
-      <h2>Bem-vindo à Planilha de Cálculo</h2>
-      <details class="disclosure" open>
+      <h2 id="boasvindas">Bem-vindo(a) à Planilha de Cálculo</h2>
+      <details class="disclosure">
         <summary>Aviso de responsabilidade — leia antes de emitir</summary>
         <p>Esta ferramenta é um <b>auxílio de cálculo</b>. A emissão e os valores informados são de <b>responsabilidade do emissor</b>. Confira todos os dados (datas, valores, índices e UFEMG) antes de gerar e utilizar o documento.</p>
       </details>
-      <div class="grade-links">
-        <button type="button" class="card-link" onclick="trocaAba('ai')">
-          <h3>Auto de Infração</h3>
-          <p>Crédito não tributário. Atualização de valores por correção monetária pela taxa SELIC, sem multa.</p>
-        </button>
-        <button type="button" class="card-link" onclick="trocaAba('lt')">
-          <h3>Captação de Leite</h3>
-          <p>Crédito tributário sobre litros captados. Multa por atraso e correção pela SELIC.</p>
-        </button>
-        <button type="button" class="card-link" onclick="trocaAba('dae')">
-          <h3>Atualização de DAE</h3>
-          <p>Atualiza o valor de um DAE vencido (GTA/PTV) para uma nova data de validade.</p>
-        </button>
-      </div>
     </div>
 
     <div class="cartao aviso-legal">
@@ -123,12 +109,12 @@
         <div class="linha">
           <div class="campo">
             <label>Data da Notificação *</label>
-            <input type="date" id="ai-notif" required onblur="validaDataFutura(this,'ai'); validaDataMinima(this,'ai'); validaVsAnoEmissao(this,'ai'); validaAtualVsNotif()">
+            <input type="date" id="ai-notif" required onchange="mostraErro('ai','');mostraAviso('ai','');validaDataFutura(this,'ai'); validaDataMinima(this,'ai'); validaVsAnoEmissao(this,'ai'); validaAtualVsNotif()">
             <small>Data de ciência do débito</small>
           </div>
           <div class="campo">
             <label>Data de Atualização *</label>
-            <input type="date" id="ai-atual" required onblur="validaDataFutura(this,'ai'); validaDataMinima(this,'ai'); validaVsAnoEmissao(this,'ai'); validaAtualVsNotif()">
+            <input type="date" id="ai-atual" required onchange="mostraErro('ai','');mostraAviso('ai','');validaDataFutura(this,'ai'); validaDataMinima(this,'ai'); validaVsAnoEmissao(this,'ai'); validaAtualVsNotif()">
             <small>Até quando o valor será atualizado</small>
           </div>
         </div>
@@ -167,7 +153,7 @@
         <div class="linha">
           <div class="campo">
             <label>Mês/Ano da Captação *</label>
-            <input type="month" id="lt-mesano" required onblur="validaMesFuturo(this,'lt'); validaMesMinimo(this,'lt')">
+            <input type="month" id="lt-mesano" required onchange="mostraErro('lt','');validaMesFuturo(this,'lt'); validaMesMinimo(this,'lt')">
             <small>Deve ser anterior ao mês atual</small>
           </div>
           <div class="campo">
@@ -177,7 +163,7 @@
           </div>
           <div class="campo">
             <label>Validade do DAE *</label>
-            <input type="date" id="lt-validade" onblur="validaDataMinima(this,'lt')">
+            <input type="date" id="lt-validade" onchange="mostraErro('lt','');validaDataMinima(this,'lt')">
             <small>Data até a qual o valor será atualizado</small>
           </div>
         </div>
@@ -214,12 +200,12 @@
           </div>
           <div class="campo">
             <label>Validade do DAE devido *</label>
-            <input type="date" id="dae-validade-orig" required onblur="validaDataFutura(this,'dae'); validaDataMinima(this,'dae')">
+            <input type="date" id="dae-validade-orig" required onchange="mostraErro('dae','');validaDataFutura(this,'dae'); validaDataMinima(this,'dae')">
             <small>Deve ser menor ou igual a hoje</small>
           </div>
           <div class="campo">
             <label>Validade do novo DAE *</label>
-            <input type="date" id="dae-validade-nova" required onblur="validaDataMinima(this,'dae')">
+            <input type="date" id="dae-validade-nova" required onchange="mostraErro('dae','');validaDataMinima(this,'dae')">
             <small>Deve ser maior ou igual a hoje</small>
           </div>
         </div>
@@ -322,7 +308,7 @@
 
 <script>
   // Bump a cada deploy: força o navegador a buscar js/css novos (evita cache de CDN/navegador).
-  const APP_VERSION = "2026.06.22-12";
+  const APP_VERSION = "2026.06.22-13";
   document.write('<script src="js/mapa-municipios.js?v=' + APP_VERSION + '"><' + '/script>');
   document.write('<script src="js/app.js?v=' + APP_VERSION + '"><' + '/script>');
 </script>
@@ -337,6 +323,18 @@
        <b>gca@ima.mg.gov.br</b></p>
     <div class="botoes">
       <button class="primario" onclick="document.getElementById('popup-ufemg').classList.remove('aberto')">Entendi</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ POPUP BOAS-VINDAS / RESPONSABILIDADE ============ -->
+<div class="modal-fundo" id="popup-boasvindas">
+  <div class="modal">
+    <h2 id="popup-bv-titulo">Bem-vindo(a)</h2>
+    <p>Esta ferramenta é um <b>auxílio de cálculo</b>. A emissão e os valores informados são de <b>responsabilidade do emissor</b>.</p>
+    <p>Confira todos os dados (datas, valores, índices e UFEMG) antes de gerar e utilizar o documento.</p>
+    <div class="botoes">
+      <button class="primario" onclick="document.getElementById('popup-boasvindas').classList.remove('aberto')">Entendi</button>
     </div>
   </div>
 </div>

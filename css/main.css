@@ -84,12 +84,6 @@
   table.ref th{background:var(--verde-claro);padding:5px;border:1px solid var(--borda)}
   table.ref td{padding:4px 8px;border:1px solid var(--borda);text-align:center}
 
-  .grade-links{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-top:4px}
-  .card-link{background:var(--verde-claro);border:1px solid var(--borda);border-radius:10px;padding:12px 14px;text-align:left;cursor:pointer;display:flex;flex-direction:column;gap:4px;font-family:inherit}
-  .card-link:hover{filter:brightness(.97)}
-  .card-link h3{margin:0;color:var(--verde-esc);font-size:.95rem;text-align:center}
-  .card-link p{margin:0;color:var(--cinza);font-size:.78rem}
-
   .aviso-legal{border-color:var(--erro)}
   .aviso-legal h2{color:var(--erro);text-align:center}
   .lista-legal{margin:0;padding-left:22px;font-size:.88rem;line-height:1.4;color:#222}
@@ -115,12 +109,12 @@
   /* ===== Documento de impressão ===== */
   #printdoc,#printheader{display:none}
   @media print{
-    @page{size:A4;margin:10mm 0}
+    @page{size:A4;margin:0}
     body > *{display:none !important}
     #printheader{display:flex !important}
-    #printdoc{display:block !important;padding:6mm 16mm 26mm;font-family:"Segoe UI",Arial,sans-serif;color:#000}
+    #printdoc{display:block !important;padding:8mm 16mm 34mm;font-family:"Segoe UI",Arial,sans-serif;color:#000}
   }
-  #printheader{align-items:center;gap:14pt;padding:4pt 16mm 8pt;border-bottom:1pt solid #000;font-family:"Segoe UI",Arial,sans-serif;color:#000;background:#fff}
+  #printheader{align-items:center;gap:14pt;padding:10pt 16mm 8pt;border-bottom:1pt solid #000;font-family:"Segoe UI",Arial,sans-serif;color:#000;background:#fff}
   #printheader .doc-brasao{height:60pt;width:auto;flex-shrink:0}
   #printheader .doc-inst{flex:1;text-align:center;line-height:1.4}
   #printheader .doc-inst .inst1,#printheader .doc-inst .inst2,#printheader .doc-inst .inst3{font-size:10.5pt;display:block}
@@ -139,4 +133,4 @@
   #printdoc .doc-local-data{text-align:right;font-size:10.5pt;margin-top:16pt;margin-bottom:4pt;padding-right:4pt}
   #printdoc .doc-rodape{margin-top:96pt;font-size:11pt;text-align:center;line-height:1.7}
   #printfooter{display:none}
-  @media print{#printfooter{display:block !important;position:fixed;bottom:0;left:0;right:0;padding:5pt 16mm 8pt;border-top:1pt solid #000;font-size:7.5pt;text-align:center;line-height:1.5;color:#000;background:#fff}}
+  @media print{#printfooter{display:block !important;position:fixed;bottom:9mm;left:0;right:0;padding:5pt 16mm 0;border-top:1pt solid #000;font-size:7.5pt;text-align:center;line-height:1.5;color:#000;background:#fff}}
