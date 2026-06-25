@@ -1,12 +1,7 @@
 
 "use strict";
-// =====================================================================
-// DADOS INCORPORADOS
-// UFEMG: acrescente a nova linha anualmente (ex.: 2027: X.XXXX)
-// Fonte: https://www.fazenda.mg.gov.br/empresas/legislacao_tributaria/resolucoes/ufemg.html
-// Feriados fixos até 2030; anos seguintes carregados via BrasilAPI ao vivo
-// SELIC: snapshot de reserva offline — API BCB carregada ao vivo no startup
-// =====================================================================
+// Dados embutidos. UFEMG: acrescente o ano novo aqui todo início de ano.
+// Fonte: fazenda.mg.gov.br/empresas/legislacao_tributaria/resolucoes/ufemg.html
 const UFEMG = {
   2005:1.6175, 2006:1.6528, 2007:1.708,  2008:1.8122, 2009:2.0349,
   2010:1.9991, 2011:2.1813, 2012:2.3291, 2013:2.5016, 2014:2.6382,
@@ -14,6 +9,10 @@ const UFEMG = {
   2020:3.7116, 2021:3.944,  2022:4.7703, 2023:5.0369, 2024:5.2797,
   2025:5.531
 };
+function anosUfemgDisponiveis(){
+  const anos = Object.keys(UFEMG).sort();
+  return `${anos[0]} a ${anos[anos.length - 1]}`;
+}
 
 const PARAMS = {
   multaAte30PorDia: 0.0015,
@@ -73,10 +72,8 @@ const SELIC_SNAPSHOT = {
   "2026-01":1.16,"2026-02":1.0,"2026-03":1.21,"2026-04":1.09,"2026-05":1.07,"2026-06":0.27
 };
 
-// =====================================================================
-// UNIDADES ADMINISTRATIVAS DO IMA
-// TODO: substituir pela lista oficial completa fornecida pela GCA/IMA
-// =====================================================================
+// Unidades administrativas do IMA
+// TODO: confirmar lista completa com a GCA
 
 const GERENCIAS_SEDE = [
   "GCA — Gerência de Controle da Arrecadação",
@@ -156,10 +153,8 @@ let SELIC = { ...SELIC_SNAPSHOT };
 let selicOnline = false;
 
 async function carregaSelic(){
-  // Usa a SELIC DIÁRIA (série 11) e compõe o índice mensal por juros compostos,
-  // igual à metodologia da Receita Federal/SEF-MG — a série 4390 (mensal, 2 casas)
-  // arredonda demais e diverge do valor oficial usado para correção de tributos
-  // (ex.: maio/2026: 4390 = 1,07% · diária composta = 1,073435%, que é o valor da SEF-MG).
+  // Compõe a SELIC diária (série 11) em vez de usar a mensal (série 4390),
+  // que vem arredondada demais e diverge do valor oficial da SEF-MG.
   try{
     const h = hoje();
     const anoAtual = h.getFullYear();
@@ -631,7 +626,7 @@ function calculaAI(ev){
       anoUfemg = Number(notifISO.slice(0,4));
     }
     const u = UFEMG[anoUfemg];
-    if(u === undefined) return mostraErro("ai",`Não há valor de UFEMG cadastrado para o ano ${anoUfemg}. Anos disponíveis: ${Object.keys(UFEMG).join(", ")}.`), false;
+    if(u === undefined) return mostraErro("ai",`Não há UFEMG cadastrada para o ano ${anoUfemg}. Anos disponíveis: ${anosUfemgDisponiveis()}.`), false;
     valorConvertido = valor * u;
     subConversao = `Valor convertido em Reais pela UFEMG ${anoUfemg} (R$ ${u.toString().replace(".",",")})`;
   }
@@ -712,7 +707,7 @@ function calculaLT(ev){
   const vencISO = ymVenc + "-15";
   const anoUfemg = Number(ymVenc.slice(0,4));
   const u = UFEMG[anoUfemg];
-  if(u === undefined) return mostraErro("lt",`Não há valor de UFEMG cadastrado para o ano ${anoUfemg}.`), false;
+  if(u === undefined) return mostraErro("lt",`Não há UFEMG cadastrada para o ano ${anoUfemg}. Anos disponíveis: ${anosUfemgDisponiveis()}.`), false;
 
   const valorCaptacao = Math.round((litros * (u * PARAMS.leiteFracaoUfemg) / 1000) * 1e6) / 1e6;
   const atraso = diffDias(deISO(vencISO), deISO(validadeISO));
@@ -943,73 +938,14 @@ async function verificaNovaVersao(){
 verificaNovaVersao();
 setInterval(verificaNovaVersao, 10 * 60 * 1000);
 
-// =====================================================================
-// VERIFICAÇÃO / ATUALIZAÇÃO DA UFEMG — executada uma vez no load
-// =====================================================================
-const UFEMG_CACHE_KEY = "ufemg-cache-v1";
-
-function _carregaCacheUFEMG(){
-  try {
-    const raw = localStorage.getItem(UFEMG_CACHE_KEY);
-    if(!raw) return;
-    const obj = JSON.parse(raw);
-    // cache válido por 30 dias
-    if(Date.now() - obj.ts > 30 * 86400000) return;
-    Object.assign(UFEMG, obj.data);
-  } catch(e) {}
-}
-
-function _salvaCacheUFEMG(){
-  try {
-    const data = {};
-    for(let a = 2002; a <= hoje().getFullYear(); a++){
-      if(UFEMG[a] !== undefined) data[a] = UFEMG[a];
-    }
-    localStorage.setItem(UFEMG_CACHE_KEY, JSON.stringify({ ts: Date.now(), data }));
-  } catch(e) {}
-}
-
-async function verificaUFEMG(){
-  // 1. Aplica cache local (evita refetch se ainda válido)
-  _carregaCacheUFEMG();
-
+// Avisa se a UFEMG do ano atual ainda não foi cadastrada
+function verificaUFEMG(){
   const anoAtual = hoje().getFullYear();
-  const precisaFetch = UFEMG[anoAtual] === undefined;
+  if(UFEMG[anoAtual] !== undefined) return;
 
-  // 2. Tenta buscar a página da SEF-MG (uma única vez por load)
-  if(precisaFetch){
-    try {
-      const ctrl = new AbortController();
-      setTimeout(() => ctrl.abort(), 8000);
-      const r = await fetch(
-        "https://www.fazenda.mg.gov.br/empresas/legislacao_tributaria/resolucoes/ufemg.html",
-        { signal: ctrl.signal }
-      );
-      if(r.ok){
-        const txt = await r.text();
-        // Extrai todos os pares (ano 20xx, valor R$ X,XXXX) da página
-        const re = /\b(20\d{2})\b[^<\n]{0,150}?(\d+[,.]\d{3,4})\b/g;
-        let m;
-        while((m = re.exec(txt)) !== null){
-          const a = parseInt(m[1]);
-          const v = parseFloat(m[2].replace(",","."));
-          if(a >= 2002 && a <= anoAtual + 1 && v > 0 && v < 100){
-            UFEMG[a] = v;
-          }
-        }
-        _salvaCacheUFEMG();
-      }
-    } catch(e) { /* CORS ou timeout — comportamento esperado em produção */ }
-  }
-
-  // 3. Verifica se o ano atual está coberto
-  if(UFEMG[anoAtual] !== undefined) return;  // tudo ok
-
-  // Não foi possível obter o valor — já mostrou popup nesta sessão?
   if(sessionStorage.getItem("ufemg-popup-visto")) return;
   sessionStorage.setItem("ufemg-popup-visto", "1");
 
-  // Encontra o último ano com valor conhecido
   let ultimoAno = anoAtual - 1;
   while(ultimoAno >= 2002 && UFEMG[ultimoAno] === undefined) ultimoAno--;
 
