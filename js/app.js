@@ -310,9 +310,19 @@ function emissor(){
 }
 const abreviaUA = ua => ua.includes(" — ") ? ua.split(" — ")[0] : ua;
 const primeiroNome = nome => capitalizaNome(nome).split(" ")[0];
+// abrevia sobrenomes do meio (mantém primeiro nome e último sobrenome completos)
+function abreviaNomeMeio(nome){
+  const partes = capitalizaNome(nome).split(" ");
+  if(partes.length <= 2) return partes.join(" ");
+  return partes.map((p, i) => {
+    if(i === 0 || i === partes.length - 1) return p;
+    if(_PREP_MINUSCULAS.has(p.toLowerCase())) return p;
+    return p.charAt(0) + ".";
+  }).join(" ");
+}
 function pintaChip(){
   const e = emissor();
-  document.getElementById("chipNome").textContent = e ? capitalizaNome(e.nome) : "Identificar emissor";
+  document.getElementById("chipNome").textContent = e ? abreviaNomeMeio(e.nome) : "Identificar emissor";
   document.getElementById("chipMunicipio").textContent = e ? capitalizaNome(e.local) : "clique para preencher";
   document.getElementById("chipUA").textContent = e ? abreviaUA(e.ua) : "";
   const bv = document.getElementById("boasvindas");
