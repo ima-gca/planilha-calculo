@@ -133,5 +133,5 @@
   #printdoc tr.destaque td{background:#eee}
   #printdoc tr.destaque td.valor{font-weight:700;font-size:14.5pt}
   #printdoc .doc-local-data{text-align:right;font-size:10.5pt;margin-top:16pt;margin-bottom:4pt;padding-right:4pt}
-  #printdoc .doc-rodape{margin-top:60pt;font-size:11pt;text-align:center;line-height:1.7}
+  #printdoc .doc-rodape{margin-top:79pt;font-size:11pt;text-align:center;line-height:1.7}
   #printfooter{display:none;max-width:185mm;margin:14mm auto 0;padding:5pt 10mm 0;border-top:1pt solid #000;font-size:7.5pt;text-align:center;line-height:1.5;color:#000;background:#fff;font-family:"Segoe UI",Arial,sans-serif}
