@@ -47,6 +47,14 @@
   .cartao{background:#fff;border:1px solid var(--borda);border-radius:10px;padding:14px 16px;margin-bottom:12px}
   .cartao h2{margin:0 0 4px;font-size:1rem;color:var(--verde-esc)}
   .cartao p.desc{margin:0 0 12px;color:var(--cinza);font-size:.82rem}
+
+  .layout-calc{display:grid;grid-template-columns:1fr 260px;gap:24px;align-items:start;margin-top:10px}
+  .coluna-info{background:var(--verde-claro);border-radius:8px;padding:12px 14px}
+  .coluna-info h3{margin:0 0 8px;font-size:.85rem;color:var(--verde-esc)}
+  .coluna-info table.ref{background:#fff}
+  .coluna-info table.ref td:first-child{text-align:left;font-weight:600;color:#384540}
+  .coluna-info table.ref td:last-child{text-align:left}
+  @media (max-width:760px){.layout-calc{grid-template-columns:1fr}}
   .disclosure{margin:0 0 14px;border:1px solid var(--aviso);background:#fff8e1;border-radius:8px;padding:8px 12px}
   .disclosure summary{cursor:pointer;font-weight:600;color:var(--aviso);font-size:.85rem}
   .disclosure p{margin:8px 0 2px;color:#5a4a00;font-size:.84rem;line-height:1.45}
