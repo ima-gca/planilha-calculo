@@ -310,6 +310,13 @@ function emissor(){
 }
 const abreviaUA = ua => ua.includes(" — ") ? ua.split(" — ")[0] : ua;
 const primeiroNome = nome => capitalizaNome(nome).split(" ")[0];
+// primeiros 2 nomes (inclui o 3º se o 2º for preposição, ex.: "Maria de Fátima")
+function doisPrimeirosNomes(nome){
+  const partes = capitalizaNome(nome).split(" ");
+  let fim = Math.min(2, partes.length);
+  while(fim < partes.length && _PREP_MINUSCULAS.has(partes[fim - 1].toLowerCase())) fim++;
+  return partes.slice(0, fim).join(" ");
+}
 // abrevia sobrenomes do meio (mantém primeiro nome e último sobrenome completos)
 function abreviaNomeMeio(nome){
   const partes = capitalizaNome(nome).split(" ");
@@ -326,7 +333,7 @@ function pintaChip(){
   document.getElementById("chipMunicipio").textContent = e ? capitalizaNome(e.local) : "clique para preencher";
   document.getElementById("chipUA").textContent = e ? abreviaUA(e.ua) : "";
   const bv = document.getElementById("boasvindas");
-  if(bv) bv.textContent = e ? `Bem-vindo(a), ${capitalizaNome(e.nome)}` : "Bem-vindo(a) à Planilha de Cálculo";
+  if(bv) bv.textContent = e ? `Bem-vindo(a), ${doisPrimeirosNomes(e.nome)}` : "Bem-vindo(a) à Planilha de Cálculo";
 }
 function preencheCamposEmissor(e){
   document.getElementById("em-masp").value = e.masp || "";
@@ -393,7 +400,7 @@ function salvaEmissor(){
   document.getElementById("modalEmissor").classList.remove("aberto");
   pintaChip();
   if(!jaExistia){
-    document.getElementById("popup-bv-titulo").textContent = `Bem-vindo(a), ${capitalizaNome(novo.nome)}`;
+    document.getElementById("popup-bv-titulo").textContent = `Bem-vindo(a), ${doisPrimeirosNomes(novo.nome)}`;
     document.getElementById("popup-boasvindas").classList.add("aberto");
   }
 }
