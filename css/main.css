@@ -35,7 +35,12 @@
     nav.abas{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:8px 12px 10px}
     nav.abas button{border-radius:8px;border-bottom:1px solid var(--borda);text-align:center}
     nav.abas button.ativa{border-color:var(--verde)}
-    nav.abas button[data-aba="inicio"]{grid-column:1 / -1}
+    nav.abas button[data-aba="inicio"]{order:1}
+    nav.abas button[data-aba="ajuda"]{order:2}
+    nav.abas button[data-aba="ai"]{order:3}
+    nav.abas button[data-aba="lt"]{order:4}
+    nav.abas button[data-aba="dae"]{order:5}
+    nav.abas button[data-aba="ref"]{order:6}
     nav.abas button .full{display:none}
     nav.abas button .curta{display:inline}
   }
@@ -48,8 +53,9 @@
   .cartao h2{margin:0 0 4px;font-size:1rem;color:var(--verde-esc)}
   .cartao p.desc{margin:0 0 12px;color:var(--cinza);font-size:.82rem}
 
-  .layout-calc{display:grid;grid-template-columns:1fr 340px;gap:14px;align-items:start;margin-top:2px}
-  .coluna-info{background:var(--verde-claro);border-radius:8px;padding:8px 12px}
+  .layout-calc{display:grid;grid-template-columns:1fr 340px;gap:14px;align-items:start}
+  .layout-calc .cartao{margin-bottom:0}
+  .coluna-info{background:var(--verde-claro)}
   .coluna-info h3{margin:0 0 6px;font-size:.8rem;color:var(--verde-esc)}
   .coluna-info table.ref{background:#fff;font-size:.72rem}
   .coluna-info table.ref td{padding:3px 7px}

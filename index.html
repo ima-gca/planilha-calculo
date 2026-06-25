@@ -6,7 +6,7 @@
 <title>Planilha de Cálculo — IMA/GCA</title>
 <script>
   // Bump a cada deploy: força o navegador a buscar css/js novos (evita cache de CDN/navegador).
-  const APP_VERSION = "2026.06.25-11";
+  const APP_VERSION = "2026.06.25-12";
   document.write('<link rel="stylesheet" href="css/main.css?v=' + APP_VERSION + '">');
 </script>
 </head>
@@ -84,10 +84,9 @@
 
   <!-- ============ AUTO DE INFRAÇÃO ============ -->
   <section class="aba" id="aba-ai">
-    <div class="cartao">
+    <div class="layout-calc">
+      <div class="cartao coluna-form">
       <h2>Auto de Infração — Crédito Não Tributário</h2>
-      <div class="layout-calc">
-        <div class="coluna-form">
       <div class="msg-erro" id="erro-ai"></div>
       <div class="msg-aviso" id="aviso-ai"></div>
       <form id="form-ai" onsubmit="return calculaAI(event)">
@@ -129,17 +128,16 @@
           <button type="button" class="limpar" onclick="limpaAba('ai')">Limpar dados</button>
         </div>
       </form>
-        </div>
-        <div class="coluna-info">
-          <h3>Como funciona</h3>
-          <table class="ref">
-            <tr><td>Multa</td><td>Não há</td></tr>
-            <tr><td>Correção</td><td>SELIC acumulada</td></tr>
-            <tr><td>Mês da atualização</td><td>Sempre 1%</td></tr>
-            <tr><td>Data retroativa</td><td>Permitida (reimpressão)</td></tr>
-            <tr><td>Ano de Emissão</td><td>Só para GDA; se vazio, usa o ano da notificação</td></tr>
-          </table>
-        </div>
+      </div>
+      <div class="cartao coluna-info">
+        <h3>Como funciona</h3>
+        <table class="ref">
+          <tr><td>Multa</td><td>Não há</td></tr>
+          <tr><td>Correção</td><td>SELIC acumulada</td></tr>
+          <tr><td>Mês da atualização</td><td>Sempre 1%</td></tr>
+          <tr><td>Data retroativa</td><td>Permitida (reimpressão)</td></tr>
+          <tr><td>Ano de Emissão</td><td>Só para GDA; se vazio, usa o ano da notificação</td></tr>
+        </table>
       </div>
     </div>
 
@@ -163,10 +161,9 @@
 
   <!-- ============ CAPTAÇÃO DE LEITE ============ -->
   <section class="aba" id="aba-lt">
-    <div class="cartao">
+    <div class="layout-calc">
+      <div class="cartao coluna-form">
       <h2>Captação de Leite — Crédito Tributário</h2>
-      <div class="layout-calc">
-        <div class="coluna-form">
       <div class="msg-erro" id="erro-lt"></div>
       <form id="form-lt" onsubmit="return calculaLT(event)">
         <div class="linha">
@@ -191,18 +188,17 @@
           <button type="button" class="limpar" onclick="limpaAba('lt')">Limpar dados</button>
         </div>
       </form>
-        </div>
-        <div class="coluna-info">
-          <h3>Como funciona</h3>
-          <table class="ref">
-            <tr><td>Taxa</td><td>0,15 UFEMG / 1000 L (ou fração)</td></tr>
-            <tr><td>Vencimento</td><td>Dia 15 do mês seguinte</td></tr>
-            <tr><td>Multa até 30 dias</td><td>0,15%/dia</td></tr>
-            <tr><td>Multa 31 a 60 dias</td><td>9%</td></tr>
-            <tr><td>Multa acima de 60 dias</td><td>12%</td></tr>
-            <tr><td>Correção</td><td>SELIC acumulada</td></tr>
-          </table>
-        </div>
+      </div>
+      <div class="cartao coluna-info">
+        <h3>Como funciona</h3>
+        <table class="ref">
+          <tr><td>Taxa</td><td>0,15 UFEMG / 1000 L (ou fração)</td></tr>
+          <tr><td>Vencimento</td><td>Dia 15 do mês seguinte</td></tr>
+          <tr><td>Multa até 30 dias</td><td>0,15%/dia</td></tr>
+          <tr><td>Multa 31 a 60 dias</td><td>9%</td></tr>
+          <tr><td>Multa acima de 60 dias</td><td>12%</td></tr>
+          <tr><td>Correção</td><td>SELIC acumulada</td></tr>
+        </table>
       </div>
     </div>
 
@@ -220,10 +216,9 @@
 
   <!-- ============ ATUALIZAÇÃO DE DAE ============ -->
   <section class="aba" id="aba-dae">
-    <div class="cartao">
+    <div class="layout-calc">
+      <div class="cartao coluna-form">
       <h2>Atualização de DAE — GTA/PTV vencidos</h2>
-      <div class="layout-calc">
-        <div class="coluna-form">
       <div class="msg-erro" id="erro-dae"></div>
       <form id="form-dae" onsubmit="return calculaDAE(event)">
         <div class="linha">
@@ -247,16 +242,15 @@
           <button type="button" class="limpar" onclick="limpaAba('dae')">Limpar dados</button>
         </div>
       </form>
-        </div>
-        <div class="coluna-info">
-          <h3>Como funciona</h3>
-          <table class="ref">
-            <tr><td>Multa até 30 dias</td><td>0,15%/dia</td></tr>
-            <tr><td>Multa 31 a 60 dias</td><td>9%</td></tr>
-            <tr><td>Multa acima de 60 dias</td><td>12%</td></tr>
-            <tr><td>Correção</td><td>SELIC acumulada</td></tr>
-          </table>
-        </div>
+      </div>
+      <div class="cartao coluna-info">
+        <h3>Como funciona</h3>
+        <table class="ref">
+          <tr><td>Multa até 30 dias</td><td>0,15%/dia</td></tr>
+          <tr><td>Multa 31 a 60 dias</td><td>9%</td></tr>
+          <tr><td>Multa acima de 60 dias</td><td>12%</td></tr>
+          <tr><td>Correção</td><td>SELIC acumulada</td></tr>
+        </table>
       </div>
     </div>
 
