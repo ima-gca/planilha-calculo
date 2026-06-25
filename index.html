@@ -31,6 +31,7 @@
   <button data-aba="lt" onclick="trocaAba('lt')"><span class="full">Captação de Leite</span><span class="curta">Leite</span></button>
   <button data-aba="dae" onclick="trocaAba('dae')"><span class="full">Atualização de DAE</span><span class="curta">DAE</span></button>
   <button data-aba="ref" onclick="trocaAba('ref')"><span class="full">Dados de referência</span><span class="curta">Referência</span></button>
+  <button data-aba="ajuda" onclick="trocaAba('ajuda')">Ajuda</button>
 </nav>
 
 <main>
@@ -158,7 +159,7 @@
           </div>
           <div class="campo">
             <label>Quantidade de Litros *</label>
-            <input type="number" id="lt-litros" min="1" step="1" required>
+            <input type="number" id="lt-litros" min="0.01" step="0.01" required>
             <small>Litros captados no mês</small>
           </div>
           <div class="campo">
@@ -239,6 +240,7 @@
     <div class="cartao">
       <h2>Taxa SELIC mensal <span class="status-selic offline" id="selic-status">carregando…</span></h2>
       <p class="desc" id="selic-desc">O mês corrente não possui taxa fechada: nos cálculos, o mês da data de atualização vale sempre 1%.</p>
+      <p class="desc">Conferir na fonte oficial: <a href="https://www.fazenda.mg.gov.br/empresas/legislacao_tributaria/comunicados/selic.html" target="_blank" rel="noopener">tabela de SELIC da SEF-MG</a>.</p>
       <div class="grade-dados">
         <div><h3 style="font-size:.85rem;margin:4px 0">Últimos 13 meses</h3><table class="ref" id="tab-selic"></table></div>
         <div><h3 style="font-size:.85rem;margin:4px 0">UFEMG por exercício</h3><table class="ref" id="tab-ufemg"></table></div>
@@ -249,6 +251,72 @@
           <div id="info-feriados" style="font-size:.82rem;color:var(--cinza)"></div>
         </div>
       </div>
+    </div>
+  </section>
+
+  <!-- ============ AJUDA ============ -->
+  <section class="aba" id="aba-ajuda">
+    <div class="cartao">
+      <h2>Ajuda</h2>
+      <p class="desc">Resumo do manual de uso. Para o passo a passo completo, baixe o manual em Word.</p>
+      <div class="botoes">
+        <a class="btn-link" href="ajuda/manual-de-uso.docx" download>Baixar manual completo (.docx) →</a>
+      </div>
+    </div>
+
+    <div class="cartao">
+      <h2>O que é a Planilha de Cálculo</h2>
+      <p class="desc">Ferramenta de auxílio ao cálculo de atualização de créditos tributários e não tributários (Auto de Infração, Captação de Leite e Atualização de DAE), usando a SELIC e a UFEMG vigentes.</p>
+      <p class="desc"><b>A emissão e os valores informados são de responsabilidade do emissor.</b> Confira sempre os dados antes de gerar e usar o documento.</p>
+    </div>
+
+    <div class="cartao">
+      <h2>Identificação do emissor</h2>
+      <ul>
+        <li>No primeiro acesso, preencha MASP/CPF, nome, município e unidade administrativa — esses dados ficam salvos somente neste navegador.</li>
+        <li>É possível salvar mais de um emissor: o modal mostra um campo “Emissor salvo” para trocar entre eles ou cadastrar um novo.</li>
+        <li>Clique no chip no canto superior direito para reabrir o modal e editar ou trocar de emissor.</li>
+      </ul>
+    </div>
+
+    <div class="cartao">
+      <h2>Auto de Infração</h2>
+      <ul>
+        <li>Atualiza um crédito não tributário pela SELIC, sem multa.</li>
+        <li>“Ano de emissão do A.I.” é só para casos GDA; se vazio, usa o ano da Data de Notificação.</li>
+        <li>Datas não podem ser anteriores a 2010, nem posteriores a hoje, nem anteriores ao Ano de Emissão (quando informado).</li>
+      </ul>
+    </div>
+
+    <div class="cartao">
+      <h2>Captação de Leite</h2>
+      <ul>
+        <li>0,15 UFEMG por mil litros (ou fração), vencimento no 15º dia do mês seguinte à captação.</li>
+        <li>Multa por atraso (0,15%/dia até 30 dias; 9% de 31 a 60; 12% acima de 60) + correção pela SELIC.</li>
+        <li>A validade do DAE não pode cair em um final de semana.</li>
+      </ul>
+    </div>
+
+    <div class="cartao">
+      <h2>Atualização de DAE</h2>
+      <ul>
+        <li>Atualiza um DAE (GTA/PTV) vencido para uma nova data de validade.</li>
+        <li>Mesma regra de multa e correção pela SELIC da Captação de Leite.</li>
+        <li>A validade do novo DAE não pode cair em um final de semana.</li>
+      </ul>
+    </div>
+
+    <div class="cartao">
+      <h2>Dados de referência e impressão</h2>
+      <ul>
+        <li>A aba “Dados de referência” mostra a SELIC dos últimos 13 meses, a UFEMG por exercício, os parâmetros de multa e os próximos feriados nacionais — todos buscados automaticamente.</li>
+        <li>O botão 🖨 em cada resultado gera a Planilha de Cálculo formatada para impressão, com brasão, identificação institucional e espaço para assinatura.</li>
+      </ul>
+    </div>
+
+    <div class="cartao">
+      <h2>Suporte</h2>
+      <p class="desc">Dúvidas, problemas ou sugestões: <b>gca@ima.mg.gov.br</b></p>
     </div>
   </section>
 
@@ -308,7 +376,7 @@
 
 <script>
   // Bump a cada deploy: força o navegador a buscar js/css novos (evita cache de CDN/navegador).
-  const APP_VERSION = "2026.06.25-8";
+  const APP_VERSION = "2026.06.25-9";
   document.write('<script src="js/mapa-municipios.js?v=' + APP_VERSION + '"><' + '/script>');
   document.write('<script src="js/app.js?v=' + APP_VERSION + '"><' + '/script>');
 </script>

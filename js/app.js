@@ -569,9 +569,19 @@ function validaCampoMesLT(el){
   validaMesFuturo(el, "lt");
   validaMesMinimo(el, "lt");
 }
+function validaNaoFimDeSemana(el, aba){
+  if(_anoPleno(el.value)){
+    const dia = deISO(el.value).getDay();
+    if(dia === 0 || dia === 6){
+      el.value = "";
+      mostraErro(aba, "A validade não pode cair em um final de semana. O campo foi limpo.");
+    }
+  }
+}
 function validaCampoValidadeLT(el){
   mostraErro("lt", "");
   validaDataMinima(el, "lt");
+  validaNaoFimDeSemana(el, "lt");
 }
 function validaCampoValidadeOrigDAE(el){
   mostraErro("dae", "");
@@ -581,6 +591,7 @@ function validaCampoValidadeOrigDAE(el){
 function validaCampoValidadeNovaDAE(el){
   mostraErro("dae", "");
   validaDataMinima(el, "dae");
+  validaNaoFimDeSemana(el, "dae");
 }
 function limpaDatasAI(){
   const ano = document.getElementById("ai-ano").value.trim();
@@ -702,6 +713,7 @@ function calculaLT(ev){
   if(mesano < MES_MINIMO) return mostraErro("lt","Mês/Ano de Captação não pode ser anterior a 2010."), false;
   if(mesano >= ymHoje()) return mostraErro("lt","Mês/Ano de Captação não pode ser maior nem igual ao mês atual."), false;
   if(validadeISO < DATA_MINIMA) return mostraErro("lt","Validade do DAE não pode ser anterior a 2010."), false;
+  if([0,6].includes(deISO(validadeISO).getDay())) return mostraErro("lt","A validade não pode cair em um final de semana."), false;
 
   const ymVenc = addMes(mesano, 1);
   const vencISO = ymVenc + "-15";
@@ -775,6 +787,7 @@ function calculaDAE(ev){
   if(origISO > h) return mostraErro("dae","A validade do DAE devido deve ser menor ou igual a hoje."), false;
   if(novaISO < DATA_MINIMA) return mostraErro("dae","Validade do NOVO DAE não pode ser anterior a 2010."), false;
   if(novaISO < h) return mostraErro("dae","A validade do NOVO DAE deve ser maior ou igual a hoje."), false;
+  if([0,6].includes(deISO(novaISO).getDay())) return mostraErro("dae","A validade do NOVO DAE não pode cair em um final de semana."), false;
   if(origISO === novaISO) return mostraErro("dae","Validade do NOVO DAE não pode ser a mesma do DAE DEVIDO."), false;
 
   const atraso = diffDias(deISO(origISO), deISO(novaISO));
