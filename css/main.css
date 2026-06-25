@@ -113,7 +113,7 @@
     @page{size:A4;margin:0}
     body > *{display:none !important}
     #printheader{display:flex !important}
-    #printdoc{display:block !important;padding:8mm 16mm 10mm;font-family:"Segoe UI",Arial,sans-serif;color:#000}
+    #printdoc{display:block !important;padding:42pt 16mm 10mm;font-family:"Segoe UI",Arial,sans-serif;color:#000}
     #printfooter{display:block !important}
   }
   #printheader{align-items:center;gap:14pt;padding:12pt 16mm 8pt;border-bottom:1pt solid #000;font-family:"Segoe UI",Arial,sans-serif;color:#000;background:#fff}
@@ -123,7 +123,7 @@
   #printheader .doc-carimbo{height:52pt;width:auto;flex-shrink:0}
   #printdoc{font-family:"Segoe UI",Arial,sans-serif;color:#000;max-width:185mm;margin:0 auto;padding:10mm 6mm}
   #printdoc .doc-titulo{text-align:center;font-size:15pt;font-weight:700;text-decoration:underline;padding:6pt 0 0;margin-bottom:0}
-  #printdoc .doc-subtitulo{text-align:center;font-size:11pt;font-style:italic;border:1pt solid #000;border-bottom:none;padding:5pt;margin-top:42pt;margin-bottom:0}
+  #printdoc .doc-subtitulo{text-align:center;font-size:11pt;font-style:italic;border:1pt solid #000;border-bottom:none;padding:5pt;margin-top:48pt;margin-bottom:0}
   #printdoc table{width:100%;border-collapse:collapse}
   #printdoc td{border:1pt solid #000;padding:7pt 9pt;vertical-align:middle}
   #printdoc td.rotulo{width:68%}
