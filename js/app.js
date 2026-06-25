@@ -156,15 +156,35 @@ let SELIC = { ...SELIC_SNAPSHOT };
 let selicOnline = false;
 
 async function carregaSelic(){
+  // Usa a SELIC DIÁRIA (série 11) e compõe o índice mensal por juros compostos,
+  // igual à metodologia da Receita Federal/SEF-MG — a série 4390 (mensal, 2 casas)
+  // arredonda demais e diverge do valor oficial usado para correção de tributos
+  // (ex.: maio/2026: 4390 = 1,07% · diária composta = 1,073435%, que é o valor da SEF-MG).
   try{
     const h = hoje();
-    const fim = `${String(h.getDate()).padStart(2,"0")}/${String(h.getMonth()+1).padStart(2,"0")}/${h.getFullYear()}`;
-    const url = `https://api.bcb.gov.br/dados/serie/bcdata.sgs.4390/dados?formato=json&dataInicial=01/01/2000&dataFinal=${fim}`;
-    const r = await fetch(url);
-    if(!r.ok) throw new Error(r.status);
-    const lista = await r.json();
+    const anoAtual = h.getFullYear();
+    const diasPorMes = {};
+    for(let anoIni = 2000; anoIni <= anoAtual; anoIni += 9){
+      const anoFim = Math.min(anoIni + 9, anoAtual);
+      const dataInicial = `01/01/${anoIni}`;
+      const dataFinal = anoFim === anoAtual
+        ? `${String(h.getDate()).padStart(2,"0")}/${String(h.getMonth()+1).padStart(2,"0")}/${anoFim}`
+        : `31/12/${anoFim}`;
+      const url = `https://api.bcb.gov.br/dados/serie/bcdata.sgs.11/dados?formato=json&dataInicial=${dataInicial}&dataFinal=${dataFinal}`;
+      const r = await fetch(url);
+      if(!r.ok) throw new Error(r.status);
+      const lista = await r.json();
+      for(const o of lista){
+        const [d, m, a] = o.data.split("/");
+        const ym = `${a}-${m}`;
+        (diasPorMes[ym] = diasPorMes[ym] || []).push(parseFloat(o.valor));
+      }
+    }
     const novo = {};
-    for(const o of lista){ const [d,m,a] = o.data.split("/"); novo[`${a}-${m}`] = parseFloat(o.valor); }
+    for(const ym in diasPorMes){
+      const fator = diasPorMes[ym].reduce((acc, v) => acc * (1 + v / 100), 1);
+      novo[ym] = Math.round((fator - 1) * 100 * 1e6) / 1e6;
+    }
     if(Object.keys(novo).length < 100) throw new Error("retorno inesperado");
     SELIC = novo; selicOnline = true;
   }catch(e){ selicOnline = false; }
