@@ -57,10 +57,10 @@
   .layout-calc .cartao{margin-bottom:0}
   .coluna-info{background:var(--verde-claro)}
   .coluna-info h3{margin:0 0 6px;font-size:.8rem;color:var(--verde-esc)}
-  .coluna-info table.ref{background:#fff;font-size:.72rem}
-  .coluna-info table.ref td{padding:3px 7px}
-  .coluna-info table.ref td:first-child{text-align:left;font-weight:600;color:#384540}
-  .coluna-info table.ref td:last-child{text-align:left}
+  .coluna-info table.ref{background:#fff;font-size:.66rem;table-layout:fixed}
+  .coluna-info table.ref td{padding:3px 6px;white-space:nowrap;overflow:hidden}
+  .coluna-info table.ref td:first-child{width:48%;text-align:left;font-weight:600;color:#384540}
+  .coluna-info table.ref td:last-child{width:52%;text-align:left}
   @media (max-width:760px){.layout-calc{grid-template-columns:1fr}}
   .disclosure{margin:0 0 14px;border:1px solid var(--aviso);background:#fff8e1;border-radius:8px;padding:8px 12px}
   .disclosure summary{cursor:pointer;font-weight:600;color:var(--aviso);font-size:.85rem}
@@ -70,6 +70,7 @@
   .campo{display:flex;flex-direction:column;gap:4px}
   .campo label{font-size:.78rem;font-weight:600;color:#384540}
   .campo input,.campo select{padding:8px 10px;border:1px solid var(--borda);border-radius:6px;font-size:.95rem;min-width:150px}
+  #lt-litros{min-width:0;width:110px}
   .campo small{color:var(--cinza);font-size:.72rem}
   .campo .hint-ok{color:#137333;font-size:.72rem;font-weight:600}
   .campo .hint-erro{color:var(--erro);font-size:.72rem;font-weight:600}

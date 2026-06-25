@@ -6,7 +6,7 @@
 <title>Planilha de Cálculo — IMA/GCA</title>
 <script>
   // Bump a cada deploy: força o navegador a buscar css/js novos (evita cache de CDN/navegador).
-  const APP_VERSION = "2026.06.25-12";
+  const APP_VERSION = "2026.06.25-13";
   document.write('<link rel="stylesheet" href="css/main.css?v=' + APP_VERSION + '">');
 </script>
 </head>
@@ -87,6 +87,7 @@
     <div class="layout-calc">
       <div class="cartao coluna-form">
       <h2>Auto de Infração — Crédito Não Tributário</h2>
+      <p class="desc">* Campo obrigatório</p>
       <div class="msg-erro" id="erro-ai"></div>
       <div class="msg-aviso" id="aviso-ai"></div>
       <form id="form-ai" onsubmit="return calculaAI(event)">
@@ -136,7 +137,7 @@
           <tr><td>Correção</td><td>SELIC acumulada</td></tr>
           <tr><td>Mês da atualização</td><td>Sempre 1%</td></tr>
           <tr><td>Data retroativa</td><td>Permitida (reimpressão)</td></tr>
-          <tr><td>Ano de Emissão</td><td>Só para GDA; se vazio, usa o ano da notificação</td></tr>
+          <tr><td>Ano de Emissão</td><td>Só para GDA</td></tr>
         </table>
       </div>
     </div>
@@ -164,6 +165,7 @@
     <div class="layout-calc">
       <div class="cartao coluna-form">
       <h2>Captação de Leite — Crédito Tributário</h2>
+      <p class="desc">* Campo obrigatório</p>
       <div class="msg-erro" id="erro-lt"></div>
       <form id="form-lt" onsubmit="return calculaLT(event)">
         <div class="linha">
@@ -192,7 +194,7 @@
       <div class="cartao coluna-info">
         <h3>Como funciona</h3>
         <table class="ref">
-          <tr><td>Taxa</td><td>0,15 UFEMG / 1000 L (ou fração)</td></tr>
+          <tr><td>Taxa</td><td>0,15 UFEMG/1000 L</td></tr>
           <tr><td>Vencimento</td><td>Dia 15 do mês seguinte</td></tr>
           <tr><td>Multa até 30 dias</td><td>0,15%/dia</td></tr>
           <tr><td>Multa 31 a 60 dias</td><td>9%</td></tr>
@@ -219,6 +221,7 @@
     <div class="layout-calc">
       <div class="cartao coluna-form">
       <h2>Atualização de DAE — GTA/PTV vencidos</h2>
+      <p class="desc">* Campo obrigatório</p>
       <div class="msg-erro" id="erro-dae"></div>
       <form id="form-dae" onsubmit="return calculaDAE(event)">
         <div class="linha">
@@ -369,7 +372,7 @@
 <div class="modal-fundo" id="modalEmissor">
   <div class="modal">
     <h2>Identificação do Emissor</h2>
-    <p>Estes dados constarão no rodapé da Planilha de Cálculo impressa. Ficam salvos somente neste navegador.</p>
+    <p>Estes dados constarão no rodapé da Planilha de Cálculo impressa. Ficam salvos somente neste navegador.<br>* Campo obrigatório</p>
     <div class="campo" id="em-campo-selecionar" style="display:none">
       <label>Emissor salvo</label>
       <select id="em-selecionar" onchange="selecionaEmissor(this.value)"></select>
