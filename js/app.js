@@ -125,6 +125,7 @@ const UNIDADES_IMA = [
 // =====================================================================
 const fmtBRL = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
 const fmtBRL6 = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL", minimumFractionDigits: 6, maximumFractionDigits: 6 });
+const fmtBRLSmart = v => Math.round(v * 1e6) % 10000 === 0 ? fmtBRL.format(v) : fmtBRLSmart(v);
 const fmtInt = new Intl.NumberFormat("pt-BR");
 
 const hoje = () => { const d = new Date(); d.setHours(0,0,0,0); return d; };
@@ -656,10 +657,10 @@ function calculaAI(ev){
   const idx_ai = linhas.ai.length - 1;
   const tb = document.querySelector("#ai-tabela tbody");
   const tr = document.createElement("tr");
-  tr.innerHTML = `<td class="dinheiro">${tipo==="REAL" ? fmtBRL6.format(valor) : fmtInt.format(valor)+" UFEMG"}</td>
+  tr.innerHTML = `<td class="dinheiro">${tipo==="REAL" ? fmtBRLSmart(valor) : fmtInt.format(valor)+" UFEMG"}</td>
     <td>${tipo}</td><td>${anoUfemg ?? "—"}</td><td>${dataBR(notifISO)}</td><td>${dataBR(atualISO)}</td>
-    <td class="dinheiro">${fmtBRL6.format(valorConvertido)}</td><td>${indice===null ? "—" : pct(indice)}</td>
-    <td class="dinheiro">${indice===null ? "—" : fmtBRL6.format(correcao)}</td>
+    <td class="dinheiro">${fmtBRLSmart(valorConvertido)}</td><td>${indice===null ? "—" : pct(indice)}</td>
+    <td class="dinheiro">${indice===null ? "—" : fmtBRLSmart(correcao)}</td>
     <td class="dinheiro"><b>${fmtBRL.format(atualizado)}</b></td>
     <td>${dataBR(linha.emitidoISO)}</td>
     <td style="white-space:nowrap"><button class="mini" onclick="imprimeAI(${idx_ai})">🖨</button> <button class="mini apaga" onclick="apagaLinha('ai',${idx_ai},this)" title="Apagar">✕</button></td>`;
@@ -691,13 +692,13 @@ function imprimeAI(i){
         s: r.tipo==="REAL" ? "Tipo de valor: REAL (R$)" :
            r.anoExplicito ? `Tipo de valor: Vide A.I. — UFEMG (${r.anoUfemg})` :
                             `Tipo de valor: UFEMG (${r.anoUfemg})`,
-        v: r.tipo==="REAL" ? fmtBRL6.format(r.valor) : fmtInt.format(r.valor) + " UFEMG" },
-      { t:"Valor de Cálculo", s:r.subConversao, v: fmtBRL6.format(r.valorConvertido) },
+        v: r.tipo==="REAL" ? fmtBRLSmart(r.valor) : fmtInt.format(r.valor) + " UFEMG" },
+      { t:"Valor de Cálculo", s:r.subConversao, v: fmtBRLSmart(r.valorConvertido) },
       { t:"Data da Notificação", s:"Data em que o crédito tornou-se exigível - DEC 46668/14", v: dataBR(r.notifISO) },
       { t:"Data Inicial do Índice de Correção", s: r.indice===null ? semCorrecao : "Primeiro dia do mês seguinte à Data de Notificação", v: r.indice===null ? "—" : dtIniIndice },
       { t:"Data Final do Índice de Correção", s: r.indice===null ? semCorrecao : "Data informada. Poderá divergir da data de emissão desta Planilha", v: r.indice===null ? "—" : dataBR(r.atualISO) },
       { t:"Índice de Correção", s: r.indice===null ? semCorrecao : `SELIC acumulada: ${mesAnoBR(addMes(ymDe(r.notifISO),1))} a ${mesAnoBR(ymDe(r.atualISO))}`, v: r.indice===null ? "—" : pct(r.indice) },
-      { t:"Valor Correção", s: r.indice===null ? semCorrecao : "Valor de Cálculo × Índice de Correção", v: r.indice===null ? "—" : fmtBRL6.format(r.correcao) },
+      { t:"Valor Correção", s: r.indice===null ? semCorrecao : "Valor de Cálculo × Índice de Correção", v: r.indice===null ? "—" : fmtBRLSmart(r.correcao) },
       { t:"VALOR ATUALIZADO", s: r.indice===null ? "Valor de Cálculo (sem correção)" : "Valor de Cálculo + Valor Correção", v: fmtBRL.format(r.atualizado), destaque:true },
     ]);
 }
@@ -745,9 +746,9 @@ function calculaLT(ev){
   const tb = document.querySelector("#lt-tabela tbody");
   const tr = document.createElement("tr");
   tr.innerHTML = `<td>${mesAnoBR(mesano)}</td><td>${fmtInt.format(litros)}</td><td>${dataBR(validadeISO)}</td>
-    <td class="dinheiro">${fmtBRL6.format(valorCaptacao)}</td><td>${atraso > 0 ? atraso : 0}</td>
-    <td>${atraso > 0 ? multaRotulo : "—"}</td><td class="dinheiro">${atraso > 0 ? fmtBRL6.format(multaValor) : "—"}</td>
-    <td>${indice===null ? "—" : pct(indice)}</td><td class="dinheiro">${indice===null ? "—" : fmtBRL6.format(correcao)}</td>
+    <td class="dinheiro">${fmtBRLSmart(valorCaptacao)}</td><td>${atraso > 0 ? atraso : 0}</td>
+    <td>${atraso > 0 ? multaRotulo : "—"}</td><td class="dinheiro">${atraso > 0 ? fmtBRLSmart(multaValor) : "—"}</td>
+    <td>${indice===null ? "—" : pct(indice)}</td><td class="dinheiro">${indice===null ? "—" : fmtBRLSmart(correcao)}</td>
     <td class="dinheiro"><b>${fmtBRL.format(atualizado)}</b></td>
     <td>${dataBR(linha.emitidoISO)}</td>
     <td style="white-space:nowrap"><button class="mini" onclick="imprimeLT(${idx_lt})">🖨</button> <button class="mini apaga" onclick="apagaLinha('lt',${idx_lt},this)" title="Apagar">✕</button></td>`;
@@ -766,10 +767,10 @@ function imprimeLT(i){
       { t:"Mês/Ano da Captação", s:"", v: mesAnoBR(r.mesano) },
       { t:"Data de Atualização do Valor", s:"", v: dataBR(r.validadeISO) },
       { t:"Quantidade de litros informada", s:"", v: fmtInt.format(r.litros) },
-      { t:"Valor da Captação", s:`${PARAMS.leiteFracaoUfemg.toString().replace(".",",")} UFEMG (${r.anoUfemg}) por MIL litros ou fração`, v: fmtBRL6.format(r.valorCaptacao) },
-      { t:"Valor da Multa", s: r.atraso > 0 ? `Atraso: ${r.atraso} dias = ${r.multaRotulo}` : `No prazo até ${dataBR(r.vencISO)}`, v: r.atraso > 0 ? fmtBRL6.format(r.multaValor) : "—" },
+      { t:"Valor da Captação", s:`${PARAMS.leiteFracaoUfemg.toString().replace(".",",")} UFEMG (${r.anoUfemg}) por MIL litros ou fração`, v: fmtBRLSmart(r.valorCaptacao) },
+      { t:"Valor da Multa", s: r.atraso > 0 ? `Atraso: ${r.atraso} dias = ${r.multaRotulo}` : `No prazo até ${dataBR(r.vencISO)}`, v: r.atraso > 0 ? fmtBRLSmart(r.multaValor) : "—" },
       { t:"Índice de Correção", s: r.indice===null ? semCor : `Período: ${dataBR(r.vencISO)} a ${dataBR(r.validadeISO)}`, v: r.indice===null ? "—" : pct(r.indice) },
-      { t:"Valor Correção", s: r.indice===null ? semCor : "(Valor da Captação + Valor da Multa) × Índice de Correção", v: r.indice===null ? "—" : fmtBRL6.format(r.correcao) },
+      { t:"Valor Correção", s: r.indice===null ? semCor : "(Valor da Captação + Valor da Multa) × Índice de Correção", v: r.indice===null ? "—" : fmtBRLSmart(r.correcao) },
       { t:"VALOR ATUALIZADO", s:"Valor da Captação + Valor da Multa + Valor Correção", v: fmtBRL.format(r.atualizado), destaque:true },
     ]);
 }
@@ -808,10 +809,10 @@ function calculaDAE(ev){
   const idx_dae = linhas.dae.length - 1;
   const tb = document.querySelector("#dae-tabela tbody");
   const tr = document.createElement("tr");
-  tr.innerHTML = `<td class="dinheiro">${fmtBRL6.format(valor)}</td><td>${dataBR(origISO)}</td><td>${dataBR(novaISO)}</td>
+  tr.innerHTML = `<td class="dinheiro">${fmtBRLSmart(valor)}</td><td>${dataBR(origISO)}</td><td>${dataBR(novaISO)}</td>
     <td>${atraso > 0 ? atraso : 0}</td><td>${atraso > 0 ? multaRotulo : "—"}</td>
-    <td class="dinheiro">${atraso > 0 ? fmtBRL6.format(multaValor) : "—"}</td>
-    <td>${indice===null ? "—" : pct(indice)}</td><td class="dinheiro">${indice===null ? "—" : fmtBRL6.format(correcao)}</td>
+    <td class="dinheiro">${atraso > 0 ? fmtBRLSmart(multaValor) : "—"}</td>
+    <td>${indice===null ? "—" : pct(indice)}</td><td class="dinheiro">${indice===null ? "—" : fmtBRLSmart(correcao)}</td>
     <td class="dinheiro"><b>${fmtBRL.format(atualizado)}</b></td>
     <td>${dataBR(linha.emitidoISO)}</td>
     <td style="white-space:nowrap"><button class="mini" onclick="imprimeDAE(${idx_dae})">🖨</button> <button class="mini apaga" onclick="apagaLinha('dae',${idx_dae},this)" title="Apagar">✕</button></td>`;
@@ -827,12 +828,12 @@ function imprimeDAE(i){
   imprimeDocumento(
     "GTA / PTV VENCIDOS — Crédito Tributário (multa + correção monetária pela taxa SELIC)",
     [
-      { t:"Valor do DAE devido", s:"", v: fmtBRL6.format(r.valor) },
+      { t:"Valor do DAE devido", s:"", v: fmtBRLSmart(r.valor) },
       { t:"Validade do DAE devido", s:"", v: dataBR(r.origISO) },
       { t:"Validade do novo DAE", s:"", v: dataBR(r.novaISO) },
-      { t:"Valor da Multa", s: r.atraso > 0 ? `Atraso: ${r.atraso} dias = ${r.multaRotulo}` : "Sem atraso", v: r.atraso > 0 ? fmtBRL6.format(r.multaValor) : "—" },
+      { t:"Valor da Multa", s: r.atraso > 0 ? `Atraso: ${r.atraso} dias = ${r.multaRotulo}` : "Sem atraso", v: r.atraso > 0 ? fmtBRLSmart(r.multaValor) : "—" },
       { t:"Índice de Correção", s: r.indice===null ? semCor : `Período: ${dataBR(r.origISO)} a ${dataBR(r.novaISO)}`, v: r.indice===null ? "—" : pct(r.indice) },
-      { t:"Valor Correção", s: r.indice===null ? semCor : "(Valor do DAE + Valor da Multa) × Índice de Correção", v: r.indice===null ? "—" : fmtBRL6.format(r.correcao) },
+      { t:"Valor Correção", s: r.indice===null ? semCor : "(Valor do DAE + Valor da Multa) × Índice de Correção", v: r.indice===null ? "—" : fmtBRLSmart(r.correcao) },
       { t:"VALOR ATUALIZADO", s:"Valor do DAE + Valor da Multa + Valor Correção", v: fmtBRL.format(r.atualizado), destaque:true },
     ]);
 }
