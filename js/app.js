@@ -324,6 +324,8 @@ function emissor(){
   return lista.find(e => e.masp === ativo) || lista[0];
 }
 const abreviaUA = ua => ua.includes(" — ") ? ua.split(" — ")[0] : ua;
+// na impressão, gerências (armazenadas como "SIGLA — Nome") saem como "Nome — SIGLA"
+const formataUAImpressao = ua => ua.includes(" — ") ? ua.split(" — ").reverse().join(" — ") : ua;
 const primeiroNome = nome => capitalizaNome(nome).split(" ")[0];
 // primeiros 2 nomes (inclui o 3º se o 2º for preposição, ex.: "Maria de Fátima")
 function doisPrimeirosNomes(nome){
@@ -639,7 +641,7 @@ function calculaAI(ev){
     const u = UFEMG[anoUfemg];
     if(u === undefined) return mostraErro("ai",`Não há UFEMG cadastrada para o ano ${anoUfemg}. Anos disponíveis: ${anosUfemgDisponiveis()}.`), false;
     valorConvertido = valor * u;
-    subConversao = `Valor convertido em Reais pela UFEMG ${anoUfemg} (R$ ${u.toString().replace(".",",")})`;
+    subConversao = `Valor convertido em Reais pela UFEMG ${anoUfemg} (R$ ${u.toFixed(4).replace(".",",")})`;
   }
 
   const ymN = ymDe(notifISO), ymA = ymDe(atualISO);
@@ -654,7 +656,7 @@ function calculaAI(ev){
   const idx_ai = linhas.ai.length - 1;
   const tb = document.querySelector("#ai-tabela tbody");
   const tr = document.createElement("tr");
-  tr.innerHTML = `<td class="dinheiro">${tipo==="REAL" ? fmtBRL.format(valor) : fmtInt.format(valor)+" UFEMG"}</td>
+  tr.innerHTML = `<td class="dinheiro">${tipo==="REAL" ? fmtBRL6.format(valor) : fmtInt.format(valor)+" UFEMG"}</td>
     <td>${tipo}</td><td>${anoUfemg ?? "—"}</td><td>${dataBR(notifISO)}</td><td>${dataBR(atualISO)}</td>
     <td class="dinheiro">${fmtBRL6.format(valorConvertido)}</td><td>${indice===null ? "—" : pct(indice)}</td>
     <td class="dinheiro">${indice===null ? "—" : fmtBRL6.format(correcao)}</td>
@@ -689,12 +691,12 @@ function imprimeAI(i){
         s: r.tipo==="REAL" ? "Tipo de valor: REAL (R$)" :
            r.anoExplicito ? `Tipo de valor: Vide A.I. — UFEMG (${r.anoUfemg})` :
                             `Tipo de valor: UFEMG (${r.anoUfemg})`,
-        v: r.tipo==="REAL" ? fmtBRL.format(r.valor) : fmtInt.format(r.valor) + " UFEMG" },
-      { t:"Data da Notificação", s:"Data em que o crédito tornou-se exigível - DEC 46668/14", v: dataBR(r.notifISO) },
+        v: r.tipo==="REAL" ? fmtBRL6.format(r.valor) : fmtInt.format(r.valor) + " UFEMG" },
       { t:"Valor de Cálculo", s:r.subConversao, v: fmtBRL6.format(r.valorConvertido) },
+      { t:"Data da Notificação", s:"Data em que o crédito tornou-se exigível - DEC 46668/14", v: dataBR(r.notifISO) },
       { t:"Data Inicial do Índice de Correção", s: r.indice===null ? semCorrecao : "Primeiro dia do mês seguinte à Data de Notificação", v: r.indice===null ? "—" : dtIniIndice },
       { t:"Data Final do Índice de Correção", s: r.indice===null ? semCorrecao : "Data informada. Poderá divergir da data de emissão desta Planilha", v: r.indice===null ? "—" : dataBR(r.atualISO) },
-      { t:"Índice de Correção", s: r.indice===null ? semCorrecao : "SELIC acumulada: Data Inicial até a Data Final do Índice", v: r.indice===null ? "—" : pct(r.indice) },
+      { t:"Índice de Correção", s: r.indice===null ? semCorrecao : `SELIC acumulada: ${mesAnoBR(addMes(ymDe(r.notifISO),1))} a ${mesAnoBR(ymDe(r.atualISO))}`, v: r.indice===null ? "—" : pct(r.indice) },
       { t:"Valor Correção", s: r.indice===null ? semCorrecao : "Valor de Cálculo × Índice de Correção", v: r.indice===null ? "—" : fmtBRL6.format(r.correcao) },
       { t:"VALOR ATUALIZADO", s: r.indice===null ? "Valor de Cálculo (sem correção)" : "Valor de Cálculo + Valor Correção", v: fmtBRL.format(r.atualizado), destaque:true },
     ]);
@@ -806,7 +808,7 @@ function calculaDAE(ev){
   const idx_dae = linhas.dae.length - 1;
   const tb = document.querySelector("#dae-tabela tbody");
   const tr = document.createElement("tr");
-  tr.innerHTML = `<td class="dinheiro">${fmtBRL.format(valor)}</td><td>${dataBR(origISO)}</td><td>${dataBR(novaISO)}</td>
+  tr.innerHTML = `<td class="dinheiro">${fmtBRL6.format(valor)}</td><td>${dataBR(origISO)}</td><td>${dataBR(novaISO)}</td>
     <td>${atraso > 0 ? atraso : 0}</td><td>${atraso > 0 ? multaRotulo : "—"}</td>
     <td class="dinheiro">${atraso > 0 ? fmtBRL6.format(multaValor) : "—"}</td>
     <td>${indice===null ? "—" : pct(indice)}</td><td class="dinheiro">${indice===null ? "—" : fmtBRL6.format(correcao)}</td>
@@ -825,7 +827,7 @@ function imprimeDAE(i){
   imprimeDocumento(
     "GTA / PTV VENCIDOS — Crédito Tributário (multa + correção monetária pela taxa SELIC)",
     [
-      { t:"Valor do DAE devido", s:"", v: fmtBRL.format(r.valor) },
+      { t:"Valor do DAE devido", s:"", v: fmtBRL6.format(r.valor) },
       { t:"Validade do DAE devido", s:"", v: dataBR(r.origISO) },
       { t:"Validade do novo DAE", s:"", v: dataBR(r.novaISO) },
       { t:"Valor da Multa", s: r.atraso > 0 ? `Atraso: ${r.atraso} dias = ${r.multaRotulo}` : "Sem atraso", v: r.atraso > 0 ? fmtBRL6.format(r.multaValor) : "—" },
@@ -863,7 +865,7 @@ function imprimeDocumento(subtitulo, itens){
     <div class="doc-local-data">${capitalizaNome(e.local)}/MG, ${dataExtenso(iso(hoje()))}</div>
     <div class="doc-rodape">
       ${capitalizaNome(e.nome)} — ${maspFormatado(e.masp)}<br>
-      ${e.ua}
+      ${formataUAImpressao(e.ua)}
     </div>`;
 
   const imgBrasao = document.getElementById("img-brasao");
@@ -888,7 +890,7 @@ function montaTabelasRef(){
   for(let k = 13; k >= 1; k--){
     const m = addMes(ymH, -k);
     const v = SELIC[m];
-    html += `<tr><td>${mesAnoBR(m)}</td><td>${v === undefined ? "—" : v.toString().replace(".",",")}</td></tr>`;
+    html += `<tr><td>${mesAnoBR(m)}</td><td>${v === undefined ? "—" : v.toFixed(6).replace(".",",")}</td></tr>`;
   }
   html += `<tr><td>${mesAnoBR(ymH)}</td><td><i>em aberto (vale 1%)</i></td></tr>`;
   document.getElementById("tab-selic").innerHTML = html;
