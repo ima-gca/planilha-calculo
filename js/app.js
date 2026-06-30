@@ -179,7 +179,7 @@ async function carregaSelic(){
     const novo = {};
     for(const ym in diasPorMes){
       const fator = diasPorMes[ym].reduce((acc, v) => acc * (1 + v / 100), 1);
-      novo[ym] = (fator - 1) * 100;
+      novo[ym] = Math.round((fator - 1) * 100 * 1e6) / 1e6;
     }
     if(Object.keys(novo).length < 100) throw new Error("retorno inesperado");
     SELIC = novo; selicOnline = true;
