@@ -125,7 +125,7 @@ const UNIDADES_IMA = [
 // =====================================================================
 const fmtBRL = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
 const fmtBRL6 = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL", minimumFractionDigits: 6, maximumFractionDigits: 6 });
-const fmtBRLSmart = v => Math.round(v * 1e6) % 10000 === 0 ? fmtBRL.format(v) : fmtBRLSmart(v);
+const fmtBRLSmart = v => Math.round(v * 1e6) % 10000 === 0 ? fmtBRL.format(v) : fmtBRL6.format(v);
 const fmtInt = new Intl.NumberFormat("pt-BR");
 
 const hoje = () => { const d = new Date(); d.setHours(0,0,0,0); return d; };
