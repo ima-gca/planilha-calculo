@@ -153,6 +153,7 @@ const mesAnoBR = ym => { const [a,m] = ym.split("-"); return `${m}/${a}`; };
 // ---------- SELIC ----------
 let SELIC = { ...SELIC_SNAPSHOT };
 let selicOnline = false;
+let selicPronta = false;
 
 async function carregaSelic(){
   // Compõe a SELIC diária (série 11) em vez de usar a mensal (série 4390),
@@ -185,6 +186,7 @@ async function carregaSelic(){
     if(Object.keys(novo).length < 100) throw new Error("retorno inesperado");
     SELIC = novo; selicOnline = true;
   }catch(e){ selicOnline = false; }
+  selicPronta = true;
   pintaStatusSelic(); montaTabelasRef();
 }
 
@@ -616,6 +618,7 @@ const pct = v => v.toFixed(6).replace(".", ",") + "%";
 // =====================================================================
 function calculaAI(ev){
   ev.preventDefault(); mostraErro("ai",""); mostraAviso("ai","");
+  if(!selicPronta){ mostraErro("ai","Aguarde: carregando taxas SELIC do Banco Central…"); return; }
   const valor = Number(document.getElementById("ai-valor").value);
   const tipo = document.getElementById("ai-tipo").value;
   let ano = document.getElementById("ai-ano").value.trim();
@@ -709,6 +712,7 @@ function imprimeAI(i){
 // =====================================================================
 function calculaLT(ev){
   ev.preventDefault(); mostraErro("lt","");
+  if(!selicPronta){ mostraErro("lt","Aguarde: carregando taxas SELIC do Banco Central…"); return; }
   const mesano = document.getElementById("lt-mesano").value;
   const litros = Number(document.getElementById("lt-litros").value);
   const validadeISO = document.getElementById("lt-validade").value;
@@ -781,6 +785,7 @@ function imprimeLT(i){
 // =====================================================================
 function calculaDAE(ev){
   ev.preventDefault(); mostraErro("dae","");
+  if(!selicPronta){ mostraErro("dae","Aguarde: carregando taxas SELIC do Banco Central…"); return; }
   const valor = Number(document.getElementById("dae-valor").value);
   const origISO = document.getElementById("dae-validade-orig").value;
   const novaISO = document.getElementById("dae-validade-nova").value;
