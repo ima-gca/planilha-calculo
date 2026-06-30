@@ -608,7 +608,7 @@ function limpaDatasAI(){
   mostraAviso("ai", (ano && notifPreenchida) ? "O Ano de Emissão foi alterado: redigite a Data de Notificação." : "");
 }
 const linhas = { ai: [], lt: [], dae: [] };
-const pct = v => v.toFixed(2).replace(".", ",") + "%";
+const pct = v => v.toFixed(6).replace(".", ",") + "%";
 
 // =====================================================================
 // AUTO DE INFRAÇÃO
