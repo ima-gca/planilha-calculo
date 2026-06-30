@@ -694,7 +694,7 @@ function imprimeAI(i){
                             `Tipo de valor: UFEMG (${r.anoUfemg})`,
         v: r.tipo==="REAL" ? fmtBRLSmart(r.valor) : fmtInt.format(r.valor) + " UFEMG" },
       { t:"Valor de Cálculo", s:r.subConversao, v: fmtBRLSmart(r.valorConvertido) },
-      { t:"Data da Notificação", s:"Data em que o crédito tornou-se exigível - DEC 46668/14", v: dataBR(r.notifISO) },
+      { t:"Data da Notificação", s:"Data de exigibilidade do crédito — Dec. nº 46.668/14", v: dataBR(r.notifISO) },
       { t:"Data Inicial do Índice de Correção", s: r.indice===null ? semCorrecao : "Primeiro dia do mês seguinte à Data de Notificação", v: r.indice===null ? "—" : dtIniIndice },
       { t:"Data Final do Índice de Correção", s: r.indice===null ? semCorrecao : "Data informada. Poderá divergir da data de emissão desta Planilha", v: r.indice===null ? "—" : dataBR(r.atualISO) },
       { t:"Índice de Correção", s: r.indice===null ? semCorrecao : `SELIC acumulada: ${mesAnoBR(addMes(ymDe(r.notifISO),1))} a ${mesAnoBR(ymDe(r.atualISO))}`, v: r.indice===null ? "—" : pct(r.indice) },
