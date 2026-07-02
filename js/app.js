@@ -175,34 +175,39 @@ let SELIC = { ...SELIC_SNAPSHOT };
 let selicOnline = false;
 
 async function carregaSelic(){
-  // Compõe a SELIC diária (série 11) em vez de usar a mensal (série 4390),
-  // que vem arredondada demais e diverge do valor oficial da SEF-MG.
+  // Busca apenas os meses ausentes no snapshot (muito mais rápido).
   try{
     const h = hoje();
-    const anoAtual = h.getFullYear();
-    const diasPorMes = {};
-    for(let anoIni = 2000; anoIni <= anoAtual; anoIni += 9){
-      const anoFim = Math.min(anoIni + 9, anoAtual);
-      const dataInicial = `01/01/${anoIni}`;
-      const dataFinal = anoFim === anoAtual
-        ? `${String(h.getDate()).padStart(2,"0")}/${String(h.getMonth()+1).padStart(2,"0")}/${anoFim}`
-        : `31/12/${anoFim - 1}`;
+    const dd = String(h.getDate()).padStart(2,"0");
+    const mm = String(h.getMonth()+1).padStart(2,"0");
+    const aaaa = h.getFullYear();
+
+    // Primeiro mês a buscar = mês seguinte ao último do snapshot
+    const ultimoYm = Object.keys(SELIC_SNAPSHOT).sort().pop();
+    const proximoYm = addMes(ultimoYm, 1);
+    const [anoIni, mesIni] = proximoYm.split("-").map(Number);
+
+    const novo = { ...SELIC_SNAPSHOT };
+
+    // Só faz a chamada se há meses novos (snapshot pode já cobrir o mês atual)
+    if(proximoYm <= `${aaaa}-${mm}`){
+      const dataInicial = `01/${String(mesIni).padStart(2,"0")}/${anoIni}`;
+      const dataFinal = `${dd}/${mm}/${aaaa}`;
       const url = `https://api.bcb.gov.br/dados/serie/bcdata.sgs.11/dados?formato=json&dataInicial=${dataInicial}&dataFinal=${dataFinal}`;
       const r = await fetch(url);
       if(!r.ok) throw new Error(r.status);
       const lista = await r.json();
+      const diasPorMes = {};
       for(const o of lista){
         const [d, m, a] = o.data.split("/");
         const ym = `${a}-${m}`;
         (diasPorMes[ym] = diasPorMes[ym] || []).push(parseFloat(o.valor));
       }
+      for(const ym in diasPorMes){
+        const fator = diasPorMes[ym].reduce((acc, v) => acc * (1 + v / 100), 1);
+        novo[ym] = Math.round((fator - 1) * 100 * 1e6) / 1e6;
+      }
     }
-    const novo = {};
-    for(const ym in diasPorMes){
-      const fator = diasPorMes[ym].reduce((acc, v) => acc * (1 + v / 100), 1);
-      novo[ym] = Math.round((fator - 1) * 100 * 1e6) / 1e6;
-    }
-    if(Object.keys(novo).length < 100) throw new Error("retorno inesperado");
     SELIC = novo; selicOnline = true;
   }catch(e){ selicOnline = false; }
   pintaStatusSelic(); montaTabelasRef();
