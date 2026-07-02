@@ -220,6 +220,12 @@ function selicMes(ym){
   return (ym in SELIC) ? SELIC[ym] : null;
 }
 
+function selicDisponivelAte(ymAtualizacao){
+  const ultimoNecessario = addMes(ymAtualizacao, -1);
+  if(ultimoNecessario >= ymHoje()) return true;
+  return ultimoNecessario in SELIC;
+}
+
 function somaIndice(ymBase, ymAtualizacao){
   let soma = 0;
   for(let m = addMes(ymBase,1); m < ymAtualizacao; m = addMes(m,1)){
@@ -655,6 +661,7 @@ function calculaAI(ev){
   if(notifISO > h) return mostraErro("ai","A Data de Notificação não pode ser posterior à data atual."), false;
   if(atualISO > h) return mostraErro("ai","A Data de Atualização não pode ser posterior à data de hoje."), false;
   if(atualISO < notifISO) return mostraErro("ai","A Data de Atualização não pode ser anterior à Data de Notificação."), false;
+  if(!selicDisponivelAte(ymDe(atualISO))) return mostraErro("ai","Aguarde: carregando taxas SELIC do Banco Central…"), false;
 
   let anoUfemg = null, valorConvertido = valor, subConversao = "Valor Original já foi informado em Reais";
   if(tipo === "UFEMG"){
@@ -745,6 +752,7 @@ function calculaLT(ev){
   if(mesano >= ymHoje()) return mostraErro("lt","Mês/Ano de Captação não pode ser maior nem igual ao mês atual."), false;
   if(validadeISO < DATA_MINIMA) return mostraErro("lt","Validade do DAE não pode ser anterior a 2010."), false;
   if([0,6].includes(deISO(validadeISO).getDay())) return mostraErro("lt","A validade não pode cair em um final de semana."), false;
+  if(!selicDisponivelAte(ymDe(validadeISO))) return mostraErro("lt","Aguarde: carregando taxas SELIC do Banco Central…"), false;
 
   const ymVenc = addMes(mesano, 1);
   const vencISO = ymVenc + "-15";

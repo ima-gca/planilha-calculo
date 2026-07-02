@@ -70,7 +70,7 @@
   .campo{display:flex;flex-direction:column;gap:4px}
   .campo label{font-size:.78rem;font-weight:600;color:#384540}
   .campo input,.campo select{padding:8px 10px;border:1px solid var(--borda);border-radius:6px;font-size:.95rem;min-width:150px}
-  #lt-litros{min-width:0;width:110px}
+  #lt-litros{min-width:0;width:160px}
   .campo small{color:var(--cinza);font-size:.72rem}
   .campo .hint-ok{color:#137333;font-size:.72rem;font-weight:600}
   .campo .hint-erro{color:var(--erro);font-size:.72rem;font-weight:600}
