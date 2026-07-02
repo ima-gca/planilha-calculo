@@ -173,6 +173,7 @@ const mesAnoBR = ym => { const [a,m] = ym.split("-"); return `${m}/${a}`; };
 // ---------- SELIC ----------
 let SELIC = { ...SELIC_SNAPSHOT };
 let selicOnline = false;
+let selicCarregando = true;
 
 async function carregaSelic(){
   // Busca apenas os meses ausentes no snapshot (muito mais rápido).
@@ -212,6 +213,7 @@ async function carregaSelic(){
     }
     SELIC = novo; selicOnline = true;
   }catch(e){ selicOnline = false; }
+  selicCarregando = false;
   pintaStatusSelic(); montaTabelasRef();
 }
 
@@ -220,10 +222,14 @@ function selicMes(ym){
   return (ym in SELIC) ? SELIC[ym] : null;
 }
 
-function selicDisponivelAte(ymAtualizacao){
-  const ultimoNecessario = addMes(ymAtualizacao, -1);
-  if(ultimoNecessario >= ymHoje()) return true;
-  return ultimoNecessario in SELIC;
+function selicErroSeFaltando(ymBase, ymAtualizacao){
+  const faltando = [];
+  for(let m = addMes(ymBase,1); m < ymAtualizacao; m = addMes(m,1)){
+    if(m < ymHoje() && !(m in SELIC)) faltando.push(mesAnoBR(m));
+  }
+  if(faltando.length === 0) return null;
+  if(selicCarregando) return "Aguarde: carregando taxas SELIC do Banco Central…";
+  return `Não foi possível conectar à API do Banco Central. SELIC não disponível para: ${faltando.join(", ")}.`;
 }
 
 function somaIndice(ymBase, ymAtualizacao){
@@ -661,7 +667,7 @@ function calculaAI(ev){
   if(notifISO > h) return mostraErro("ai","A Data de Notificação não pode ser posterior à data atual."), false;
   if(atualISO > h) return mostraErro("ai","A Data de Atualização não pode ser posterior à data de hoje."), false;
   if(atualISO < notifISO) return mostraErro("ai","A Data de Atualização não pode ser anterior à Data de Notificação."), false;
-  if(!selicDisponivelAte(ymDe(atualISO))) return mostraErro("ai","Aguarde: carregando taxas SELIC do Banco Central…"), false;
+  { const _e = selicErroSeFaltando(ymDe(notifISO), ymDe(atualISO)); if(_e) return mostraErro("ai", _e), false; }
 
   let anoUfemg = null, valorConvertido = valor, subConversao = "Valor Original já foi informado em Reais";
   if(tipo === "UFEMG"){
@@ -752,7 +758,7 @@ function calculaLT(ev){
   if(mesano >= ymHoje()) return mostraErro("lt","Mês/Ano de Captação não pode ser maior nem igual ao mês atual."), false;
   if(validadeISO < DATA_MINIMA) return mostraErro("lt","Validade do DAE não pode ser anterior a 2010."), false;
   if([0,6].includes(deISO(validadeISO).getDay())) return mostraErro("lt","A validade não pode cair em um final de semana."), false;
-  if(!selicDisponivelAte(ymDe(validadeISO))) return mostraErro("lt","Aguarde: carregando taxas SELIC do Banco Central…"), false;
+  { const _e = selicErroSeFaltando(addMes(mesano,1), ymDe(validadeISO)); if(_e) return mostraErro("lt", _e), false; }
 
   const ymVenc = addMes(mesano, 1);
   const vencISO = ymVenc + "-15";
