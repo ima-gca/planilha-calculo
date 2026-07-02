@@ -189,10 +189,12 @@ async function carregaSelic(){
 
     const novo = { ...SELIC_SNAPSHOT };
 
-    // Só faz a chamada se há meses novos (snapshot pode já cobrir o mês atual)
-    if(proximoYm <= `${aaaa}-${mm}`){
+    // Só busca meses fechados anteriores ao mês atual (o mês corrente vale sempre 1%)
+    const ultimoMesFechado = addMes(`${aaaa}-${mm}`, -1);
+    if(proximoYm <= ultimoMesFechado){
       const dataInicial = `01/${String(mesIni).padStart(2,"0")}/${anoIni}`;
-      const dataFinal = `${dd}/${mm}/${aaaa}`;
+      const [aF, mF] = ultimoMesFechado.split("-");
+      const dataFinal = `${new Date(Number(aF), Number(mF), 0).getDate()}/${mF}/${aF}`;
       const url = `https://api.bcb.gov.br/dados/serie/bcdata.sgs.11/dados?formato=json&dataInicial=${dataInicial}&dataFinal=${dataFinal}`;
       const r = await fetch(url);
       if(!r.ok) throw new Error(r.status);
