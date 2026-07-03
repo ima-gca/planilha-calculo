@@ -96,50 +96,6 @@ const SELIC_SNAPSHOT = {
 // Unidades administrativas do IMA
 // TODO: confirmar lista completa com a GCA
 
-const GERENCIAS_SEDE = [
-  "GCA — Gerência de Controle da Arrecadação",
-  "GCF — Gerência de Contabilidade e Finanças",
-  "GDA — Gerência de Defesa Sanitária Animal",
-  "GDV — Gerência de Defesa Sanitária Vegetal",
-  "GIP — Gerência de Inspeção de Produtos de Origem Animal",
-  "GIV — Gerência de Inspeção de Produtos de Origem Vegetal",
-  "PRD — Procuradoria"
-];
-
-const UNIDADES_IMA = [
-  "Escritório Regional de Belo Horizonte",
-  "Escritório Regional de Uberlândia",
-  "Escritório Regional de Uberaba",
-  "Escritório Regional de Juiz de Fora",
-  "Escritório Regional de Montes Claros",
-  "Escritório Regional de Governador Valadares",
-  "Escritório Regional de Divinópolis",
-  "Escritório Regional de Varginha",
-  "Escritório Regional de Poços de Caldas",
-  "Escritório Regional de Pouso Alegre",
-  "Escritório Regional de Teófilo Otoni",
-  "Escritório Regional de Patos de Minas",
-  "Escritório Local de Alfenas",
-  "Escritório Local de Araguari",
-  "Escritório Local de Araçuaí",
-  "Escritório Local de Barbacena",
-  "Escritório Local de Caratinga",
-  "Escritório Local de Curvelo",
-  "Escritório Local de Diamantina",
-  "Escritório Local de Formiga",
-  "Escritório Local de Ituiutaba",
-  "Escritório Local de Janaúba",
-  "Escritório Local de Januária",
-  "Escritório Local de Lavras",
-  "Escritório Local de Muriaé",
-  "Escritório Local de Passos",
-  "Escritório Local de Paracatu",
-  "Escritório Local de Pirapora",
-  "Escritório Local de São João del-Rei",
-  "Escritório Local de Sete Lagoas",
-  "Escritório Local de Unaí",
-  "Escritório Local de Viçosa"
-];
 
 // =====================================================================
 // Planilha de Cálculo IMA/GCA
@@ -347,9 +303,9 @@ function _migraEmissorAntigo(){
   localStorage.removeItem(CHAVE_EMISSOR);
 }
 function _uaValida(ua, local){
-  if([...GERENCIAS_SEDE, ...UNIDADES_IMA].includes(ua)) return true;
   const info = _MAPA_UPPER[(local || "").trim().toUpperCase()];
-  return !!info && (ua === info.esec || ua === info.cr);
+  if(!info) return false;
+  return ua === info.esec || ua === info.cr || (info.sede || []).includes(ua);
 }
 function listaEmissores(){
   let lista;
@@ -364,9 +320,8 @@ function emissor(){
   const ativo = localStorage.getItem(CHAVE_EMISSOR_ATIVO);
   return lista.find(e => e.masp === ativo) || lista[0];
 }
-const abreviaUA = ua => ua.includes(" — ") ? ua.split(" — ")[0] : ua;
-// na impressão, gerências (armazenadas como "SIGLA — Nome") saem como "Nome — SIGLA"
-const formataUAImpressao = ua => ua.includes(" — ") ? ua.split(" — ").reverse().join(" — ") : ua;
+const abreviaUA = ua => ua.includes(" — ") ? ua.split(" — ")[1] : ua;
+const formataUAImpressao = ua => ua;
 const primeiroNome = nome => capitalizaNome(nome).split(" ")[0];
 // primeiros 2 nomes (inclui o 3º se o 2º for preposição, ex.: "Maria de Fátima")
 function doisPrimeirosNomes(nome){
@@ -480,8 +435,8 @@ async function carregaMunicipiosMG(){
 }
 
 function populaUnidades(){
-  const dl = document.getElementById("lista-ua");
-  dl.innerHTML = [...GERENCIAS_SEDE, ...UNIDADES_IMA].map(u => `<option value="${u}">`).join("");
+  // datalist vazio — opções são populadas dinamicamente por filtraUA ao selecionar município
+  document.getElementById("lista-ua").innerHTML = "";
 }
 
 // índice case-insensitive construído uma vez
@@ -493,16 +448,15 @@ function filtraUA(mun){
   const uaEl = document.getElementById("em-ua");
   const dl   = document.getElementById("lista-ua");
   const hint = document.getElementById("ua-hint");
-  const ehSede = mun.trim().toUpperCase() === "BELO HORIZONTE";
   const info = _MAPA_UPPER[mun.trim().toUpperCase()];
   if(info){
-    const opcoes = ehSede ? [info.esec, info.cr, ...GERENCIAS_SEDE] : [info.esec, info.cr];
+    const opcoes = [info.esec, info.cr, ...(info.sede || [])];
     dl.innerHTML = opcoes.map(u => `<option value="${u}">`).join("");
-    hint.textContent = ehSede ? `${info.esec} · ${info.cr} · Gerências da Sede` : `${info.esec} · ${info.cr}`;
+    hint.textContent = info.sede ? `${info.esec} · ${info.cr} · Gerências da Sede` : `${info.esec} · ${info.cr}`;
     uaEl.disabled = false;
     uaEl.placeholder = "Digite ou selecione…";
   } else {
-    dl.innerHTML = [...GERENCIAS_SEDE, ...UNIDADES_IMA].map(u => `<option value="${u}">`).join("");
+    dl.innerHTML = "";
     hint.textContent = "";
     uaEl.disabled = true;
     uaEl.value = "";
