@@ -584,6 +584,7 @@ function validaNaoFimDeSemana(el, aba){
 function validaCampoValidadeLT(el){
   mostraErro("lt", "");
   validaDataMinima(el, "lt");
+  validaDataPassada(el, "lt");
   validaNaoFimDeSemana(el, "lt");
 }
 function validaCampoValidadeOrigDAE(el){
@@ -717,7 +718,7 @@ function calculaLT(ev){
   if(!mesano || !(litros > 0) || !validadeISO) return mostraErro("lt","Preencha Mês/Ano, Litros e Validade do DAE."), false;
   if(mesano < MES_MINIMO) return mostraErro("lt","Mês/Ano de Captação não pode ser anterior a 2010."), false;
   if(mesano >= ymHoje()) return mostraErro("lt","Mês/Ano de Captação não pode ser maior nem igual ao mês atual."), false;
-  if(validadeISO < DATA_MINIMA) return mostraErro("lt","Validade do DAE não pode ser anterior a 2010."), false;
+  if(validadeISO < iso(hoje())) return mostraErro("lt","A validade do DAE deve ser maior ou igual a hoje."), false;
   if([0,6].includes(deISO(validadeISO).getDay())) return mostraErro("lt","A validade não pode cair em um final de semana."), false;
   { const _e = selicErroSeFaltando(addMes(mesano,1), ymDe(validadeISO)); if(_e) return mostraErro("lt", _e), false; }
 
@@ -926,7 +927,7 @@ document.getElementById("ai-ano").max = hoje().getFullYear();
 document.getElementById("ai-ano").min = ANO_MINIMO;
 document.getElementById("lt-mesano").max = addMes(ymHoje(), -1);
 document.getElementById("lt-mesano").min = MES_MINIMO;
-document.getElementById("lt-validade").min = DATA_MINIMA;
+document.getElementById("lt-validade").min = iso(hoje());
 document.getElementById("dae-validade-orig").max = iso(hoje());
 document.getElementById("dae-validade-orig").min = DATA_MINIMA;
 document.getElementById("dae-validade-nova").min = iso(hoje());
