@@ -498,6 +498,12 @@ function validaDataFutura(el, aba){
     mostraErro(aba, "Não é permitido informar data posterior à data atual. O campo foi limpo.");
   }
 }
+function validaDataPassada(el, aba){
+  if(_anoPleno(el.value) && el.value < iso(hoje())){
+    el.value = "";
+    mostraErro(aba, "A nova validade do DAE deve ser maior ou igual a hoje. O campo foi limpo.");
+  }
+}
 function validaDataMinima(el, aba){
   if(_anoPleno(el.value) && el.value < DATA_MINIMA){
     el.value = "";
@@ -588,6 +594,7 @@ function validaCampoValidadeOrigDAE(el){
 function validaCampoValidadeNovaDAE(el){
   mostraErro("dae", "");
   validaDataMinima(el, "dae");
+  validaDataPassada(el, "dae");
   validaNaoFimDeSemana(el, "dae");
 }
 function limpaDatasAI(){
@@ -922,7 +929,7 @@ document.getElementById("lt-mesano").min = MES_MINIMO;
 document.getElementById("lt-validade").min = DATA_MINIMA;
 document.getElementById("dae-validade-orig").max = iso(hoje());
 document.getElementById("dae-validade-orig").min = DATA_MINIMA;
-document.getElementById("dae-validade-nova").min = DATA_MINIMA;
+document.getElementById("dae-validade-nova").min = iso(hoje());
 
 // ---------- inicialização ----------
 _migraEmissorAntigo();
