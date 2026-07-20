@@ -7,7 +7,7 @@
 <link rel="icon" href="favicon.ico">
 <script>
   // Bump a cada deploy: força o navegador a buscar css/js novos (evita cache de CDN/navegador).
-  const APP_VERSION = "2026.07.07-1";
+  const APP_VERSION = "2026.07.20-2";
   document.write('<link rel="stylesheet" href="css/main.css?v=' + APP_VERSION + '">');
 </script>
 </head>
@@ -19,7 +19,7 @@
 
 <header class="app">
   <div class="titulo">
-    <h1>Planilha de Cálculo</h1>
+    <h1 id="titulo-app">Planilha de Cálculo</h1>
     <span class="sub1">Instituto Mineiro de Agropecuária — IMA</span>
     <span class="sub2">Gerência de Controle da Arrecadação — GCA</span>
   </div>
@@ -30,19 +30,44 @@
   </button>
 </header>
 
+<!-- Duas funcionalidades ("modos"): Planilha de Cálculo (pc) e Formulário de
+     Emissão de DAE (form). A tela inicial (modo home) mostra um cartão pra
+     cada; a barra de abas só exibe os botões do modo escolhido (CSS por
+     body[data-modo]). O botão ⌂ volta pra tela inicial. -->
 <nav class="abas">
-  <button class="ativa" data-aba="inicio" onclick="trocaAba('inicio')">Início</button>
-  <button data-aba="ai" onclick="trocaAba('ai')"><span class="full">Auto de Infração</span><span class="curta">AI</span></button>
-  <button data-aba="lt" onclick="trocaAba('lt')"><span class="full">Captação de Leite</span><span class="curta">Leite</span></button>
-  <button data-aba="dae" onclick="trocaAba('dae')"><span class="full">Atualização de DAE</span><span class="curta">DAE</span></button>
-  <button data-aba="ref" onclick="trocaAba('ref')"><span class="full">Dados de referência</span><span class="curta">Referência</span></button>
-  <button data-aba="ajuda" onclick="trocaAba('ajuda')">Ajuda</button>
+  <button data-aba="home" onclick="trocaModo('home')" title="Voltar à tela inicial">⌂ Início</button>
+  <button data-modo="pc" data-aba="inicio" onclick="trocaAba('inicio')">Orientações</button>
+  <button data-modo="pc" data-aba="ai" onclick="trocaAba('ai')"><span class="full">Auto de Infração</span><span class="curta">AI</span></button>
+  <button data-modo="pc" data-aba="lt" onclick="trocaAba('lt')"><span class="full">Captação de Leite</span><span class="curta">Leite</span></button>
+  <button data-modo="pc" data-aba="dae" onclick="trocaAba('dae')"><span class="full">Atualização de DAE</span><span class="curta">DAE</span></button>
+  <button data-modo="pc" data-aba="ref" onclick="trocaAba('ref')"><span class="full">Dados de referência</span><span class="curta">Referência</span></button>
+  <button data-modo="pc" data-aba="ajuda" onclick="trocaAba('ajuda')">Ajuda</button>
+  <button data-modo="form" data-aba="form" onclick="trocaAba('form')"><span class="full">Formulário de Emissão de DAE</span><span class="curta">Formulário</span></button>
+  <button data-modo="form" data-aba="form-ajuda" onclick="trocaAba('form-ajuda')">Ajuda</button>
 </nav>
 
 <main>
 
+  <!-- ============ TELA INICIAL (escolha da funcionalidade) ============ -->
+  <section class="aba ativa" id="aba-home">
+    <div class="home-cards">
+      <button class="home-card" onclick="trocaModo('pc')">
+        <span class="home-card-titulo">🧮 Planilha de Cálculo</span>
+        <span class="home-card-desc">Atualização de valores com SELIC e UFEMG: Auto de Infração,
+        Captação de Leite e Atualização de DAE — com dados de referência e ajuda.
+        Gera a Planilha de Cálculo impressa no padrão IMA/GCA.</span>
+      </button>
+      <button class="home-card" onclick="trocaModo('form')">
+        <span class="home-card-titulo">📄 Formulário de Emissão de DAE</span>
+        <span class="home-card-desc">Preenchimento do formulário oficial de solicitação de emissão
+        de DAE e encaminhamento de parcelamento (modelo 13/10/2022), pronto pra
+        imprimir/gerar PDF, assinar e enviar à GCA via SEI.</span>
+      </button>
+    </div>
+  </section>
+
   <!-- ============ INÍCIO ============ -->
-  <section class="aba ativa" id="aba-inicio">
+  <section class="aba" id="aba-inicio">
     <div class="cartao">
       <h2 id="boasvindas">Bem-vindo(a) à Planilha de Cálculo</h2>
       <details class="disclosure">
@@ -353,6 +378,101 @@
       </ul>
     </div>
 
+    <div class="cartao">
+      <h2>Suporte</h2>
+      <p class="desc">Dúvidas, problemas ou sugestões: <b>gca@ima.mg.gov.br</b></p>
+    </div>
+  </section>
+
+  <!-- ============ FORMULÁRIO DE EMISSÃO DE DAE ============ -->
+  <!-- Versão digital do formulário oficial "Formulário para emissão de DAE e
+       encaminhamento de parcelamento" (13/10/2022). O preenchimento gera o
+       documento impresso no layout oficial; a seção "Reservado à GCA" sai em
+       branco, como no papel. -->
+  <section class="aba" id="aba-form">
+    <div class="cartao">
+      <h2>Formulário de Emissão de DAE e Encaminhamento de Parcelamento</h2>
+      <p class="desc">Modelo oficial de 13/10/2022 · * Campo obrigatório</p>
+      <div class="msg-erro" id="erro-form"></div>
+
+      <form id="form-fdae" onsubmit="return false">
+      <h3 class="fdae-grupo">Tipo de solicitação *</h3>
+      <label class="fdae-check"><input type="checkbox" id="fd-tipo-notif"> Notificação para pagamento da multa</label>
+      <label class="fdae-check"><input type="checkbox" id="fd-tipo-parc"> Solicitação de Parcelamento mediante notificação pelo auto de infração e/ou relatoria 1ª instância</label>
+      <label class="fdae-check"><input type="checkbox" id="fd-tipo-tcr"> Termo de Confissão e Renúncia</label>
+
+      <h3 class="fdae-grupo">Identificação do processo e do autuado</h3>
+      <div class="linha">
+        <div class="campo"><label>Número do SEI</label><input type="text" id="fd-sei" placeholder="0000.00.0000000/0000-00"></div>
+        <div class="campo"><label>Número do Processo *</label><input type="text" id="fd-processo"></div>
+      </div>
+      <div class="linha">
+        <div class="campo"><label>Auto de Infração nº</label><input type="text" id="fd-ai"></div>
+        <div class="campo"><label>Série</label><input type="text" id="fd-serie"></div>
+        <div class="campo"><label>Data de emissão</label><input type="date" id="fd-ai-data"></div>
+      </div>
+      <div class="linha">
+        <div class="campo" style="flex:2"><label>Nome / Razão Social *</label><input type="text" id="fd-nome"></div>
+        <div class="campo"><label>CPF/CNPJ *</label><input type="text" id="fd-doc" inputmode="numeric"></div>
+      </div>
+      <div class="linha">
+        <div class="campo" style="flex:2"><label>Endereço</label><input type="text" id="fd-endereco"></div>
+        <div class="campo"><label>Município/UF</label><input type="text" id="fd-mun" placeholder="Cidade/UF"></div>
+        <div class="campo"><label>CEP</label><input type="text" id="fd-cep" placeholder="00000-000"></div>
+      </div>
+      <div class="linha">
+        <div class="campo"><label>Telefone</label><input type="text" id="fd-tel"></div>
+        <div class="campo"><label>E-mail</label><input type="text" id="fd-email"></div>
+        <div class="campo"><label>Município do ESEC</label><input type="text" id="fd-esec"></div>
+      </div>
+
+      <h3 class="fdae-grupo">Histórico</h3>
+      <div class="linha">
+        <div class="campo" style="flex:1"><textarea id="fd-historico" rows="3" style="width:100%;resize:vertical"></textarea></div>
+      </div>
+
+      <h3 class="fdae-grupo">Infração à legislação de *</h3>
+      <label class="fdae-check"><input type="radio" name="fd-infracao" value="Agrotóxico"> Agrotóxico</label>
+      <label class="fdae-check"><input type="radio" name="fd-infracao" value="Defesa Animal"> Defesa Animal</label>
+      <label class="fdae-check"><input type="radio" name="fd-infracao" value="Inspeção Sanitária Industrial"> Inspeção Sanitária Industrial</label>
+      <label class="fdae-check"><input type="radio" name="fd-infracao" value="Defesa Vegetal / Sementes e Mudas"> Defesa Vegetal / Sementes e Mudas</label>
+      <p class="desc">OBS: o campo "Com Desconto (R$)" é exclusivo de multas de SEMENTES E MUDAS.</p>
+
+      <h3 class="fdae-grupo">Informações da multa</h3>
+      <div class="linha">
+        <div class="campo">
+          <label>Data de Notificação *</label>
+          <input type="date" id="fd-notif">
+          <small>GDA: notificação do Auto de Infração · GDV/GIP: notificação da relatoria 1ª instância</small>
+        </div>
+        <div class="campo"><label>Valor Original (R$)</label><input type="number" id="fd-vlr-original" step="0.01" min="0"></div>
+        <div class="campo"><label>Com Desconto (R$)</label><input type="number" id="fd-vlr-desconto" step="0.01" min="0"></div>
+        <div class="campo"><label>UFEMG</label><input type="number" id="fd-vlr-ufemg" step="0.0001" min="0"></div>
+      </div>
+      <p class="desc">Preencha ao menos um dos três valores (Original, Com Desconto ou UFEMG). *</p>
+
+      <div class="botoes">
+        <button type="button" class="primario" onclick="imprimeFormularioDae()">Imprimir / Gerar PDF</button>
+        <button type="button" class="limpar" onclick="limpaFormularioDae()">Limpar campos</button>
+      </div>
+      </form>
+    </div>
+  </section>
+
+  <!-- ============ AJUDA DO FORMULÁRIO ============ -->
+  <section class="aba" id="aba-form-ajuda">
+    <div class="cartao">
+      <h2>Ajuda — Formulário de Emissão de DAE</h2>
+      <ul>
+        <li><b>O que é:</b> a versão digital do "Formulário para emissão de DAE e encaminhamento de parcelamento" (modelo de 13/10/2022), usado pelas unidades (ESEC/Regionais/Gerências/Câmara) pra solicitar à GCA a emissão de DAE e/ou a análise de parcelamento decorrente de multa.</li>
+        <li><b>Fluxo:</b> preencha os campos → <b>Imprimir / Gerar PDF</b> (na impressão, escolha "Salvar como PDF" se for anexar no SEI) → assine (ou assinatura eletrônica no SEI) → envie à Gerência de Controle da Arrecadação.</li>
+        <li><b>Tipo de solicitação:</b> marque um ou mais entre Notificação para pagamento, Solicitação de Parcelamento e Termo de Confissão e Renúncia.</li>
+        <li><b>Data de Notificação:</b> na GDA é a data de notificação do Auto de Infração; na GDV/GIP, a da relatoria de 1ª instância.</li>
+        <li><b>Valores:</b> informe Original (R$), Com Desconto (R$ — exclusivo de Sementes e Mudas) ou UFEMG, conforme o caso.</li>
+        <li><b>Assinatura:</b> o documento sai com o nome do emissor identificado no topo direito da página (linha de assinatura em branco pra assinar).</li>
+        <li><b>Reservado à GCA:</b> a última seção sai em branco de propósito — é preenchida pela GCA, como no formulário de papel.</li>
+      </ul>
+    </div>
     <div class="cartao">
       <h2>Suporte</h2>
       <p class="desc">Dúvidas, problemas ou sugestões: <b>gca@ima.mg.gov.br</b></p>

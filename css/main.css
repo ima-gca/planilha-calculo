@@ -151,3 +151,34 @@
   #printdoc .doc-local-data{text-align:right;font-size:10.5pt;margin-top:16pt;margin-bottom:4pt;padding-right:4pt}
   #printdoc .doc-rodape{margin-top:79pt;font-size:11pt;text-align:center;line-height:1.7}
   #printfooter{display:none;max-width:185mm;margin:14mm auto 0;padding:5pt 10mm 0;border-top:1pt solid #000;font-size:7.5pt;text-align:center;line-height:1.5;color:#000;background:#fff;font-family:"Segoe UI",Arial,sans-serif}
+
+  /* ===== Modos (tela inicial / Planilha / Formulário DAE) ===== */
+  body[data-modo="home"] nav.abas{display:none}
+  body[data-modo="pc"] nav.abas button[data-modo="form"]{display:none}
+  body[data-modo="form"] nav.abas button[data-modo="pc"]{display:none}
+  .home-cards{display:flex;gap:20px;flex-wrap:wrap;justify-content:center;padding:32px 8px}
+  .home-card{flex:1 1 300px;max-width:430px;background:#fff;border:1px solid var(--borda);border-radius:14px;
+    padding:26px 24px;text-align:left;cursor:pointer;transition:box-shadow .15s,transform .15s;font:inherit}
+  .home-card:hover{box-shadow:0 6px 18px rgba(0,0,0,.12);transform:translateY(-2px);border-color:var(--verde)}
+  .home-card-titulo{display:block;font-size:1.15rem;font-weight:700;color:var(--verde-esc);margin-bottom:10px}
+  .home-card-desc{display:block;font-size:.86rem;color:var(--cinza);line-height:1.55}
+
+  /* ===== Formulário de Emissão de DAE (tela) ===== */
+  .fdae-grupo{margin:18px 0 8px;color:var(--verde-esc);font-size:.95rem;border-bottom:1px solid var(--borda);padding-bottom:4px}
+  .fdae-check{display:block;margin:6px 0;font-size:.88rem;cursor:pointer}
+  .fdae-check input{margin-right:8px}
+
+  /* ===== Formulário de Emissão de DAE (impressão) ===== */
+  #printdoc .ftit{text-align:center;font-weight:700;font-size:12.5pt;margin:6pt 0 10pt}
+  #printdoc .ftab{margin-bottom:0}
+  #printdoc .ftab td{font-size:10.5pt;padding:5pt 7pt;vertical-align:top}
+  #printdoc .ftab td small{font-size:8.5pt}
+  #printdoc .frot{font-weight:700}
+  #printdoc .fsec{background:#e8e8e8;border:1pt solid #000;border-bottom:none;font-weight:700;text-align:center;font-size:10.5pt;padding:4pt;margin-top:8pt}
+  #printdoc .fintro{border:1pt solid #000;border-bottom:none;margin:0;padding:5pt 7pt;font-size:10.5pt;text-align:justify}
+  #printdoc .fintro + .fsec{margin-top:0}
+  #printdoc .fhist{min-height:48pt;height:48pt}
+  #printdoc .fobs{font-size:8.5pt;font-style:italic}
+  #printdoc .fcab{text-align:center;font-weight:700;background:#f2f2f2}
+  #printdoc .fass{display:flex;justify-content:space-between;align-items:flex-end;gap:24pt;margin:16pt 4pt 10pt;font-size:10.5pt}
+  #printdoc .fass-linha{text-align:center;line-height:1.5}

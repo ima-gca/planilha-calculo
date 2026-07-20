@@ -48,49 +48,49 @@ const FERIADOS_FIXOS = [
 ];
 
 const SELIC_SNAPSHOT = {
-  "2005-01":1.383882,"2005-02":1.218186,"2005-03":1.528178,"2005-04":1.411529,"2005-05":1.503065,"2005-06":1.585603,
-  "2005-07":1.511345,"2005-08":1.658483,"2005-09":1.503136,"2005-10":1.407164,"2005-11":1.381041,"2005-12":1.473572,
-  "2006-01":1.429317,"2006-02":1.145063,"2006-03":1.422302,"2006-04":1.077878,"2006-05":1.281366,"2006-06":1.184394,
-  "2006-07":1.169966,"2006-08":1.256265,"2006-09":1.05731,"2006-10":1.094244,"2006-11":1.020605,"2006-12":0.987886,
-  "2007-01":1.082803,"2007-02":0.872484,"2007-03":1.052223,"2007-04":0.944823,"2007-05":1.028077,"2007-06":0.905629,
-  "2007-07":0.972633,"2007-08":0.992635,"2007-09":0.804961,"2007-10":0.929493,"2007-11":0.84467,"2007-12":0.84467,
-  "2008-01":0.929384,"2008-02":0.802232,"2008-03":0.844598,"2008-04":0.901426,"2008-05":0.876783,"2008-06":0.955592,
-  "2008-07":1.069671,"2008-08":1.017657,"2008-09":1.103091,"2008-10":1.175877,"2008-11":1.019969,"2008-12":1.124093,
-  "2009-01":1.047807,"2009-02":0.855086,"2009-03":0.970884,"2009-04":0.839567,"2009-05":0.770893,"2009-06":0.762182,
-  "2009-07":0.790143,"2009-08":0.693749,"2009-09":0.693749,"2009-10":0.693749,"2009-11":0.660604,"2009-12":0.726867,
-  "2010-01":0.660567,"2010-02":0.594348,"2010-03":0.76007,"2010-04":0.665913,"2010-05":0.751364,"2010-06":0.792576,
-  "2010-07":0.86103,"2010-08":0.88821,"2010-09":0.847666,"2010-10":0.807138,"2010-11":0.807138,"2010-12":0.928879,
-  "2011-01":0.86232,"2011-02":0.843908,"2011-03":0.920458,"2011-04":0.840155,"2011-05":0.987985,"2011-06":0.956276,
-  "2011-07":0.967885,"2011-08":1.074063,"2011-09":0.941761,"2011-10":0.881955,"2011-11":0.860477,"2011-12":0.907328,
-  "2012-01":0.891016,"2012-02":0.748773,"2012-03":0.821139,"2012-04":0.711876,"2012-05":0.744724,"2012-06":0.641503,
-  "2012-07":0.679965,"2012-08":0.691811,"2012-09":0.538995,"2012-10":0.611339,"2012-11":0.548846,"2012-12":0.550152,
-  "2013-01":0.60144,"2013-02":0.49275,"2013-03":0.549404,"2013-04":0.613646,"2013-05":0.598536,"2013-06":0.605273,
-  "2013-07":0.724092,"2013-08":0.710315,"2013-09":0.713029,"2013-10":0.81051,"2013-11":0.719208,"2013-12":0.789746,
-  "2014-01":0.849344,"2014-02":0.790146,"2014-03":0.765957,"2014-04":0.822668,"2014-05":0.865873,"2014-06":0.824472,
-  "2014-07":0.948727,"2014-08":0.865982,"2014-09":0.907292,"2014-10":0.950532,"2014-11":0.842493,"2014-12":0.961295,
-  "2015-01":0.935075,"2015-02":0.822411,"2015-03":1.039967,"2015-04":0.951792,"2015-05":0.985322,"2015-06":1.066676,
-  "2015-07":1.178198,"2015-08":1.108965,"2015-09":1.108965,"2015-10":1.108965,"2015-11":1.05588,"2015-12":1.162079,
-  "2016-01":1.05588,"2016-02":1.002822,"2016-03":1.162079,"2016-04":1.05588,"2016-05":1.108965,"2016-06":1.162079,
-  "2016-07":1.108965,"2016-08":1.21522,"2016-09":1.108965,"2016-10":1.048842,"2016-11":1.038286,"2016-12":1.123315,
-  "2017-01":1.08612,"2017-02":0.865084,"2017-03":1.052056,"2017-04":0.786581,"2017-05":0.927132,"2017-06":0.808869,
-  "2017-07":0.797923,"2017-08":0.802289,"2017-09":0.63846,"2017-10":0.64393,"2017-11":0.568188,"2017-12":0.5384,
-  "2018-01":0.584205,"2018-02":0.465602,"2018-03":0.532345,"2018-04":0.518295,"2018-05":0.518295,"2018-06":0.518295,
-  "2018-07":0.543042,"2018-08":0.567796,"2018-09":0.468818,"2018-10":0.543042,"2018-11":0.493553,"2018-12":0.493553,
-  "2019-01":0.543042,"2019-02":0.493553,"2019-03":0.468818,"2019-04":0.518295,"2019-05":0.543042,"2019-06":0.468818,
-  "2019-07":0.567796,"2019-08":0.501719,"2019-09":0.46376,"2019-10":0.479264,"2019-11":0.380386,"2019-12":0.374704,
-  "2020-01":0.376633,"2020-02":0.293729,"2020-03":0.338369,"2020-04":0.284925,"2020-05":0.23581,"2020-06":0.212332,
-  "2020-07":0.194346,"2020-08":0.15989,"2020-09":0.156966,"2020-10":0.156966,"2020-11":0.149486,"2020-12":0.164447,
-  "2021-01":0.149486,"2021-02":0.134527,"2021-03":0.20108,"2021-04":0.207785,"2021-05":0.270326,"2021-06":0.307779,
-  "2021-07":0.355616,"2021-08":0.427952,"2021-09":0.441999,"2021-10":0.485996,"2021-11":0.586749,"2021-12":0.769083,
-  "2022-01":0.73227,"2022-02":0.755041,"2022-03":0.927054,"2022-04":0.834321,"2022-05":1.034592,"2022-06":1.015316,
-  "2022-07":1.034842,"2022-08":1.169361,"2022-09":1.071982,"2022-10":1.020676,"2022-11":1.020676,"2022-12":1.123315,
-  "2023-01":1.123315,"2023-02":0.918141,"2023-03":1.174673,"2023-04":0.918141,"2023-05":1.123315,"2023-06":1.071982,
-  "2023-07":1.071982,"2023-08":1.137496,"2023-09":0.972902,"2023-10":0.997567,"2023-11":0.915988,"2023-12":0.894525,
-  "2024-01":0.96669,"2024-02":0.8002,"2024-03":0.831674,"2024-04":0.887433,"2024-05":0.832442,"2024-06":0.788337,
-  "2024-07":0.907122,"2024-08":0.867512,"2024-09":0.835157,"2024-10":0.927958,"2024-11":0.79299,"2024-12":0.931431,
-  "2025-01":1.013201,"2025-02":0.985322,"2025-03":0.96403,"2025-04":1.05588,"2025-05":1.138776,"2025-06":1.097051,
-  "2025-07":1.275733,"2025-08":1.164156,"2025-09":1.219929,"2025-10":1.275733,"2025-11":1.052703,"2025-12":1.219929,
-  "2026-01":1.164156,"2026-02":0.997022,"2026-03":1.212054,"2026-04":1.090058,"2026-05":1.073435,"2026-06":1.119504,
+  "2005-01":1.38,"2005-02":1.22,"2005-03":1.53,"2005-04":1.41,"2005-05":1.50,"2005-06":1.59,
+  "2005-07":1.51,"2005-08":1.66,"2005-09":1.50,"2005-10":1.41,"2005-11":1.38,"2005-12":1.47,
+  "2006-01":1.43,"2006-02":1.15,"2006-03":1.42,"2006-04":1.08,"2006-05":1.28,"2006-06":1.18,
+  "2006-07":1.17,"2006-08":1.26,"2006-09":1.06,"2006-10":1.09,"2006-11":1.02,"2006-12":0.99,
+  "2007-01":1.08,"2007-02":0.87,"2007-03":1.05,"2007-04":0.94,"2007-05":1.03,"2007-06":0.91,
+  "2007-07":0.97,"2007-08":0.99,"2007-09":0.80,"2007-10":0.93,"2007-11":0.84,"2007-12":0.84,
+  "2008-01":0.93,"2008-02":0.80,"2008-03":0.84,"2008-04":0.90,"2008-05":0.88,"2008-06":0.96,
+  "2008-07":1.07,"2008-08":1.02,"2008-09":1.10,"2008-10":1.18,"2008-11":1.02,"2008-12":1.12,
+  "2009-01":1.05,"2009-02":0.86,"2009-03":0.97,"2009-04":0.84,"2009-05":0.77,"2009-06":0.76,
+  "2009-07":0.79,"2009-08":0.69,"2009-09":0.69,"2009-10":0.69,"2009-11":0.66,"2009-12":0.73,
+  "2010-01":0.66,"2010-02":0.59,"2010-03":0.76,"2010-04":0.67,"2010-05":0.75,"2010-06":0.79,
+  "2010-07":0.86,"2010-08":0.89,"2010-09":0.85,"2010-10":0.81,"2010-11":0.81,"2010-12":0.93,
+  "2011-01":0.86,"2011-02":0.84,"2011-03":0.92,"2011-04":0.84,"2011-05":0.99,"2011-06":0.96,
+  "2011-07":0.97,"2011-08":1.07,"2011-09":0.94,"2011-10":0.88,"2011-11":0.86,"2011-12":0.91,
+  "2012-01":0.89,"2012-02":0.75,"2012-03":0.82,"2012-04":0.71,"2012-05":0.74,"2012-06":0.64,
+  "2012-07":0.68,"2012-08":0.69,"2012-09":0.54,"2012-10":0.61,"2012-11":0.55,"2012-12":0.55,
+  "2013-01":0.60,"2013-02":0.49,"2013-03":0.55,"2013-04":0.61,"2013-05":0.60,"2013-06":0.61,
+  "2013-07":0.72,"2013-08":0.71,"2013-09":0.71,"2013-10":0.81,"2013-11":0.72,"2013-12":0.79,
+  "2014-01":0.85,"2014-02":0.79,"2014-03":0.77,"2014-04":0.82,"2014-05":0.87,"2014-06":0.82,
+  "2014-07":0.95,"2014-08":0.87,"2014-09":0.91,"2014-10":0.95,"2014-11":0.84,"2014-12":0.96,
+  "2015-01":0.94,"2015-02":0.82,"2015-03":1.04,"2015-04":0.95,"2015-05":0.99,"2015-06":1.07,
+  "2015-07":1.18,"2015-08":1.11,"2015-09":1.11,"2015-10":1.11,"2015-11":1.06,"2015-12":1.16,
+  "2016-01":1.06,"2016-02":1.00,"2016-03":1.16,"2016-04":1.06,"2016-05":1.11,"2016-06":1.16,
+  "2016-07":1.11,"2016-08":1.22,"2016-09":1.11,"2016-10":1.05,"2016-11":1.04,"2016-12":1.12,
+  "2017-01":1.09,"2017-02":0.87,"2017-03":1.05,"2017-04":0.79,"2017-05":0.93,"2017-06":0.81,
+  "2017-07":0.80,"2017-08":0.80,"2017-09":0.64,"2017-10":0.64,"2017-11":0.57,"2017-12":0.54,
+  "2018-01":0.58,"2018-02":0.47,"2018-03":0.53,"2018-04":0.52,"2018-05":0.52,"2018-06":0.52,
+  "2018-07":0.54,"2018-08":0.57,"2018-09":0.47,"2018-10":0.54,"2018-11":0.49,"2018-12":0.49,
+  "2019-01":0.54,"2019-02":0.49,"2019-03":0.47,"2019-04":0.52,"2019-05":0.54,"2019-06":0.47,
+  "2019-07":0.57,"2019-08":0.50,"2019-09":0.46,"2019-10":0.48,"2019-11":0.38,"2019-12":0.37,
+  "2020-01":0.38,"2020-02":0.29,"2020-03":0.34,"2020-04":0.28,"2020-05":0.24,"2020-06":0.21,
+  "2020-07":0.19,"2020-08":0.16,"2020-09":0.16,"2020-10":0.16,"2020-11":0.15,"2020-12":0.16,
+  "2021-01":0.15,"2021-02":0.13,"2021-03":0.20,"2021-04":0.21,"2021-05":0.27,"2021-06":0.31,
+  "2021-07":0.36,"2021-08":0.43,"2021-09":0.44,"2021-10":0.49,"2021-11":0.59,"2021-12":0.77,
+  "2022-01":0.73,"2022-02":0.76,"2022-03":0.93,"2022-04":0.83,"2022-05":1.03,"2022-06":1.02,
+  "2022-07":1.03,"2022-08":1.17,"2022-09":1.07,"2022-10":1.02,"2022-11":1.02,"2022-12":1.12,
+  "2023-01":1.12,"2023-02":0.92,"2023-03":1.17,"2023-04":0.92,"2023-05":1.12,"2023-06":1.07,
+  "2023-07":1.07,"2023-08":1.14,"2023-09":0.97,"2023-10":1.00,"2023-11":0.92,"2023-12":0.89,
+  "2024-01":0.97,"2024-02":0.80,"2024-03":0.83,"2024-04":0.89,"2024-05":0.83,"2024-06":0.79,
+  "2024-07":0.91,"2024-08":0.87,"2024-09":0.84,"2024-10":0.93,"2024-11":0.79,"2024-12":0.93,
+  "2025-01":1.01,"2025-02":0.99,"2025-03":0.96,"2025-04":1.06,"2025-05":1.14,"2025-06":1.10,
+  "2025-07":1.28,"2025-08":1.16,"2025-09":1.22,"2025-10":1.28,"2025-11":1.05,"2025-12":1.22,
+  "2026-01":1.16,"2026-02":1.00,"2026-03":1.21,"2026-04":1.09,"2026-05":1.07,"2026-06":1.12
 };
 
 // Unidades administrativas do IMA
@@ -149,22 +149,19 @@ async function carregaSelic(){
     // Só busca meses fechados anteriores ao mês atual (o mês corrente vale sempre 1%)
     const ultimoMesFechado = addMes(`${aaaa}-${mm}`, -1);
     if(proximoYm <= ultimoMesFechado){
+      // Série 4390 = SELIC acumulada no mês (% a.m., 2 casas) — valor usado
+      // exatamente como o BC publica, sem recompor a partir da série diária
+      // (decisão de 2026-07-20, mesma reversão aplicada no DAE Web).
       const dataInicial = `01/${String(mesIni).padStart(2,"0")}/${anoIni}`;
       const [aF, mF] = ultimoMesFechado.split("-");
       const dataFinal = `${new Date(Number(aF), Number(mF), 0).getDate()}/${mF}/${aF}`;
-      const url = `https://api.bcb.gov.br/dados/serie/bcdata.sgs.11/dados?formato=json&dataInicial=${dataInicial}&dataFinal=${dataFinal}`;
+      const url = `https://api.bcb.gov.br/dados/serie/bcdata.sgs.4390/dados?formato=json&dataInicial=${dataInicial}&dataFinal=${dataFinal}`;
       const r = await fetch(url);
       if(!r.ok) throw new Error(r.status);
       const lista = await r.json();
-      const diasPorMes = {};
       for(const o of lista){
         const [d, m, a] = o.data.split("/");
-        const ym = `${a}-${m}`;
-        (diasPorMes[ym] = diasPorMes[ym] || []).push(parseFloat(o.valor));
-      }
-      for(const ym in diasPorMes){
-        const fator = diasPorMes[ym].reduce((acc, v) => acc * (1 + v / 100), 1);
-        novo[ym] = Math.round((fator - 1) * 100 * 1e6) / 1e6;
+        novo[`${a}-${m}`] = parseFloat(o.valor);
       }
     }
     SELIC = novo; selicOnline = true;
@@ -470,6 +467,20 @@ function trocaAba(id){
   document.getElementById(`aba-${id}`).classList.add("ativa");
   document.querySelectorAll("nav.abas button").forEach(b => b.classList.toggle("ativa", b.dataset.aba === id));
 }
+
+// Modos da aplicação: home (tela inicial de escolha), pc (Planilha de Cálculo)
+// e form (Formulário de Emissão de DAE). O CSS esconde os botões de aba que
+// não pertencem ao modo atual (body[data-modo]).
+const TITULO_POR_MODO = {
+  home: "Planilha de Cálculo & Formulário DAE",
+  pc: "Planilha de Cálculo",
+  form: "Formulário de Emissão de DAE",
+};
+function trocaModo(modo){
+  document.body.dataset.modo = modo;
+  document.getElementById("titulo-app").textContent = TITULO_POR_MODO[modo];
+  trocaAba(modo === "pc" ? "inicio" : modo === "form" ? "form" : "home");
+}
 function mostraErro(aba, texto){
   const el = document.getElementById(`erro-${aba}`);
   el.textContent = texto; el.style.display = texto ? "block" : "none";
@@ -610,7 +621,7 @@ function limpaDatasAI(){
   mostraAviso("ai", (ano && notifPreenchida) ? "O Ano de Emissão foi alterado: redigite a Data de Notificação." : "");
 }
 const linhas = { ai: [], lt: [], dae: [] };
-const pct = v => v.toFixed(6).replace(".", ",") + "%";
+const pct = v => v.toFixed(2).replace(".", ",") + "%";
 
 // =====================================================================
 // AUTO DE INFRAÇÃO
@@ -663,7 +674,7 @@ function calculaAI(ev){
   tr.innerHTML = `<td class="dinheiro">${tipo==="REAL" ? fmtBRLSmart(valor) : fmtInt.format(valor)+" UFEMG"}</td>
     <td>${tipo}</td><td>${anoUfemg ?? "—"}</td><td>${dataBR(notifISO)}</td><td>${dataBR(atualISO)}</td>
     <td class="dinheiro">${fmtBRLSmart(valorConvertido)}</td><td>${indice===null ? "—" : pct(indice)}</td>
-    <td class="dinheiro">${indice===null ? "—" : fmtBRLSmart(correcao)}</td>
+    <td class="dinheiro">${indice===null ? "—" : fmtBRL.format(correcao)}</td>
     <td class="dinheiro"><b>${fmtBRL.format(atualizado)}</b></td>
     <td>${dataBR(linha.emitidoISO)}</td>
     <td style="white-space:nowrap"><button class="mini" onclick="imprimeAI(${idx_ai})">🖨</button> <button class="mini apaga" onclick="apagaLinha('ai',${idx_ai},this)" title="Apagar">✕</button></td>`;
@@ -701,7 +712,7 @@ function imprimeAI(i){
       { t:"Data Inicial do Índice de Correção", s: r.indice===null ? semCorrecao : "Primeiro dia do mês seguinte à Data de Notificação", v: r.indice===null ? "—" : dtIniIndice },
       { t:"Data Final do Índice de Correção", s: r.indice===null ? semCorrecao : "Data informada. Poderá divergir da data de emissão desta Planilha", v: r.indice===null ? "—" : dataBR(r.atualISO) },
       { t:"Índice de Correção", s: r.indice===null ? semCorrecao : `SELIC acumulada: ${mesAnoBR(addMes(ymDe(r.notifISO),1))} a ${mesAnoBR(ymDe(r.atualISO))}`, v: r.indice===null ? "—" : pct(r.indice) },
-      { t:"Valor Correção", s: r.indice===null ? semCorrecao : "Valor de Cálculo × Índice de Correção", v: r.indice===null ? "—" : fmtBRLSmart(r.correcao) },
+      { t:"Valor Correção", s: r.indice===null ? semCorrecao : "Valor de Cálculo × Índice de Correção", v: r.indice===null ? "—" : fmtBRL.format(r.correcao) },
       { t:"VALOR ATUALIZADO", s: r.indice===null ? "Valor de Cálculo (sem correção)" : "Valor de Cálculo + Valor Correção", v: fmtBRL.format(r.atualizado), destaque:true },
     ]);
 }
@@ -752,7 +763,7 @@ function calculaLT(ev){
   tr.innerHTML = `<td>${mesAnoBR(mesano)}</td><td>${fmtInt.format(litros)}</td><td>${dataBR(validadeISO)}</td>
     <td class="dinheiro">${fmtBRLSmart(valorCaptacao)}</td><td>${atraso > 0 ? atraso : 0}</td>
     <td>${atraso > 0 ? multaRotulo : "—"}</td><td class="dinheiro">${atraso > 0 ? fmtBRLSmart(multaValor) : "—"}</td>
-    <td>${indice===null ? "—" : pct(indice)}</td><td class="dinheiro">${indice===null ? "—" : fmtBRLSmart(correcao)}</td>
+    <td>${indice===null ? "—" : pct(indice)}</td><td class="dinheiro">${indice===null ? "—" : fmtBRL.format(correcao)}</td>
     <td class="dinheiro"><b>${fmtBRL.format(atualizado)}</b></td>
     <td>${dataBR(linha.emitidoISO)}</td>
     <td style="white-space:nowrap"><button class="mini" onclick="imprimeLT(${idx_lt})">🖨</button> <button class="mini apaga" onclick="apagaLinha('lt',${idx_lt},this)" title="Apagar">✕</button></td>`;
@@ -774,7 +785,7 @@ function imprimeLT(i){
       { t:"Valor da Captação", s:`${PARAMS.leiteFracaoUfemg.toString().replace(".",",")} UFEMG (${r.anoUfemg}) por MIL litros ou fração`, v: fmtBRLSmart(r.valorCaptacao) },
       { t:"Valor da Multa", s: r.atraso > 0 ? `Atraso: ${r.atraso} dias = ${r.multaRotulo}` : `No prazo até ${dataBR(r.vencISO)}`, v: r.atraso > 0 ? fmtBRLSmart(r.multaValor) : "—" },
       { t:"Índice de Correção", s: r.indice===null ? semCor : `Período: ${dataBR(r.vencISO)} a ${dataBR(r.validadeISO)}`, v: r.indice===null ? "—" : pct(r.indice) },
-      { t:"Valor Correção", s: r.indice===null ? semCor : "(Valor da Captação + Valor da Multa) × Índice de Correção", v: r.indice===null ? "—" : fmtBRLSmart(r.correcao) },
+      { t:"Valor Correção", s: r.indice===null ? semCor : "(Valor da Captação + Valor da Multa) × Índice de Correção", v: r.indice===null ? "—" : fmtBRL.format(r.correcao) },
       { t:"VALOR ATUALIZADO", s:"Valor da Captação + Valor da Multa + Valor Correção", v: fmtBRL.format(r.atualizado), destaque:true },
     ]);
 }
@@ -816,7 +827,7 @@ function calculaDAE(ev){
   tr.innerHTML = `<td class="dinheiro">${fmtBRLSmart(valor)}</td><td>${dataBR(origISO)}</td><td>${dataBR(novaISO)}</td>
     <td>${atraso > 0 ? atraso : 0}</td><td>${atraso > 0 ? multaRotulo : "—"}</td>
     <td class="dinheiro">${atraso > 0 ? fmtBRLSmart(multaValor) : "—"}</td>
-    <td>${indice===null ? "—" : pct(indice)}</td><td class="dinheiro">${indice===null ? "—" : fmtBRLSmart(correcao)}</td>
+    <td>${indice===null ? "—" : pct(indice)}</td><td class="dinheiro">${indice===null ? "—" : fmtBRL.format(correcao)}</td>
     <td class="dinheiro"><b>${fmtBRL.format(atualizado)}</b></td>
     <td>${dataBR(linha.emitidoISO)}</td>
     <td style="white-space:nowrap"><button class="mini" onclick="imprimeDAE(${idx_dae})">🖨</button> <button class="mini apaga" onclick="apagaLinha('dae',${idx_dae},this)" title="Apagar">✕</button></td>`;
@@ -837,7 +848,7 @@ function imprimeDAE(i){
       { t:"Validade do novo DAE", s:"", v: dataBR(r.novaISO) },
       { t:"Valor da Multa", s: r.atraso > 0 ? `Atraso: ${r.atraso} dias = ${r.multaRotulo}` : "Sem atraso", v: r.atraso > 0 ? fmtBRLSmart(r.multaValor) : "—" },
       { t:"Índice de Correção", s: r.indice===null ? semCor : `Período: ${dataBR(r.origISO)} a ${dataBR(r.novaISO)}`, v: r.indice===null ? "—" : pct(r.indice) },
-      { t:"Valor Correção", s: r.indice===null ? semCor : "(Valor do DAE + Valor da Multa) × Índice de Correção", v: r.indice===null ? "—" : fmtBRLSmart(r.correcao) },
+      { t:"Valor Correção", s: r.indice===null ? semCor : "(Valor do DAE + Valor da Multa) × Índice de Correção", v: r.indice===null ? "—" : fmtBRL.format(r.correcao) },
       { t:"VALOR ATUALIZADO", s:"Valor do DAE + Valor da Multa + Valor Correção", v: fmtBRL.format(r.atualizado), destaque:true },
     ]);
 }
@@ -882,6 +893,115 @@ function imprimeDocumento(subtitulo, itens){
 }
 
 // =====================================================================
+// FORMULÁRIO DE EMISSÃO DE DAE (modelo oficial 13/10/2022)
+// =====================================================================
+const FD_CAMPOS = ["fd-sei","fd-processo","fd-ai","fd-serie","fd-ai-data","fd-nome","fd-doc","fd-endereco","fd-mun","fd-cep","fd-tel","fd-email","fd-esec","fd-historico","fd-notif","fd-vlr-original","fd-vlr-desconto","fd-vlr-ufemg"];
+
+function limpaFormularioDae(){
+  FD_CAMPOS.forEach(id => { document.getElementById(id).value = ""; });
+  ["fd-tipo-notif","fd-tipo-parc","fd-tipo-tcr"].forEach(id => { document.getElementById(id).checked = false; });
+  document.querySelectorAll('input[name="fd-infracao"]').forEach(r => { r.checked = false; });
+  mostraErro("form", "");
+}
+
+function imprimeFormularioDae(){
+  const e = emissor();
+  if(!e){ abreModalEmissor(); return; }
+  const v = id => document.getElementById(id).value.trim();
+  const marcado = id => document.getElementById(id).checked;
+  const infracao = document.querySelector('input[name="fd-infracao"]:checked');
+
+  const faltas = [];
+  if(!marcado("fd-tipo-notif") && !marcado("fd-tipo-parc") && !marcado("fd-tipo-tcr")) faltas.push("Tipo de solicitação");
+  if(!v("fd-processo")) faltas.push("Número do Processo");
+  if(!v("fd-nome")) faltas.push("Nome / Razão Social");
+  if(!v("fd-doc")) faltas.push("CPF/CNPJ");
+  if(!infracao) faltas.push("Infração à legislação");
+  if(!v("fd-notif")) faltas.push("Data de Notificação");
+  if(!v("fd-vlr-original") && !v("fd-vlr-desconto") && !v("fd-vlr-ufemg")) faltas.push("ao menos um Valor");
+  if(faltas.length){ mostraErro("form", "Preencha: " + faltas.join(", ") + "."); return; }
+  mostraErro("form", "");
+
+  const cx = (m) => m ? "( X )" : "(&nbsp;&nbsp;&nbsp;)";
+  const dataOuVazio = (iso_) => iso_ ? dataBR(iso_) : "";
+  const dinheiro = (id) => v(id) ? fmtBRL.format(Number(v(id))) : "";
+  const celula = (rotulo, valor, extra) => `<td${extra || ""}><span class="frot">${rotulo}</span> ${valor || ""}</td>`;
+
+  document.getElementById("printheader").innerHTML = `
+    <img class="doc-brasao" id="img-brasao" src="img/brasao-mg.png" alt="Brasão de Minas Gerais">
+    <div class="doc-inst">
+      <div class="inst1">GOVERNO DO ESTADO DE MINAS GERAIS</div>
+      <div class="inst2">INSTITUTO MINEIRO DE AGROPECUÁRIA - IMA</div>
+      <div class="inst3">GERÊNCIA DE CONTROLE DA ARRECADAÇÃO - GCA</div>
+    </div>
+    <img class="doc-carimbo" src="img/carimbo-pagina.png" alt="Carimbo IMA">`;
+
+  document.getElementById("printdoc").innerHTML = `
+    <div class="ftit">FORMULÁRIO PARA EMISSÃO DE DAE E ENCAMINHAMENTO DE PARCELAMENTO</div>
+    <table class="ftab">
+      <tr><td>${cx(marcado("fd-tipo-notif"))} Notificação para pagamento da multa</td></tr>
+      <tr><td>${cx(marcado("fd-tipo-parc"))} Solicitação de Parcelamento mediante notificação pelo auto de infração e/ou relatoria 1ª instância</td></tr>
+      <tr><td>${cx(marcado("fd-tipo-tcr"))} Termo de Confissão e Renúncia</td></tr>
+    </table>
+    <div class="fsec">RESERVADO À UNIDADE SECCIONAL/REGIONAL/GERÊNCIAS/CÂMARA</div>
+    <p class="fintro">À Gerência de Controle de Arrecadação, para emissão de DAE e/ou análise da solicitação de
+    parcelamento em decorrência de aplicação de penalidade de multa, conforme disposto abaixo:</p>
+    <div class="fsec">IDENTIFICAÇÃO DO PROCESSO E DO AUTUADO</div>
+    <table class="ftab">
+      <tr>${celula("Número do SEI:", v("fd-sei"))}${celula("Número do Processo:", v("fd-processo"))}</tr>
+      <tr>${celula("Auto de Infração nº:", v("fd-ai"))}${celula("Série:", v("fd-serie"))}${celula("Data emissão:", dataOuVazio(v("fd-ai-data")))}</tr>
+      <tr>${celula("Nome / Razão Social:", v("fd-nome"), ' colspan="2"')}${celula("CPF/CNPJ:", v("fd-doc"))}</tr>
+      <tr>${celula("Endereço:", v("fd-endereco"), ' colspan="3"')}</tr>
+      <tr>${celula("Município/UF:", v("fd-mun"))}${celula("CEP:", v("fd-cep"))}${celula("Telefone:", v("fd-tel"))}</tr>
+      <tr>${celula("E-mail:", v("fd-email"), ' colspan="2"')}${celula("Município do ESEC:", v("fd-esec"))}</tr>
+    </table>
+    <div class="fsec">HISTÓRICO</div>
+    <table class="ftab"><tr><td class="fhist">${v("fd-historico").replace(/\n/g, "<br>") || "&nbsp;"}</td></tr></table>
+    <div class="fsec">INFRAÇÃO À LEGISLAÇÃO DE:</div>
+    <table class="ftab">
+      <tr><td>${cx(infracao.value === "Agrotóxico")} Agrotóxico</td><td>${cx(infracao.value === "Defesa Animal")} Defesa Animal</td></tr>
+      <tr><td>${cx(infracao.value === "Inspeção Sanitária Industrial")} Inspeção Sanitária Industrial</td><td>${cx(infracao.value === "Defesa Vegetal / Sementes e Mudas")} Defesa Vegetal / Sementes e Mudas</td></tr>
+      <tr><td colspan="2" class="fobs">OBS: Utilizar o campo "Com Desconto (R$)" somente para multas referentes a SEMENTES E MUDAS.</td></tr>
+    </table>
+    <div class="fsec">INFORMAÇÕES DA MULTA</div>
+    <table class="ftab">
+      <tr>
+        <td rowspan="2" style="width:38%"><span class="frot">Data de Notificação</span><br>
+          <small>GDA — Auto de Infração<br>GDV/GIP — Relatoria 1ª instância</small><br><br>
+          <b>${dataOuVazio(v("fd-notif"))}</b></td>
+        <td class="fcab" colspan="3">Valores</td>
+      </tr>
+      <tr>
+        ${celula("Original (R$):", dinheiro("fd-vlr-original"))}
+        ${celula("Com Desconto (R$):<br><small>exclusivo Sementes e Mudas</small>", dinheiro("fd-vlr-desconto"))}
+        ${celula("UFEMG:", v("fd-vlr-ufemg"))}
+      </tr>
+    </table>
+    <div class="fass">
+      <div>Data: ${dataBR(iso(hoje()))}</div>
+      <div class="fass-linha">
+        _________________________________________<br>
+        ${capitalizaNome(e.nome)} — ${maspFormatado(e.masp)}<br>
+        <small>Assinatura e Carimbo / Responsável</small><br>
+        <small>${formataUAImpressao(e.ua)}</small>
+      </div>
+    </div>
+    <div class="fsec">RESERVADO À GERÊNCIA DE CONTROLE DA ARRECADAÇÃO</div>
+    <table class="ftab">
+      <tr>
+        ${[1,2,3].map(() => `<td><span class="frot">Número do DAE:</span><br><br><span class="frot">Data de emissão:</span><br><br><span class="frot">Valor (R$):</span><br><br><span class="frot">Data de validade:</span><br>&nbsp;</td>`).join("")}
+      </tr>
+    </table>`;
+
+  const imgBrasao = document.getElementById("img-brasao");
+  imgBrasao.onerror = () => { imgBrasao.onerror = null; imgBrasao.src = BRASAO_FALLBACK; };
+  const imagens = [...document.querySelectorAll("#printheader img")];
+  Promise.all(imagens.map(img => (img.complete && img.naturalWidth > 0) ? Promise.resolve() :
+    new Promise(resolve => { img.addEventListener("load", resolve, { once: true }); img.addEventListener("error", resolve, { once: true }); })
+  )).then(() => window.print());
+}
+
+// =====================================================================
 // ABA DADOS DE REFERÊNCIA
 // =====================================================================
 function pintaStatusSelic(){
@@ -895,7 +1015,7 @@ function montaTabelasRef(){
   for(let k = 13; k >= 1; k--){
     const m = addMes(ymH, -k);
     const v = SELIC[m];
-    html += `<tr><td>${mesAnoBR(m)}</td><td>${v === undefined ? "—" : v.toFixed(6).replace(".",",")}</td></tr>`;
+    html += `<tr><td>${mesAnoBR(m)}</td><td>${v === undefined ? "—" : v.toFixed(2).replace(".",",")}</td></tr>`;
   }
   html += `<tr><td>${mesAnoBR(ymH)}</td><td><i>em aberto (vale 1%)</i></td></tr>`;
   document.getElementById("tab-selic").innerHTML = html;
@@ -942,6 +1062,7 @@ carregaSelic();
 verificaUFEMG();
 carregaFeriadosBrasil();
 carregaMunicipiosMG();
+trocaModo("home");
 document.getElementById("app-version").textContent = `Versão ${APP_VERSION}`;
 
 // ---------- checagem periódica de nova versão publicada ----------
