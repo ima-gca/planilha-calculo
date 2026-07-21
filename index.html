@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Planilha de Cálculo — IMA/GCA</title>
+<title>Arrecadação — IMA/GCA</title>
 <link rel="icon" href="favicon.ico">
 <script>
   // Bump a cada deploy: força o navegador a buscar css/js novos (evita cache de CDN/navegador).
-  const APP_VERSION = "2026.07.20-2";
+  const APP_VERSION = "2026.07.21-28";
   document.write('<link rel="stylesheet" href="css/main.css?v=' + APP_VERSION + '">');
 </script>
 </head>
@@ -42,7 +42,7 @@
   <button data-modo="pc" data-aba="dae" onclick="trocaAba('dae')"><span class="full">Atualização de DAE</span><span class="curta">DAE</span></button>
   <button data-modo="pc" data-aba="ref" onclick="trocaAba('ref')"><span class="full">Dados de referência</span><span class="curta">Referência</span></button>
   <button data-modo="pc" data-aba="ajuda" onclick="trocaAba('ajuda')">Ajuda</button>
-  <button data-modo="form" data-aba="form" onclick="trocaAba('form')"><span class="full">Formulário de Emissão de DAE</span><span class="curta">Formulário</span></button>
+  <button data-modo="form" data-aba="form" onclick="trocaAba('form')">Formulário</button>
   <button data-modo="form" data-aba="form-ajuda" onclick="trocaAba('form-ajuda')">Ajuda</button>
 </nav>
 
@@ -304,7 +304,7 @@
     <div class="cartao">
       <h2>Taxa SELIC mensal <span class="status-selic offline" id="selic-status">carregando…</span></h2>
       <p class="desc" id="selic-desc">O mês corrente não possui taxa fechada: nos cálculos, o mês da data de atualização vale sempre 1%.</p>
-      <p class="desc">Conferir na fonte oficial: <a href="https://www.fazenda.mg.gov.br/empresas/legislacao_tributaria/comunicados/selic.html" target="_blank" rel="noopener">tabela de SELIC da SEF-MG</a>.</p>
+      <p class="desc">Obter SELIC em: <a href="https://sicalc.receita.fazenda.gov.br/sicalc/selic/consulta" target="_blank" rel="noopener">SICALC</a>.</p>
       <div class="grade-dados">
         <div><h3 style="font-size:.85rem;margin:4px 0">Últimos 13 meses</h3><table class="ref" id="tab-selic"></table></div>
         <div><h3 style="font-size:.85rem;margin:4px 0">UFEMG por exercício</h3><table class="ref" id="tab-ufemg"></table></div>
@@ -391,65 +391,124 @@
        branco, como no papel. -->
   <section class="aba" id="aba-form">
     <div class="cartao">
-      <h2>Formulário de Emissão de DAE e Encaminhamento de Parcelamento</h2>
-      <p class="desc">Modelo oficial de 13/10/2022 · * Campo obrigatório</p>
       <div class="msg-erro" id="erro-form"></div>
 
       <form id="form-fdae" onsubmit="return false">
-      <h3 class="fdae-grupo">Tipo de solicitação *</h3>
-      <label class="fdae-check"><input type="checkbox" id="fd-tipo-notif"> Notificação para pagamento da multa</label>
-      <label class="fdae-check"><input type="checkbox" id="fd-tipo-parc"> Solicitação de Parcelamento mediante notificação pelo auto de infração e/ou relatoria 1ª instância</label>
-      <label class="fdae-check"><input type="checkbox" id="fd-tipo-tcr"> Termo de Confissão e Renúncia</label>
-
-      <h3 class="fdae-grupo">Identificação do processo e do autuado</h3>
       <div class="linha">
-        <div class="campo"><label>Número do SEI</label><input type="text" id="fd-sei" placeholder="0000.00.0000000/0000-00"></div>
-        <div class="campo"><label>Número do Processo *</label><input type="text" id="fd-processo"></div>
-      </div>
-      <div class="linha">
-        <div class="campo"><label>Auto de Infração nº</label><input type="text" id="fd-ai"></div>
-        <div class="campo"><label>Série</label><input type="text" id="fd-serie"></div>
-        <div class="campo"><label>Data de emissão</label><input type="date" id="fd-ai-data"></div>
-      </div>
-      <div class="linha">
-        <div class="campo" style="flex:2"><label>Nome / Razão Social *</label><input type="text" id="fd-nome"></div>
-        <div class="campo"><label>CPF/CNPJ *</label><input type="text" id="fd-doc" inputmode="numeric"></div>
-      </div>
-      <div class="linha">
-        <div class="campo" style="flex:2"><label>Endereço</label><input type="text" id="fd-endereco"></div>
-        <div class="campo"><label>Município/UF</label><input type="text" id="fd-mun" placeholder="Cidade/UF"></div>
-        <div class="campo"><label>CEP</label><input type="text" id="fd-cep" placeholder="00000-000"></div>
-      </div>
-      <div class="linha">
-        <div class="campo"><label>Telefone</label><input type="text" id="fd-tel"></div>
-        <div class="campo"><label>E-mail</label><input type="text" id="fd-email"></div>
-        <div class="campo"><label>Município do ESEC</label><input type="text" id="fd-esec"></div>
-      </div>
-
-      <h3 class="fdae-grupo">Histórico</h3>
-      <div class="linha">
-        <div class="campo" style="flex:1"><textarea id="fd-historico" rows="3" style="width:100%;resize:vertical"></textarea></div>
-      </div>
-
-      <h3 class="fdae-grupo">Infração à legislação de *</h3>
-      <label class="fdae-check"><input type="radio" name="fd-infracao" value="Agrotóxico"> Agrotóxico</label>
-      <label class="fdae-check"><input type="radio" name="fd-infracao" value="Defesa Animal"> Defesa Animal</label>
-      <label class="fdae-check"><input type="radio" name="fd-infracao" value="Inspeção Sanitária Industrial"> Inspeção Sanitária Industrial</label>
-      <label class="fdae-check"><input type="radio" name="fd-infracao" value="Defesa Vegetal / Sementes e Mudas"> Defesa Vegetal / Sementes e Mudas</label>
-      <p class="desc">OBS: o campo "Com Desconto (R$)" é exclusivo de multas de SEMENTES E MUDAS.</p>
-
-      <h3 class="fdae-grupo">Informações da multa</h3>
-      <div class="linha">
-        <div class="campo">
-          <label>Data de Notificação *</label>
-          <input type="date" id="fd-notif">
-          <small>GDA: notificação do Auto de Infração · GDV/GIP: notificação da relatoria 1ª instância</small>
+        <div class="campo" style="flex:2.2">
+          <label>Tipo de solicitação * <span class="ajuda" data-tip="Selecione uma das opções.">?</span></label>
+          <select id="fd-tipo-solicitacao">
+            <option value="">–</option>
+            <option value="notif">Notificação de Pagamento de Multa e Emissão de DAE</option>
+            <option value="parc">Parcelamento mediante notificação pelo auto de infração e/ou relatoria 1ª instância</option>
+          </select>
         </div>
-        <div class="campo"><label>Valor Original (R$)</label><input type="number" id="fd-vlr-original" step="0.01" min="0"></div>
-        <div class="campo"><label>Com Desconto (R$)</label><input type="number" id="fd-vlr-desconto" step="0.01" min="0"></div>
-        <div class="campo"><label>UFEMG</label><input type="number" id="fd-vlr-ufemg" step="0.0001" min="0"></div>
+        <div class="campo" style="flex:1">
+          <label>Infração à legislação de *</label>
+          <select id="fd-infracao">
+            <option value="">–</option>
+            <option value="Agrotóxico">Agrotóxico</option>
+            <option value="Defesa Animal">Defesa Animal</option>
+            <option value="Inspeção Sanitária Industrial">Inspeção Sanitária Industrial</option>
+            <option value="Defesa Vegetal / Sementes e Mudas">Defesa Vegetal / Sementes e Mudas</option>
+          </select>
+        </div>
       </div>
-      <p class="desc">Preencha ao menos um dos três valores (Original, Com Desconto ou UFEMG). *</p>
+      <div class="linha">
+        <div class="campo" style="flex:1">
+          <label>Número do SEI</label>
+          <input type="text" id="fd-sei" maxlength="23" placeholder="0000.00.0000000/0000-00">
+          <span class="status" id="status-fd-sei"></span>
+        </div>
+        <div class="campo" style="flex:1">
+          <label>Número do Processo *
+            <button type="button" id="btn-atalho-fd-sei" class="btn-verde">SEI</button>
+            <span class="ajuda" data-tip="Se for o mesmo número do SEI, basta clicar no botão SEI.">?</span>
+          </label>
+          <input type="text" id="fd-processo">
+          <span class="status" id="status-fd-processo"></span>
+        </div>
+        <div class="campo" style="flex:1"><label>Número do Auto de Infração *</label><input type="text" id="fd-ai"></div>
+        <div class="campo" style="flex:0 0 64px"><label>Série</label><input type="text" id="fd-serie" maxlength="1" oninput="this.value=this.value.toUpperCase()"></div>
+      </div>
+      <!-- Esta linha e a de baixo (CPF-CNPJ/Nome/País/CEP) usam a mesma grade de
+           colunas de propósito, pra alinhar visualmente: CPF/CNPJ do tamanho de
+           Data de emissão, Nome/Razão Social cobrindo Data da notificação+Tipo+Valor,
+           e País+CEP juntos do tamanho de Valor com desconto. -->
+      <div class="linha" style="display:grid;grid-template-columns:1fr 1fr 110px 1fr 1fr;gap:16px">
+        <div class="campo">
+          <label>Data de emissão</label>
+          <input type="date" id="fd-ai-data">
+          <span class="status" id="status-fd-ai-data"></span>
+        </div>
+        <div class="campo">
+          <label>Data da notificação * <span class="ajuda" data-tip="GDA: Auto de Infração
+GDV/GIP: AR da relatoria 1ª instância">?</span></label>
+          <input type="date" id="fd-notif">
+          <span class="status" id="status-fd-notif"></span>
+        </div>
+        <div class="campo">
+          <label>Tipo *</label>
+          <select id="fd-tipo-valor">
+            <option value="">–</option>
+            <option value="REAL">REAL (R$)</option>
+            <option value="UFEMG">UFEMG</option>
+          </select>
+        </div>
+        <div class="campo">
+          <label>Valor * <span class="ajuda" data-tip="Valor da multa, no Tipo selecionado ao lado.">?</span></label>
+          <input type="text" inputmode="decimal" id="fd-valor" placeholder="0,00">
+          <span class="nota" id="nota-fd-valor"></span>
+        </div>
+        <div class="campo">
+          <label>Valor com desconto (R$) <span class="ajuda" data-tip="Exclusivo de Sementes e Mudas, com Tipo = Real.">?</span></label>
+          <input type="text" inputmode="decimal" id="fd-vlr-desconto" placeholder="0,00">
+          <span class="status" id="status-fd-vlr-desconto"></span>
+        </div>
+      </div>
+      <div class="linha" style="display:grid;grid-template-columns:1fr 1fr 110px 1fr 1fr;gap:16px">
+        <div class="campo">
+          <label id="lbl-fd-doc">CPF/CNPJ *</label>
+          <input type="text" id="fd-doc" inputmode="numeric" placeholder="Somente números">
+          <span class="status" id="status-fd-doc"></span>
+        </div>
+        <div class="campo" style="grid-column:2/5">
+          <label id="lbl-fd-nome">Nome / Razão Social * <span class="ajuda" data-tip="Nome (CPF) ou razão social (CNPJ) do autuado.">?</span></label>
+          <input type="text" id="fd-nome">
+        </div>
+        <div style="display:flex;gap:8px">
+          <div class="campo" style="flex:0 0 30%">
+            <label>País * <span class="ajuda" data-tip="Padrão Brasil.">?</span></label>
+            <div class="autocomplete">
+              <input type="text" id="fd-pais" autocomplete="off" placeholder="Brasil">
+              <ul id="fd-pais-sugestoes" class="sugestoes sugestoes-larga"></ul>
+            </div>
+          </div>
+          <div class="campo" style="flex:1">
+            <label>CEP * <span class="ajuda" data-tip="Preenche Logradouro/Bairro/Município automaticamente.">?</span></label>
+            <input type="text" id="fd-cep" placeholder="00000-000">
+          </div>
+        </div>
+      </div>
+      <div class="linha">
+        <div class="campo" style="flex:2"><label>Logradouro *</label><input type="text" id="fd-logradouro"></div>
+        <div class="campo" style="flex:0 0 160px"><label>Número *</label><input type="text" id="fd-numero"></div>
+      </div>
+      <div class="linha">
+        <div class="campo" style="flex:0 0 220px"><label>Complemento</label><input type="text" id="fd-complemento"></div>
+        <div class="campo" style="flex:1"><label id="lbl-fd-bairro">Bairro * <span class="ajuda" data-tip="Não obrigatório para endereço internacional.">?</span></label><input type="text" id="fd-bairro"></div>
+      </div>
+      <div class="linha">
+        <div class="campo" style="flex:1"><label>Município/UF *</label><input type="text" id="fd-mun" readonly placeholder="preenchido pelo CEP"></div>
+        <div class="campo" style="flex:1">
+          <label>ESEC * <small>(unidade de emissão)</small></label>
+          <div class="autocomplete">
+            <input type="text" id="fd-esec" autocomplete="off" placeholder="Digite o município...">
+            <ul id="fd-esec-sugestoes" class="sugestoes sugestoes-larga"></ul>
+          </div>
+          <span class="status" id="status-fd-esec"></span>
+        </div>
+      </div>
 
       <div class="botoes">
         <button type="button" class="primario" onclick="imprimeFormularioDae()">Imprimir / Gerar PDF</button>
@@ -466,10 +525,11 @@
       <ul>
         <li><b>O que é:</b> a versão digital do "Formulário para emissão de DAE e encaminhamento de parcelamento" (modelo de 13/10/2022), usado pelas unidades (ESEC/Regionais/Gerências/Câmara) pra solicitar à GCA a emissão de DAE e/ou a análise de parcelamento decorrente de multa.</li>
         <li><b>Fluxo:</b> preencha os campos → <b>Imprimir / Gerar PDF</b> (na impressão, escolha "Salvar como PDF" se for anexar no SEI) → assine (ou assinatura eletrônica no SEI) → envie à Gerência de Controle da Arrecadação.</li>
-        <li><b>Tipo de solicitação:</b> marque um ou mais entre Notificação para pagamento, Solicitação de Parcelamento e Termo de Confissão e Renúncia.</li>
+        <li><b>Tipo de solicitação:</b> escolha Notificação para pagamento ou Solicitação de Parcelamento — o título e o texto de abertura do documento impresso mudam conforme a escolha.</li>
         <li><b>Data de Notificação:</b> na GDA é a data de notificação do Auto de Infração; na GDV/GIP, a da relatoria de 1ª instância.</li>
-        <li><b>Valores:</b> informe Original (R$), Com Desconto (R$ — exclusivo de Sementes e Mudas) ou UFEMG, conforme o caso.</li>
-        <li><b>Assinatura:</b> o documento sai com o nome do emissor identificado no topo direito da página (linha de assinatura em branco pra assinar).</li>
+        <li><b>Valores:</b> informe o Valor e o Tipo (Real ou UFEMG); Com Desconto (R$) só fica ativo para Sementes e Mudas.</li>
+        <li><b>CPF/CNPJ:</b> o rótulo do campo (e de Nome/Razão Social) muda sozinho conforme a quantidade de dígitos digitados.</li>
+        <li><b>Assinatura:</b> o bloco correspondente à unidade do emissor identificado sai preenchido; o outro (Responsável ou Câmara de Recursos) fica em branco para assinatura manual.</li>
         <li><b>Reservado à GCA:</b> a última seção sai em branco de propósito — é preenchida pela GCA, como no formulário de papel.</li>
       </ul>
     </div>
@@ -491,7 +551,7 @@
 <div class="modal-fundo" id="modalEmissor">
   <div class="modal">
     <h2>Identificação do Emissor</h2>
-    <p>Estes dados constarão no rodapé da Planilha de Cálculo impressa. Ficam salvos somente neste navegador.<br>* Campo obrigatório</p>
+    <p>Estes dados constarão na Planilha de Cálculo e no Formulário de Emissão de DAE impressos. Ficam salvos somente neste navegador.<br>* Campo obrigatório</p>
     <div class="campo" id="em-campo-selecionar" style="display:none">
       <label>Emissor salvo</label>
       <select id="em-selecionar" onchange="selecionaEmissor(this.value)"></select>
@@ -526,15 +586,21 @@
 </div>
 
 <!-- ============ DOCUMENTO DE IMPRESSÃO ============ -->
-<div id="printheader"></div>
-<div id="printdoc"></div>
-<div id="printfooter">
-  Cidade Administrativa Tancredo Neves · Rodovia Papa João Paulo II, 4001 · Serra Verde<br>
-  Edifício Gerais · 10º andar · Lado Ímpar · Belo Horizonte/MG · CEP 31.630-901
+<!-- printpage é um flex column da altura da página (297mm): o rodapé fica
+     ancorado embaixo de verdade (margin-top:auto) em vez de position:fixed,
+     que em alguns navegadores/config de impressão simplesmente não gerava o rodapé. -->
+<div id="printpage">
+  <div id="printheader"></div>
+  <div id="printdoc"></div>
+  <div id="printfooter">
+    Cidade Administrativa Tancredo Neves · Rodovia Papa João Paulo II, 4001 · Serra Verde<br>
+    Edifício Gerais · 10º andar · Lado Ímpar · Belo Horizonte/MG · CEP 31.630-901
+  </div>
 </div>
 
 <script>
   document.write('<script src="js/mapa-municipios.js?v=' + APP_VERSION + '"><' + '/script>');
+  document.write('<script src="js/dados-paises.js?v=' + APP_VERSION + '"><' + '/script>');
   document.write('<script src="js/app.js?v=' + APP_VERSION + '"><' + '/script>');
 </script>
 

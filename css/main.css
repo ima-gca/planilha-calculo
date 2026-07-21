@@ -71,6 +71,8 @@
   .campo label{font-size:.78rem;font-weight:600;color:#384540}
   .campo input,.campo select{padding:8px 10px;border:1px solid var(--borda);border-radius:6px;font-size:.95rem;min-width:150px}
   #lt-litros{min-width:0;width:160px}
+  #fd-serie{min-width:0;width:100%;text-align:center}
+  .campo small,.campo .status,.campo .nota{white-space:nowrap}
   .campo small{color:var(--cinza);font-size:.72rem}
   .campo .hint-ok{color:#137333;font-size:.72rem;font-weight:600}
   .campo .hint-erro{color:var(--erro);font-size:.72rem;font-weight:600}
@@ -123,21 +125,30 @@
   .modal .campo{margin-bottom:12px}
   .modal .campo input,.modal .campo select{width:100%}
 
-  /* ===== Documento de impressão ===== */
-  #printdoc,#printheader{display:none}
+  /* ===== Documento de impressão =====
+     Margens horizontais ficam só no #printpage (2cm esquerda / 1cm direita —
+     não precisa de margem larga simétrica pra encadernação/perfuração, só um
+     respiro). #printheader/#printdoc/#printfooter usam width:100% desse
+     mesmo espaço já descontado, então imagens/tabela/rodapé ficam sempre
+     alinhados entre si sem precisar repetir a conta em cada um. */
+  #printpage{display:none}
   @media print{
     @page{size:A4;margin:0}
     body > *{display:none !important}
+    /* min-height um pouco menor que 297mm — a impressora física corta perto
+       da borda inferior; isso sobe o rodapé inteiro ~1 linha pra não cortar. */
+    #printpage{display:flex !important;flex-direction:column;min-height:291mm}
     #printheader{display:flex !important}
-    #printdoc{display:block !important;padding:42pt 16mm 10mm;font-family:"Segoe UI",Arial,sans-serif;color:#000}
+    #printdoc{display:block !important}
     #printfooter{display:block !important}
   }
-  #printheader{max-width:185mm;margin:0 auto;align-items:center;gap:14pt;padding:12pt 10mm 8pt;border-bottom:1pt solid #000;font-family:"Segoe UI",Arial,sans-serif;color:#000;background:#fff}
+  #printpage{box-sizing:border-box;padding:0 10mm 0 20mm}
+  #printheader{width:100%;box-sizing:border-box;margin:0;align-items:center;gap:14pt;padding:12pt 0 8pt;border-bottom:1pt solid #000;font-family:"Segoe UI",Arial,sans-serif;color:#000;background:#fff}
   #printheader .doc-brasao{height:60pt;width:auto;flex-shrink:0}
   #printheader .doc-inst{flex:1;text-align:center;line-height:1.4}
   #printheader .doc-inst .inst1,#printheader .doc-inst .inst2,#printheader .doc-inst .inst3{font-size:10.5pt;display:block}
   #printheader .doc-carimbo{height:60pt;width:auto;flex-shrink:0}
-  #printdoc{font-family:"Segoe UI",Arial,sans-serif;color:#000;max-width:185mm;margin:0 auto;padding:10mm 6mm}
+  #printdoc{font-family:"Segoe UI",Arial,sans-serif;color:#000;margin:0;padding:14pt 0 10mm;width:100%;box-sizing:border-box}
   #printdoc .doc-titulo{text-align:center;font-size:15pt;font-weight:700;text-decoration:underline;padding:6pt 0 0;margin-bottom:0}
   #printdoc .doc-subtitulo{text-align:center;font-size:11pt;font-style:italic;border:1pt solid #000;border-bottom:none;padding:5pt;margin-top:48pt;margin-bottom:0}
   #printdoc table{width:100%;border-collapse:collapse}
@@ -150,7 +161,10 @@
   #printdoc tr.destaque td.valor{font-weight:700;font-size:14.5pt}
   #printdoc .doc-local-data{text-align:right;font-size:10.5pt;margin-top:16pt;margin-bottom:4pt;padding-right:4pt}
   #printdoc .doc-rodape{margin-top:79pt;font-size:11pt;text-align:center;line-height:1.7}
-  #printfooter{display:none;max-width:185mm;margin:14mm auto 0;padding:5pt 10mm 0;border-top:1pt solid #000;font-size:7.5pt;text-align:center;line-height:1.5;color:#000;background:#fff;font-family:"Segoe UI",Arial,sans-serif}
+  /* margin-top:auto dentro do #printpage (flex column, altura mínima 297mm)
+     empurra o rodapé pro fim físico da página — position:fixed não estava
+     gerando o rodapé de forma confiável em todo navegador/config de impressão. */
+  #printfooter{display:none;margin:auto 0 0;width:100%;box-sizing:border-box;padding:5pt 0 6pt;border-top:1pt solid #000;font-size:7.5pt;text-align:center;line-height:1.5;color:#000;background:#fff;font-family:"Segoe UI",Arial,sans-serif}
 
   /* ===== Modos (tela inicial / Planilha / Formulário DAE) ===== */
   body[data-modo="home"] nav.abas{display:none}
@@ -163,22 +177,96 @@
   .home-card-titulo{display:block;font-size:1.15rem;font-weight:700;color:var(--verde-esc);margin-bottom:10px}
   .home-card-desc{display:block;font-size:.86rem;color:var(--cinza);line-height:1.55}
 
-  /* ===== Formulário de Emissão de DAE (tela) ===== */
-  .fdae-grupo{margin:18px 0 8px;color:var(--verde-esc);font-size:.95rem;border-bottom:1px solid var(--borda);padding-bottom:4px}
-  .fdae-check{display:block;margin:6px 0;font-size:.88rem;cursor:pointer}
-  .fdae-check input{margin-right:8px}
+  /* campos com autocomplete inline (ESEC/País) e status/nota por campo —
+     mesmo padrão do DAE Web, pra manter as duas telas com o mesmo comportamento */
+  .autocomplete{position:relative}
+  /* o input dentro de .autocomplete não é filho direto do flex .campo (tem a
+     div .autocomplete no meio) — sem isso ele não estica com align-items:stretch
+     e fica com a largura padrão do navegador, bem mais estreito que os outros campos */
+  .autocomplete input{width:100%;box-sizing:border-box}
+  .sugestoes{list-style:none;margin:0;padding:0;position:absolute;top:100%;left:0;right:0;z-index:20;
+    background:#fff;border:1px solid var(--borda);border-radius:0 0 8px 8px;max-height:220px;overflow-y:auto;
+    box-shadow:0 8px 18px rgba(0,0,0,.12);display:none}
+  .sugestoes.aberta{display:block}
+  .sugestoes.sugestoes-larga{right:auto;width:300px}
+  .sugestoes li{padding:7px 10px;cursor:pointer;font-size:.82rem;border-bottom:1px solid var(--borda);
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .sugestoes li:last-child{border-bottom:none}
+  .sugestoes li:hover,.sugestoes li.ativa{background:var(--verde-claro)}
+  .campo .status{font-size:.72rem;min-height:14px;font-weight:600}
+  .campo .status.ok{color:#137333}
+  .campo .status.err{color:var(--erro)}
+  .campo .nota{font-size:.68rem;min-height:14px;font-weight:600;color:var(--cinza)}
+  /* vazio (sem mensagem) não reserva espaço — some o "buraco" entre o campo
+     e a próxima dica/small quando não há erro/nota pra mostrar */
+  .campo .status:empty,.campo .nota:empty{min-height:0;line-height:0}
+  .campo input.invalido{border-color:var(--erro);background:#fdecea}
+  .campo input:disabled{background:var(--fundo);color:var(--cinza)}
 
-  /* ===== Formulário de Emissão de DAE (impressão) ===== */
-  #printdoc .ftit{text-align:center;font-weight:700;font-size:12.5pt;margin:6pt 0 10pt}
-  #printdoc .ftab{margin-bottom:0}
-  #printdoc .ftab td{font-size:10.5pt;padding:5pt 7pt;vertical-align:top}
-  #printdoc .ftab td small{font-size:8.5pt}
+  /* Linhas do Formulário são dimensionadas à mão via flex-basis por campo —
+     o min-width:150px global (pensado pra campos avulsos) força tudo mais
+     largo que o flex-basis pedido. E o próprio item flex (.campo, não só o
+     input) tem min-width:auto por padrão, que trava no min-content do filho
+     (ex.: <input type=date> não encolhe abaixo de ~150px) — sem zerar o
+     min-width do .campo também, o flex-basis pedido nunca é respeitado e a
+     linha quebra antes da hora. */
+  /* label com altura fixa e em flex row — sem isso, um botão (como o "SEI" do
+     Número do Processo) dentro do <label> cresce mais que o line-height do
+     texto e desalinha aquele campo dos vizinhos na mesma linha (mesmo bug já
+     visto e corrigido no DAE Web). */
+  #aba-form .campo label{display:flex;align-items:center;gap:5px;height:14px;white-space:nowrap}
+  .btn-verde{height:auto;padding:1px 8px;font-size:.66rem;font-weight:600;border-radius:10px;
+    background:var(--verde-claro);border:1px solid var(--verde);color:var(--verde-esc);cursor:pointer}
+  .btn-verde:hover{background:var(--verde);color:#fff}
+  /* Badge de ajuda visível (bolinha "?") em vez do title= nativo — o title=
+     não tem nenhum indicador visual (ninguém sabe que precisa passar o mouse
+     ali) e na prática não estava nem aparecendo. Mesmo padrão do DAE Web. */
+  .ajuda{position:relative;display:inline-flex;align-items:center;justify-content:center;
+    width:13px;height:13px;border-radius:50%;background:var(--cinza);color:#fff;
+    font-size:.6rem;font-weight:700;cursor:help;flex-shrink:0;margin-left:auto}
+  .ajuda::after{content:attr(data-tip);position:absolute;bottom:130%;right:-6px;
+    background:#222;color:#fff;padding:7px 9px;border-radius:6px;font-size:.68rem;
+    font-weight:400;line-height:1.4;white-space:pre-line;width:200px;opacity:0;visibility:hidden;
+    transition:opacity .05s linear;z-index:30;pointer-events:none;box-shadow:0 4px 12px rgba(0,0,0,.25)}
+  .ajuda:hover::after,.ajuda:focus::after{opacity:1;visibility:visible}
+  #aba-form .linha .campo{min-width:0;gap:2px}
+  /* campos da tela ~15% mais baixos e com fonte menor, só no Formulário */
+  #aba-form .campo input,#aba-form .campo select{min-width:0;padding:7px 8px;font-size:.8rem}
+  #aba-form .linha{margin-bottom:8px}
+
+  /* ===== Formulário de Emissão de DAE (impressão) =====
+     Espaçamento entre blocos (título/fsec/fintro/tabela/assinatura/fsec/tabela)
+     normalizado pra um único valor (8pt, o menor que já existia) — antes
+     cada transição tinha uma margem diferente e ficava visualmente assimétrico.
+     Fonte/padding da tabela +25% em relação à rodada anterior (tinha reduzido
+     demais — a redução de ~15% era pra tela, não pra impressão). */
+  #printdoc .ftit{text-align:center;font-weight:700;font-size:14.5pt;margin:0}
+  /* espaço título→primeira seção igual ao espaço cabeçalho→título (14pt, o
+     padding-top do #printdoc) — os 42pt da rodada anterior ficaram desproporcionais
+     perto dos 8pt usados no resto do documento; 14pt fica mais equilibrado. */
+  #printdoc .ftit + .fsec{margin-top:14pt}
+  #printdoc .ftab{margin-bottom:0;width:100%}
+  /* tabelas .ftab empilhadas direto uma após a outra (sem :first-child) não
+     duplicam a borda no meio — a de baixo perde a borda de cima, que já foi
+     desenhada pela tabela anterior. */
+  #printdoc .ftab + .ftab tr:first-child td{border-top:none}
+  #printdoc .ftab td{font-size:11.25pt;padding:3.75pt 6.25pt;vertical-align:top;overflow-wrap:break-word}
+  #printdoc .ftab td small{font-size:9.5pt}
   #printdoc .frot{font-weight:700}
-  #printdoc .fsec{background:#e8e8e8;border:1pt solid #000;border-bottom:none;font-weight:700;text-align:center;font-size:10.5pt;padding:4pt;margin-top:8pt}
-  #printdoc .fintro{border:1pt solid #000;border-bottom:none;margin:0;padding:5pt 7pt;font-size:10.5pt;text-align:justify}
+  #printdoc .fsec{background:#e8e8e8;border:1pt solid #000;border-bottom:none;font-weight:700;text-align:center;font-size:12pt;padding:3pt;margin-top:8pt}
+  #printdoc .fintro{border:1pt solid #000;border-bottom:none;margin:0;padding:4.5pt 8.75pt;font-size:12pt;text-align:justify}
   #printdoc .fintro + .fsec{margin-top:0}
   #printdoc .fhist{min-height:48pt;height:48pt}
-  #printdoc .fobs{font-size:8.5pt;font-style:italic}
+  #printdoc .fobs{font-size:8pt;font-style:italic}
   #printdoc .fcab{text-align:center;font-weight:700;background:#f2f2f2}
-  #printdoc .fass{display:flex;justify-content:space-between;align-items:flex-end;gap:24pt;margin:16pt 4pt 10pt;font-size:10.5pt}
-  #printdoc .fass-linha{text-align:center;line-height:1.5}
+  /* align-items:flex-start (não flex-end) — o bloco preenchido tem 3 linhas de
+     texto (nome/masp/ua) e o vazio só 2, então alinhar pela base deixava as
+     "Data:" de cada lado em alturas diferentes. Alinhando pelo topo, as duas
+     "Data:" ficam na mesma linha e só o conteúdo de baixo varia de tamanho. */
+  #printdoc .fass{display:flex;justify-content:space-between;align-items:flex-start;gap:24pt;margin:8pt 4pt 0;font-size:12pt}
+  #printdoc .fass-col{flex:1;text-align:center}
+  /* margin-top +50% pra sobrar espaço em branco de verdade pro carimbo/assinatura
+     entre a Data e a linha — antes disso a linha ficava colada na Data. */
+  #printdoc .fass-linha{text-align:center;line-height:1.4;margin-top:42pt}
+  #printdoc .fgca td{text-align:center;font-size:11.25pt;padding:2.5pt 6.25pt;height:13pt}
+  #printdoc .fgca .fcab td{font-weight:700;background:#f2f2f2}

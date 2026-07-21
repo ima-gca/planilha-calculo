@@ -112,8 +112,11 @@ const dataBR = s => { const [a,m,d] = s.split("-"); return `${d}/${m}/${a}`; };
 const MESES_EXTENSO = ["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"];
 const dataExtenso = s => { const [a,m,d] = s.split("-").map(Number); return `${d} de ${MESES_EXTENSO[m-1]} de ${a}`; };
 const _PREP_MINUSCULAS = new Set(["de","da","do","das","dos","e"]);
+const _SIGLAS = new Set(["LTDA","ME","EPP","EIRELI","SA","S/A","MEI","CIA","SS"]);
 const capitalizaNome = nome => nome.trim().split(/\s+/).map(p => {
   const min = p.toLowerCase();
+  const maiuscula = p.toUpperCase();
+  if(_SIGLAS.has(maiuscula)) return maiuscula;
   return _PREP_MINUSCULAS.has(min) ? min : min.charAt(0).toUpperCase() + min.slice(1);
 }).join(" ");
 const ymDe = s => s.slice(0,7);
@@ -474,7 +477,7 @@ function trocaAba(id){
 const TITULO_POR_MODO = {
   home: "Planilha de Cálculo & Formulário DAE",
   pc: "Planilha de Cálculo",
-  form: "Formulário de Emissão de DAE",
+  form: "Formulário de Encaminhamento de Processos à GCA",
 };
 function trocaModo(modo){
   document.body.dataset.modo = modo;
@@ -894,37 +897,535 @@ function imprimeDocumento(subtitulo, itens){
 
 // =====================================================================
 // FORMULÁRIO DE EMISSÃO DE DAE (modelo oficial 13/10/2022)
+// Mesmas regras de SEI/Processo/CPF-CNPJ/CEP/País/ESEC do DAE Web
+// (GCA_DAE/web/js/app.js), pra manter os dois formulários de emissão
+// consistentes (decisão de 2026-07-20).
 // =====================================================================
-const FD_CAMPOS = ["fd-sei","fd-processo","fd-ai","fd-serie","fd-ai-data","fd-nome","fd-doc","fd-endereco","fd-mun","fd-cep","fd-tel","fd-email","fd-esec","fd-historico","fd-notif","fd-vlr-original","fd-vlr-desconto","fd-vlr-ufemg"];
+
+function setStatusCampo(el, msg, ok){
+  el.textContent = ok ? "" : msg;
+  el.className = "status " + (ok ? "ok" : "err");
+}
+function marcaInvalidoCampo(input, invalido){
+  input.classList.toggle("invalido", !!invalido);
+}
+function _normalizaTextoForm(s){
+  return (s || "").normalize("NFD").replace(/\p{Mn}/gu, "").toLowerCase();
+}
+
+// --- Infração à legislação -> Receita/Gerência Técnica (equivalente à "Receita" do DAE Web) ---
+const GT_POR_INFRACAO_FORM = {
+  "Agrotóxico": "GDV",
+  "Defesa Animal": "GDA",
+  "Inspeção Sanitária Industrial": "GIP",
+  "Defesa Vegetal / Sementes e Mudas": "GDV",
+};
+const RECEITA_POR_INFRACAO_FORM = {
+  "Agrotóxico": "57",
+  "Defesa Animal": "58",
+  "Inspeção Sanitária Industrial": "59",
+  "Defesa Vegetal / Sementes e Mudas": "60",
+};
+// Nomes completos confirmados pelo usuário em 2026-07-20 (GDV pelo modelo oficial
+// "Formulário para emissão de DAE WEB.docx"; GDA por padrão análogo; GIP pelo
+// nome corrigido no banco do SiGA em 10/07/2026).
+const GERENCIA_NOME_POR_GT = {
+  GDV: "Gerência de Defesa Sanitária Vegetal",
+  GDA: "Gerência de Defesa Sanitária Animal",
+  GIP: "Gerência de Inspeção de Produtos de Origem Animal",
+};
+const CRS_GDA_FORM = ["CRAL","CRBD","CRBH","CRCV","CRGV","CRGN","CRJN","CRJF","CRMC","CROL","CRPS","CRPM","CRPN","CRPC","CRPA","CRTF","CRURA","CRUDI","CRUN","CRVG","CRVC"];
+function gtDoFormulario(){
+  return GT_POR_INFRACAO_FORM[document.getElementById("fd-infracao").value] || null;
+}
+
+// --- SEI (validação de dígito verificador, mesma regra do DAE Web) ---
+function validarSeiForm(valorBruto){
+  const v = (valorBruto || "").replace(/[.\-\s/]/g, "");
+  if(v.length === 0) return { valido: null, formatado: "", erro: null };
+  if(v.length !== 19 || !/^\d{19}$/.test(v)){
+    return { valido: false, formatado: valorBruto,
+      erro: "Digite os 19 números (sem pontos, barra ou traço) ou os 23 caracteres formatados. Ex.: NNNN.01.NNNNNNN/AAAA-NN" };
+  }
+  const formatado = `${v.slice(0,4)}.${v.slice(4,6)}.${v.slice(6,13)}/${v.slice(13,17)}-${v.slice(17,19)}`;
+  const semDV = v.slice(0, 17);
+  const dv = parseInt(v.slice(17, 19), 10);
+  const parteA = parseInt(semDV.slice(0, 6), 10);
+  const parteB = parseInt(semDV.slice(6, 10), 10);
+  const parteC = parseInt(semDV.slice(10, 17), 10);
+  const va = parteA * 10000 + parteB;
+  const vb = va % 97;
+  const vc = vb * 1000000000 + parteC * 100;
+  const vd = vc % 97;
+  const checkDv = 98 - vd;
+  if(checkDv !== dv) return { valido: false, formatado, erro: `${formatado} não é um número válido do SEI.` };
+  return { valido: true, formatado, erro: null };
+}
+function aoMudarSeiForm(){
+  const input = document.getElementById("fd-sei");
+  const statusEl = document.getElementById("status-fd-sei");
+  const r = validarSeiForm(input.value);
+  marcaInvalidoCampo(input, r.valido === false);
+  if(r.valido === null){ setStatusCampo(statusEl, "", true); }
+  else if(r.valido){ input.value = r.formatado; setStatusCampo(statusEl, "SEI válido", true); }
+  else { setStatusCampo(statusEl, r.erro, false); }
+  revalidaProcessoForm();
+}
+document.getElementById("fd-sei").addEventListener("blur", aoMudarSeiForm);
+
+// --- Processo (autopreenchimento via "sei" + validação cruzada da GT) ---
+function preencherProcessoViaSeiForm(){
+  const input = document.getElementById("fd-processo");
+  const statusEl = document.getElementById("status-fd-processo");
+  const gt = gtDoFormulario();
+  const seiValidado = validarSeiForm(document.getElementById("fd-sei").value);
+
+  const faltando = [];
+  if(!gt) faltando.push("Infração à legislação");
+  if(!seiValidado.valido) faltando.push("SEI válido");
+  if(faltando.length){
+    input.value = "";
+    setStatusCampo(statusEl, `Preencha antes: ${faltando.join(" e ")}.`, false);
+    marcaInvalidoCampo(input, false);
+    return;
+  }
+  input.value = `${gt} ${seiValidado.formatado}`;
+  setStatusCampo(statusEl, "", true);
+  marcaInvalidoCampo(input, false);
+}
+document.getElementById("btn-atalho-fd-sei").addEventListener("click", preencherProcessoViaSeiForm);
+
+function revalidaProcessoForm(){
+  const input = document.getElementById("fd-processo");
+  const statusEl = document.getElementById("status-fd-processo");
+  const gt = gtDoFormulario();
+  const valor = input.value.trim();
+
+  if(!valor){ setStatusCampo(statusEl, "", true); marcaInvalidoCampo(input, false); return; }
+  if(valor.toUpperCase() === "SEI"){ preencherProcessoViaSeiForm(); return; }
+  if(!gt){
+    setStatusCampo(statusEl, "Selecione a Infração à legislação antes de preencher o Processo.", false);
+    marcaInvalidoCampo(input, true);
+    return;
+  }
+  const contemGT = valor.toUpperCase().includes(gt);
+  if(contemGT){ setStatusCampo(statusEl, "", true); marcaInvalidoCampo(input, false); return; }
+  if(gt === "GDA"){
+    const cr = CRS_GDA_FORM.find(c => valor.toUpperCase().includes(c));
+    if(cr){
+      const idx = valor.toUpperCase().indexOf(cr);
+      input.value = valor.slice(0, idx + cr.length) + "-GDA" + valor.slice(idx + cr.length);
+      setStatusCampo(statusEl, "Sufixo -GDA adicionado automaticamente", true);
+      marcaInvalidoCampo(input, false);
+      return;
+    }
+  }
+  setStatusCampo(statusEl, `O Processo precisa conter a sigla da Gerência Técnica (${gt}).`, false);
+  marcaInvalidoCampo(input, true);
+}
+document.getElementById("fd-processo").addEventListener("blur", revalidaProcessoForm);
+
+// --- Datas: Data de emissão (AI) não pode ser hoje/futura; Data de Notificação
+// não pode ser anterior à Data de emissão, nem hoje/futura (mesma regra do DAE Web). ---
+const _ontemFormISO = iso(new Date(hoje().getTime() - 86400000));
+function validaFdAiData(){
+  const input = document.getElementById("fd-ai-data");
+  const statusEl = document.getElementById("status-fd-ai-data");
+  const v = input.value;
+  if(!v){ setStatusCampo(statusEl, "", true); marcaInvalidoCampo(input, false); document.getElementById("fd-notif").min = ""; return; }
+  if(v >= iso(hoje())){
+    setStatusCampo(statusEl, "Data de emissão não pode ser hoje nem futura.", false);
+    marcaInvalidoCampo(input, true);
+    return;
+  }
+  setStatusCampo(statusEl, "", true);
+  marcaInvalidoCampo(input, false);
+  document.getElementById("fd-notif").min = v;
+  validaFdNotif();
+  atualizaPreviaValorForm();
+}
+function validaFdNotif(){
+  const input = document.getElementById("fd-notif");
+  const statusEl = document.getElementById("status-fd-notif");
+  const v = input.value;
+  if(!v){ setStatusCampo(statusEl, "", true); marcaInvalidoCampo(input, false); return; }
+  const dataAi = document.getElementById("fd-ai-data").value;
+  if(v >= iso(hoje()) || (dataAi && v < dataAi)){
+    setStatusCampo(statusEl, "Não pode ser anterior à Data de emissão, nem hoje e nem futura.", false);
+    marcaInvalidoCampo(input, true);
+    return;
+  }
+  setStatusCampo(statusEl, "", true);
+  marcaInvalidoCampo(input, false);
+  atualizaPreviaValorForm();
+}
+document.getElementById("fd-ai-data").addEventListener("blur", validaFdAiData);
+document.getElementById("fd-notif").addEventListener("blur", validaFdNotif);
+document.getElementById("fd-ai-data").max = _ontemFormISO;
+document.getElementById("fd-notif").max = _ontemFormISO;
+
+// --- CPF/CNPJ — validação de dígitos + consulta automática de Razão Social (CNPJ) ---
+function validarCNPJForm(cnpj){
+  const d = (cnpj || "").replace(/\D/g, "");
+  if(d.length !== 14 || /^(\d)\1+$/.test(d)) return false;
+  const n = d.split("").map(Number);
+  const pesos1 = [5,4,3,2,9,8,7,6,5,4,3,2];
+  const pesos2 = [6,5,4,3,2,9,8,7,6,5,4,3,2];
+  let soma = n.slice(0,12).reduce((acc,x,i) => acc + x*pesos1[i], 0);
+  let dv1 = 11 - (soma % 11); if(dv1 >= 10) dv1 = 0;
+  soma = n.slice(0,13).reduce((acc,x,i) => acc + x*pesos2[i], 0);
+  let dv2 = 11 - (soma % 11); if(dv2 >= 10) dv2 = 0;
+  return n[12] === dv1 && n[13] === dv2;
+}
+function formatarDocumentoForm(v){
+  const d = (v || "").replace(/\D/g, "");
+  if(d.length === 11) return `${d.slice(0,3)}.${d.slice(3,6)}.${d.slice(6,9)}-${d.slice(9,11)}`;
+  if(d.length === 14) return `${d.slice(0,2)}.${d.slice(2,5)}.${d.slice(5,8)}/${d.slice(8,12)}-${d.slice(12,14)}`;
+  return v;
+}
+function validarDocumentoForm(v){
+  const d = (v || "").replace(/\D/g, "");
+  if(d.length === 11) return { tipo: "CPF", valido: validaCPF(d), formatado: formatarDocumentoForm(d) };
+  if(d.length === 14) return { tipo: "CNPJ", valido: validarCNPJForm(d), formatado: formatarDocumentoForm(d) };
+  return { tipo: null, valido: false, formatado: v };
+}
+async function consultarRazaoSocialForm(cnpjDigitos){
+  try{
+    const r = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${cnpjDigitos}`);
+    if(r.ok){ const d = await r.json(); if(d.razao_social) return d.razao_social; }
+  }catch(e){ /* tenta fallback */ }
+  try{
+    const r = await fetch(`https://api.opencnpj.org/${cnpjDigitos}?dataset=receita`);
+    if(r.ok){ const d = await r.json(); if(d.razao_social) return d.razao_social; }
+  }catch(e){ /* nenhuma fonte respondeu */ }
+  return null;
+}
+document.getElementById("fd-doc").addEventListener("blur", async () => {
+  const statusEl = document.getElementById("status-fd-doc");
+  const input = document.getElementById("fd-doc");
+  if(!input.value.trim()){ setStatusCampo(statusEl, "", true); marcaInvalidoCampo(input, false); return; }
+  const dados = validarDocumentoForm(input.value);
+  if(!dados.tipo){ setStatusCampo(statusEl, "Documento deve ter 11 (CPF) ou 14 (CNPJ) dígitos", false); marcaInvalidoCampo(input, true); return; }
+  if(!dados.valido){ setStatusCampo(statusEl, `${dados.tipo} com dígito verificador inválido`, false); marcaInvalidoCampo(input, true); return; }
+  input.value = dados.formatado;
+  setStatusCampo(statusEl, `${dados.tipo} válido`, true);
+  marcaInvalidoCampo(input, false);
+  if(dados.tipo === "CNPJ" && !document.getElementById("fd-nome").value.trim()){
+    setStatusCampo(statusEl, "CNPJ válido — consultando Razão Social…", true);
+    const razaoSocial = await consultarRazaoSocialForm(input.value.replace(/\D/g, ""));
+    setStatusCampo(statusEl, "CNPJ válido", true);
+    if(razaoSocial) document.getElementById("fd-nome").value = capitalizaNome(razaoSocial);
+  }
+});
+
+// --- País (mesma lógica do DAE Web: fora do Brasil, o CEP busca no GeoNames) ---
+function definirPaisForm(codigo){
+  const p = PAISES.find(x => x.codigo === codigo) || PAISES.find(x => x.codigo === "BR");
+  const input = document.getElementById("fd-pais");
+  input.value = p.sigla;
+  input.dataset.codigo = p.codigo;
+  document.getElementById("fd-pais-sugestoes").classList.remove("aberta");
+  aoMudarPaisForm();
+}
+function buscarPaisForm(filtro){
+  if(!filtro) return [];
+  const alvo = _normalizaTextoForm(filtro);
+  return PAISES.filter(p => _normalizaTextoForm(p.nome).includes(alvo)).slice(0, 20);
+}
+function renderSugestoesPaisForm(itens){
+  const lista = document.getElementById("fd-pais-sugestoes");
+  lista.innerHTML = "";
+  if(!itens.length){ lista.classList.remove("aberta"); return; }
+  itens.forEach(p => {
+    const li = document.createElement("li");
+    li.textContent = p.nome;
+    li.addEventListener("mousedown", e => { e.preventDefault(); definirPaisForm(p.codigo); });
+    lista.appendChild(li);
+  });
+  lista.classList.add("aberta");
+}
+document.getElementById("fd-pais").addEventListener("input", e => renderSugestoesPaisForm(buscarPaisForm(e.target.value)));
+document.getElementById("fd-pais").addEventListener("blur", () => {
+  setTimeout(() => {
+    document.getElementById("fd-pais-sugestoes").classList.remove("aberta");
+    const valorAtual = document.getElementById("fd-pais").value.trim().toUpperCase();
+    const porSiglaOuCodigo = PAISES.find(p => p.sigla.toUpperCase() === valorAtual || p.codigo === valorAtual);
+    if(porSiglaOuCodigo){ definirPaisForm(porSiglaOuCodigo.codigo); return; }
+    const opcoes = buscarPaisForm(document.getElementById("fd-pais").value.trim());
+    if(opcoes.length === 1){ definirPaisForm(opcoes[0].codigo); return; }
+    definirPaisForm(document.getElementById("fd-pais").dataset.codigo || "BR");
+  }, 150);
+});
+
+// --- CEP (ViaCEP com fallback BrasilAPI; internacional via GeoNames) ---
+function limparEnderecoForm(){
+  ["fd-logradouro","fd-numero","fd-complemento","fd-bairro","fd-mun"].forEach(id => { document.getElementById(id).value = ""; });
+}
+function aoMudarPaisForm(){
+  const intl = document.getElementById("fd-pais").dataset.codigo !== "BR";
+  const cepInput = document.getElementById("fd-cep");
+  marcaInvalidoCampo(cepInput, false);
+  cepInput.value = "";
+  cepInput.placeholder = intl ? "Postal code" : "00000-000";
+  limparEnderecoForm();
+  const lblBairro = document.getElementById("lbl-fd-bairro");
+  lblBairro.firstChild.textContent = intl ? "Bairro " : "Bairro * ";
+}
+async function buscarCepNacionalForm(cep){
+  const cepInput = document.getElementById("fd-cep");
+  const logradouroEl = document.getElementById("fd-logradouro");
+  let logradouro = null, bairro = "", municipio = "", uf = "";
+  try{
+    const r1 = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+    const d1 = await r1.json();
+    if(!d1.erro){ logradouro = d1.logradouro || ""; bairro = d1.bairro || ""; municipio = d1.localidade; uf = d1.uf; }
+  }catch(e){ /* tenta fallback */ }
+  if(logradouro === null){
+    try{
+      const r2 = await fetch(`https://brasilapi.com.br/api/cep/v1/${cep}`);
+      if(r2.ok){ const d2 = await r2.json(); logradouro = d2.street || ""; bairro = d2.neighborhood || ""; municipio = d2.city; uf = d2.state; }
+    }catch(e){ /* nenhuma fonte respondeu */ }
+  }
+  if(logradouro === null){ marcaInvalidoCampo(cepInput, true); return; }
+  marcaInvalidoCampo(cepInput, false);
+  document.getElementById("fd-bairro").value = bairro ? capitalizaNome(bairro) : "";
+  document.getElementById("fd-mun").value = `${municipio}/${uf}`;
+  if(logradouro.length > 1){ logradouroEl.value = capitalizaNome(logradouro); document.getElementById("fd-numero").focus(); }
+  else { logradouroEl.value = ""; }
+}
+async function buscarCepInternacionalForm(codigo, paisISO){
+  const cepInput = document.getElementById("fd-cep");
+  try{
+    const url = `http://api.geonames.org/postalCodeSearchJSON?postalcode=${encodeURIComponent(codigo)}&country=${paisISO}&maxRows=1&username=diquintino`;
+    const r = await fetch(url);
+    const d = await r.json();
+    const item = d.postalCodes && d.postalCodes[0];
+    if(!item){ marcaInvalidoCampo(cepInput, true); document.getElementById("fd-mun").value = ""; return; }
+    marcaInvalidoCampo(cepInput, false);
+    const local = [item.placeName, item.adminName1].filter(Boolean).join(", ");
+    document.getElementById("fd-mun").value = `${local} - ${item.countryCode}`;
+  }catch(e){ marcaInvalidoCampo(cepInput, true); }
+}
+document.getElementById("fd-cep").addEventListener("blur", async () => {
+  const cepInput = document.getElementById("fd-cep");
+  const codigo = cepInput.value.trim();
+  if(!codigo){ marcaInvalidoCampo(cepInput, false); limparEnderecoForm(); return; }
+  limparEnderecoForm();
+  const paisCodigo = document.getElementById("fd-pais").dataset.codigo || "BR";
+  if(paisCodigo !== "BR"){ await buscarCepInternacionalForm(codigo, paisCodigo); return; }
+  const cep = codigo.replace(/\D/g, "");
+  if(cep.length !== 8){ marcaInvalidoCampo(cepInput, true); return; }
+  await buscarCepNacionalForm(cep);
+});
+
+// --- ESEC (autocomplete a partir do MAPA_MUN_UA já usado no cadastro de emissor) ---
+const ESEC_UNICOS_FORM = [...new Set(Object.values(MAPA_MUN_UA).map(i => i.esec))].sort();
+function buscarEsecForm(filtro){
+  if(!filtro) return [];
+  const alvo = _normalizaTextoForm(filtro);
+  return ESEC_UNICOS_FORM.filter(e => _normalizaTextoForm(e).includes(alvo)).slice(0, 30);
+}
+function renderSugestoesEsecForm(itens){
+  const lista = document.getElementById("fd-esec-sugestoes");
+  lista.innerHTML = "";
+  if(!itens.length){ lista.classList.remove("aberta"); return; }
+  itens.forEach(esec => {
+    const li = document.createElement("li");
+    li.textContent = esec;
+    li.addEventListener("mousedown", e => {
+      e.preventDefault();
+      document.getElementById("fd-esec").value = esec;
+      setStatusCampo(document.getElementById("status-fd-esec"), "", true);
+      lista.classList.remove("aberta");
+    });
+    lista.appendChild(li);
+  });
+  lista.classList.add("aberta");
+}
+document.getElementById("fd-esec").addEventListener("input", e => renderSugestoesEsecForm(buscarEsecForm(e.target.value)));
+document.getElementById("fd-esec").addEventListener("blur", () => {
+  setTimeout(() => {
+    document.getElementById("fd-esec-sugestoes").classList.remove("aberta");
+    const input = document.getElementById("fd-esec");
+    const statusEl = document.getElementById("status-fd-esec");
+    const valorAtual = input.value.trim();
+    if(!valorAtual || ESEC_UNICOS_FORM.includes(valorAtual)){ setStatusCampo(statusEl, "", true); return; }
+    const opcoes = buscarEsecForm(valorAtual);
+    if(opcoes.length === 1){ input.value = opcoes[0]; setStatusCampo(statusEl, "", true); }
+    else { input.value = ""; setStatusCampo(statusEl, opcoes.length === 0 ? "ESEC não encontrado" : "Mais de uma opção — escolha um item da lista", false); }
+  }, 150);
+});
+
+// --- Valores: "Valor" + "Tipo" (REAL/UFEMG) igual ao padrão do Auto de Infração;
+// "Com Desconto" continua exclusivo de Sementes e Mudas. Quando Tipo = UFEMG,
+// mostra uma prévia convertida em Reais (só a conversão pela UFEMG do ano de
+// referência — sem correção SELIC, decisão de 2026-07-20). ---
+function atualizaCamposPorInfracaoForm(){
+  const infracaoVal = document.getElementById("fd-infracao").value;
+  const sementes = infracaoVal === "Defesa Vegetal / Sementes e Mudas";
+  // Tipo de Valor padrão conforme a Infração: UFEMG pra tudo, exceto Sementes e Mudas (REAL).
+  if(infracaoVal) document.getElementById("fd-tipo-valor").value = sementes ? "REAL" : "UFEMG";
+  atualizaDescontoHabilitado();
+}
+// Com Desconto só faz sentido em Sementes e Mudas E com Tipo = Real (é um
+// desconto sobre o valor em reais — não existe "desconto" em UFEMG).
+function atualizaDescontoHabilitado(){
+  const sementes = document.getElementById("fd-infracao").value === "Defesa Vegetal / Sementes e Mudas";
+  const tipoReal = document.getElementById("fd-tipo-valor").value === "REAL";
+  const el = document.getElementById("fd-vlr-desconto");
+  el.disabled = !(sementes && tipoReal);
+  if(el.disabled){ el.value = ""; setStatusCampo(document.getElementById("status-fd-vlr-desconto"), "", true); marcaInvalidoCampo(el, false); }
+}
+// Valor/Com Desconto são <input type=text> (não number) pra poder mostrar no
+// formato brasileiro (ponto de milhar, vírgula decimal) — numeroForm() lê de
+// volta um número de qualquer um dos dois formatos (o usuário pode digitar
+// com ponto decimal antes do primeiro blur reformatar).
+function numeroForm(str){
+  if(str === null || str === undefined || str === "") return NaN;
+  const s = String(str).trim();
+  return s.includes(",") ? Number(s.replace(/\./g, "").replace(",", ".")) : Number(s);
+}
+function formataNumeroForm(input, casasMin, casasMax){
+  const n = numeroForm(input.value);
+  if(isFinite(n)) input.value = n.toLocaleString("pt-BR", { minimumFractionDigits: casasMin, maximumFractionDigits: casasMax });
+}
+document.getElementById("fd-valor").addEventListener("blur", () => {
+  const tipo = document.getElementById("fd-tipo-valor").value;
+  formataNumeroForm(document.getElementById("fd-valor"), tipo === "UFEMG" ? 0 : 2, tipo === "UFEMG" ? 4 : 2);
+});
+document.getElementById("fd-vlr-desconto").addEventListener("blur", () => formataNumeroForm(document.getElementById("fd-vlr-desconto"), 2, 2));
+
+// Com Desconto precisa ser menor que o Valor em Reais (não faz sentido um
+// desconto igual ou maior que o valor original).
+function validaDescontoForm(){
+  const el = document.getElementById("fd-vlr-desconto");
+  const statusEl = document.getElementById("status-fd-vlr-desconto");
+  if(el.disabled || !el.value){ setStatusCampo(statusEl, "", true); marcaInvalidoCampo(el, false); return; }
+  const desconto = numeroForm(el.value);
+  const valor = numeroForm(document.getElementById("fd-valor").value);
+  if(valor > 0 && desconto >= valor){
+    setStatusCampo(statusEl, "Deve ser menor que o Valor em Reais.", false);
+    marcaInvalidoCampo(el, true);
+    return;
+  }
+  setStatusCampo(statusEl, "", true);
+  marcaInvalidoCampo(el, false);
+}
+document.getElementById("fd-vlr-desconto").addEventListener("blur", validaDescontoForm);
+document.getElementById("fd-valor").addEventListener("blur", validaDescontoForm);
+function anoReferenciaUfemgForm(){
+  const gt = gtDoFormulario();
+  const dataAi = document.getElementById("fd-ai-data").value;
+  const dataNotif = document.getElementById("fd-notif").value;
+  const base = (gt === "GDA" && dataAi) ? dataAi : dataNotif;
+  return base ? Number(base.slice(0,4)) : null;
+}
+function atualizaPreviaValorForm(){
+  const notaEl = document.getElementById("nota-fd-valor");
+  const tipo = document.getElementById("fd-tipo-valor").value;
+  const valor = numeroForm(document.getElementById("fd-valor").value);
+  if(tipo !== "UFEMG" || !(valor > 0)){ notaEl.textContent = ""; return; }
+  const ano = anoReferenciaUfemgForm();
+  if(!ano){ notaEl.textContent = "Preencha a Data de emissão/notificação para converter."; return; }
+  const taxa = UFEMG[ano];
+  if(taxa === undefined){ notaEl.textContent = `UFEMG não cadastrada para ${ano}.`; return; }
+  notaEl.textContent = `≈ ${fmtBRL.format(valor * taxa)} (UFEMG ${ano})`;
+}
+document.getElementById("fd-valor").addEventListener("input", atualizaPreviaValorForm);
+document.getElementById("fd-tipo-valor").addEventListener("change", () => { atualizaPreviaValorForm(); atualizaDescontoHabilitado(); });
+document.getElementById("fd-infracao").addEventListener("change", () => {
+  revalidaProcessoForm();
+  atualizaCamposPorInfracaoForm();
+  atualizaPreviaValorForm();
+});
+
+// --- CPF/CNPJ e Nome/Razão Social: rótulo muda conforme a quantidade de dígitos
+// digitados (11 = CPF/Nome, 14 = CNPJ/Razão Social). ---
+function atualizaRotuloDocForm(){
+  const n = document.getElementById("fd-doc").value.replace(/\D/g, "");
+  const lblDoc = document.getElementById("lbl-fd-doc");
+  const lblNome = document.getElementById("lbl-fd-nome");
+  if(n.length === 14){ lblDoc.textContent = "CNPJ *"; lblNome.textContent = "Razão Social *"; }
+  else if(n.length === 11){ lblDoc.textContent = "CPF *"; lblNome.textContent = "Nome *"; }
+  else { lblDoc.textContent = "CPF/CNPJ *"; lblNome.textContent = "Nome / Razão Social *"; }
+}
+document.getElementById("fd-doc").addEventListener("input", atualizaRotuloDocForm);
+
+// Capitalização consistente com o resto do app (Emissor, DAE Web): iniciais
+// maiúsculas, preposições sempre minúsculas — mesma regra em todo campo de texto livre.
+["fd-nome", "fd-logradouro", "fd-bairro", "fd-complemento"].forEach(id => {
+  document.getElementById(id).addEventListener("blur", () => {
+    const input = document.getElementById(id);
+    if(input.value.trim()) input.value = capitalizaNome(input.value);
+  });
+});
+
+const FD_CAMPOS = ["fd-sei","fd-processo","fd-ai","fd-serie","fd-valor","fd-vlr-desconto","fd-ai-data","fd-notif",
+  "fd-doc","fd-nome","fd-esec","fd-cep","fd-logradouro","fd-numero","fd-complemento","fd-bairro","fd-mun"];
+const FD_STATUS = ["status-fd-sei","status-fd-processo","status-fd-ai-data","status-fd-notif","status-fd-doc","status-fd-esec","status-fd-vlr-desconto"];
 
 function limpaFormularioDae(){
   FD_CAMPOS.forEach(id => { document.getElementById(id).value = ""; });
-  ["fd-tipo-notif","fd-tipo-parc","fd-tipo-tcr"].forEach(id => { document.getElementById(id).checked = false; });
-  document.querySelectorAll('input[name="fd-infracao"]').forEach(r => { r.checked = false; });
+  ["fd-sei","fd-processo","fd-ai-data","fd-notif","fd-doc","fd-esec","fd-cep","fd-vlr-desconto"].forEach(id => marcaInvalidoCampo(document.getElementById(id), false));
+  FD_STATUS.forEach(id => setStatusCampo(document.getElementById(id), "", true));
+  document.getElementById("nota-fd-valor").textContent = "";
+  document.getElementById("fd-tipo-solicitacao").value = "";
+  document.getElementById("fd-tipo-valor").value = "";
+  document.getElementById("fd-infracao").value = "";
+  atualizaRotuloDocForm();
+  definirPaisForm("BR");
+  atualizaCamposPorInfracaoForm();
   mostraErro("form", "");
 }
+
+// Título do impresso é fixo — "Formulário de Encaminhamento de Processos à GCA"
+// já funciona como cabeçalho, não precisa mudar por Tipo de Solicitação (só o
+// texto de abertura abaixo muda, ver INTRO_POR_TIPO_SOLICITACAO_FORM).
+const TITULO_FORM_FIXO = "FORMULÁRIO DE ENCAMINHAMENTO DE PROCESSOS À GCA";
+// Frases completas (2026-07-21) — cada uma já é o parágrafo inteiro, sem
+// sufixo comum concatenado depois.
+// Negrito só em "Notificação de Pagamento e emissão de DAE" / "Solicitação de
+// Parcelamento" — não na frase toda.
+const INTRO_POR_TIPO_SOLICITACAO_FORM = {
+  notif: "À Gerência de Controle da Arrecadação – GCA, para <b>notificação de pagamento e emissão de DAE</b> em decorrência de aplicação de penalidade de multa, nos termos a seguir:",
+  parc: "À Gerência de Controle da Arrecadação – GCA, para análise da <b>Solicitação de Parcelamento</b> de débito referente à penalidade de multa, nos termos a seguir:",
+};
 
 function imprimeFormularioDae(){
   const e = emissor();
   if(!e){ abreModalEmissor(); return; }
   const v = id => document.getElementById(id).value.trim();
-  const marcado = id => document.getElementById(id).checked;
-  const infracao = document.querySelector('input[name="fd-infracao"]:checked');
+  const infracaoVal = document.getElementById("fd-infracao").value;
+  const sementes = infracaoVal === "Defesa Vegetal / Sementes e Mudas";
+  const tipoSolicitacao = document.getElementById("fd-tipo-solicitacao").value;
+  const tipoValor = document.getElementById("fd-tipo-valor").value;
 
   const faltas = [];
-  if(!marcado("fd-tipo-notif") && !marcado("fd-tipo-parc") && !marcado("fd-tipo-tcr")) faltas.push("Tipo de solicitação");
+  if(!tipoSolicitacao) faltas.push("Tipo de solicitação");
+  if(!infracaoVal) faltas.push("Infração à legislação");
   if(!v("fd-processo")) faltas.push("Número do Processo");
-  if(!v("fd-nome")) faltas.push("Nome / Razão Social");
+  if(!v("fd-ai")) faltas.push("Auto de Infração nº");
   if(!v("fd-doc")) faltas.push("CPF/CNPJ");
-  if(!infracao) faltas.push("Infração à legislação");
+  if(!v("fd-nome")) faltas.push("Nome / Razão Social");
   if(!v("fd-notif")) faltas.push("Data de Notificação");
-  if(!v("fd-vlr-original") && !v("fd-vlr-desconto") && !v("fd-vlr-ufemg")) faltas.push("ao menos um Valor");
+  if(!v("fd-valor") || !tipoValor) faltas.push("Valor e Tipo");
+  if(!v("fd-pais")) faltas.push("País");
+  if(!v("fd-cep")) faltas.push("CEP");
+  if(!v("fd-logradouro")) faltas.push("Logradouro");
+  if(!v("fd-numero")) faltas.push("Número");
+  const paisBR = (document.getElementById("fd-pais").dataset.codigo || "BR") === "BR";
+  if(paisBR && !v("fd-bairro")) faltas.push("Bairro");
+  if(!v("fd-mun")) faltas.push("Município/UF");
+  if(!v("fd-esec")) faltas.push("ESEC");
   if(faltas.length){ mostraErro("form", "Preencha: " + faltas.join(", ") + "."); return; }
+
+  const camposInvalidos = ["fd-sei","fd-processo","fd-ai-data","fd-notif","fd-doc","fd-esec","fd-cep","fd-vlr-desconto"]
+    .filter(id => document.getElementById(id).classList.contains("invalido"));
+  if(camposInvalidos.length){ mostraErro("form", "Corrija os campos destacados em vermelho antes de imprimir."); return; }
   mostraErro("form", "");
 
-  const cx = (m) => m ? "( X )" : "(&nbsp;&nbsp;&nbsp;)";
   const dataOuVazio = (iso_) => iso_ ? dataBR(iso_) : "";
-  const dinheiro = (id) => v(id) ? fmtBRL.format(Number(v(id))) : "";
+  const dinheiro = (id) => v(id) ? fmtBRL.format(numeroForm(v(id))) : "";
   const celula = (rotulo, valor, extra) => `<td${extra || ""}><span class="frot">${rotulo}</span> ${valor || ""}</td>`;
 
   document.getElementById("printheader").innerHTML = `
@@ -936,61 +1437,74 @@ function imprimeFormularioDae(){
     </div>
     <img class="doc-carimbo" src="img/carimbo-pagina.png" alt="Carimbo IMA">`;
 
-  document.getElementById("printdoc").innerHTML = `
-    <div class="ftit">FORMULÁRIO PARA EMISSÃO DE DAE E ENCAMINHAMENTO DE PARCELAMENTO</div>
-    <table class="ftab">
-      <tr><td>${cx(marcado("fd-tipo-notif"))} Notificação para pagamento da multa</td></tr>
-      <tr><td>${cx(marcado("fd-tipo-parc"))} Solicitação de Parcelamento mediante notificação pelo auto de infração e/ou relatoria 1ª instância</td></tr>
-      <tr><td>${cx(marcado("fd-tipo-tcr"))} Termo de Confissão e Renúncia</td></tr>
-    </table>
-    <div class="fsec">RESERVADO À UNIDADE SECCIONAL/REGIONAL/GERÊNCIAS/CÂMARA</div>
-    <p class="fintro">À Gerência de Controle de Arrecadação, para emissão de DAE e/ou análise da solicitação de
-    parcelamento em decorrência de aplicação de penalidade de multa, conforme disposto abaixo:</p>
-    <div class="fsec">IDENTIFICAÇÃO DO PROCESSO E DO AUTUADO</div>
-    <table class="ftab">
-      <tr>${celula("Número do SEI:", v("fd-sei"))}${celula("Número do Processo:", v("fd-processo"))}</tr>
-      <tr>${celula("Auto de Infração nº:", v("fd-ai"))}${celula("Série:", v("fd-serie"))}${celula("Data emissão:", dataOuVazio(v("fd-ai-data")))}</tr>
-      <tr>${celula("Nome / Razão Social:", v("fd-nome"), ' colspan="2"')}${celula("CPF/CNPJ:", v("fd-doc"))}</tr>
-      <tr>${celula("Endereço:", v("fd-endereco"), ' colspan="3"')}</tr>
-      <tr>${celula("Município/UF:", v("fd-mun"))}${celula("CEP:", v("fd-cep"))}${celula("Telefone:", v("fd-tel"))}</tr>
-      <tr>${celula("E-mail:", v("fd-email"), ' colspan="2"')}${celula("Município do ESEC:", v("fd-esec"))}</tr>
-    </table>
-    <div class="fsec">HISTÓRICO</div>
-    <table class="ftab"><tr><td class="fhist">${v("fd-historico").replace(/\n/g, "<br>") || "&nbsp;"}</td></tr></table>
-    <div class="fsec">INFRAÇÃO À LEGISLAÇÃO DE:</div>
-    <table class="ftab">
-      <tr><td>${cx(infracao.value === "Agrotóxico")} Agrotóxico</td><td>${cx(infracao.value === "Defesa Animal")} Defesa Animal</td></tr>
-      <tr><td>${cx(infracao.value === "Inspeção Sanitária Industrial")} Inspeção Sanitária Industrial</td><td>${cx(infracao.value === "Defesa Vegetal / Sementes e Mudas")} Defesa Vegetal / Sementes e Mudas</td></tr>
-      <tr><td colspan="2" class="fobs">OBS: Utilizar o campo "Com Desconto (R$)" somente para multas referentes a SEMENTES E MUDAS.</td></tr>
-    </table>
-    <div class="fsec">INFORMAÇÕES DA MULTA</div>
-    <table class="ftab">
-      <tr>
-        <td rowspan="2" style="width:38%"><span class="frot">Data de Notificação</span><br>
-          <small>GDA — Auto de Infração<br>GDV/GIP — Relatoria 1ª instância</small><br><br>
-          <b>${dataOuVazio(v("fd-notif"))}</b></td>
-        <td class="fcab" colspan="3">Valores</td>
-      </tr>
-      <tr>
-        ${celula("Original (R$):", dinheiro("fd-vlr-original"))}
-        ${celula("Com Desconto (R$):<br><small>exclusivo Sementes e Mudas</small>", dinheiro("fd-vlr-desconto"))}
-        ${celula("UFEMG:", v("fd-vlr-ufemg"))}
-      </tr>
-    </table>
-    <div class="fass">
+  const gt = gtDoFormulario();
+  const receita = RECEITA_POR_INFRACAO_FORM[infracaoVal] || "";
+  const gerenciaNome = GERENCIA_NOME_POR_GT[gt] || "";
+  // Negrito só na sigla (GDA/GDV/GIP) e no código da Receita (57/58/59/60) —
+  // nome da gerência e nome da infração ficam sempre em peso normal.
+  const celulaGerenciaInfracao = `
+    <td style="width:55%">${gerenciaNome} - <b>${gt}</b></td>
+    <td style="width:45%"><b>${receita}</b> - ${infracaoVal}</td>`;
+
+  const dinheiroValor = tipoValor === "REAL" ? fmtBRL.format(numeroForm(v("fd-valor")) || 0) : `${v("fd-valor")} UFEMG`;
+  const rotuloValor = tipoValor === "UFEMG" ? "Valor em UFEMG:" : "Valor em Reais:";
+
+  // Impressão mostra o nome completo do País, não a sigla de 3 letras usada
+  // na busca da tela — agora sobra espaço de sobra na tabela pra isso.
+  const paisCodigoImpressao = document.getElementById("fd-pais").dataset.codigo || "BR";
+  const paisNomeCompleto = (PAISES.find(p => p.codigo === paisCodigoImpressao) || {}).nome || v("fd-pais");
+
+  const ehCR = (e.ua || "").toUpperCase().startsWith("CR ");
+  const blocoPreenchido = `
       <div>Data: ${dataBR(iso(hoje()))}</div>
       <div class="fass-linha">
         _________________________________________<br>
         ${capitalizaNome(e.nome)} — ${maspFormatado(e.masp)}<br>
-        <small>Assinatura e Carimbo / Responsável</small><br>
-        <small>${formataUAImpressao(e.ua)}</small>
-      </div>
+        <small>${e.ua}</small>
+      </div>`;
+  const blocoVazio = (legenda) => `
+      <div>Data: _____/_____/_____</div>
+      <div class="fass-linha">
+        _________________________________________<br>
+        <small>${legenda}</small>
+      </div>`;
+
+  // Cada campo com valor potencialmente longo (SEI, Processo, CPF/CNPJ,
+  // Nome/Razão Social, Logradouro) ocupa a linha inteira sozinho — só campos
+  // curtos e de formato fixo (datas, código, CEP, número) dividem linha,
+  // pra garantir que nenhum campo quebre em duas linhas na impressão.
+  // Cada grupo de colunas é uma <table> separada (não uma tabela só com
+  // colspans variados): o layout automático de tabela do navegador unifica a
+  // largura das colunas em TODAS as linhas da mesma tabela mesmo com colspan
+  // diferente, então um % numa linha vazava e desalinhava as outras. Tabelas
+  // separadas isolam cada grupo (ver #printdoc .ftab + .ftab no CSS pra
+  // remover a borda duplicada na emenda entre elas).
+  document.getElementById("printdoc").innerHTML = `
+    <div class="ftit">${TITULO_FORM_FIXO}</div>
+    <div class="fsec">RESERVADO À UNIDADE SECCIONAL/REGIONAL/GERÊNCIAS/CÂMARA</div>
+    <p class="fintro">${INTRO_POR_TIPO_SOLICITACAO_FORM[tipoSolicitacao]}</p>
+    <table class="ftab">
+      <tr class="fcab"><td style="width:55%">Gerência Responsável</td><td style="width:45%">Infração à legislação de</td></tr>
+      <tr>${celulaGerenciaInfracao}</tr>
+    </table>
+    <div class="fsec">IDENTIFICAÇÃO DO PROCESSO, DA MULTA E DO AUTUADO</div>
+    <table class="ftab"><tr>${celula("SEI:", v("fd-sei"))}${celula("Processo:", v("fd-processo"))}</tr></table>
+    <table class="ftab"><tr>${celula("Número do Auto de Infração:", v("fd-ai") + (v("fd-serie") ? `　Série: ${v("fd-serie")}` : ""))}${celula("Data emissão:", dataOuVazio(v("fd-ai-data")))}</tr></table>
+    <table class="ftab"><tr>${celula("Data da notificação:", dataOuVazio(v("fd-notif")))}${celula(rotuloValor, dinheiroValor)}${(sementes && tipoValor === "REAL") ? celula("Valor com desconto (R$):", dinheiro("fd-vlr-desconto")) : ""}</tr></table>
+    <table class="ftab"><tr>${celula(document.getElementById("lbl-fd-doc").textContent.replace(" *",":"), v("fd-doc"), ' colspan="2"')}</tr></table>
+    <table class="ftab"><tr>${celula(document.getElementById("lbl-fd-nome").textContent.replace(" *",":"), v("fd-nome"), ' colspan="2"')}</tr></table>
+    <table class="ftab"><tr>${celula("País:", paisNomeCompleto)}${celula("CEP:", v("fd-cep"))}</tr></table>
+    <table class="ftab"><tr>${celula("Logradouro:", v("fd-logradouro"))}${celula("Número:", v("fd-numero"))}</tr></table>
+    <table class="ftab"><tr>${celula("Complemento:", v("fd-complemento"))}${celula("Bairro:", v("fd-bairro"))}</tr></table>
+    <table class="ftab"><tr>${celula("Município/UF:", v("fd-mun"))}<td>${v("fd-esec")}</td></tr></table>
+    <div class="fass">
+      <div class="fass-col">${ehCR ? blocoVazio("Assinatura e Carimbo/Responsável") : blocoPreenchido}</div>
+      <div class="fass-col">${ehCR ? blocoPreenchido : blocoVazio("Assinatura e Carimbo / Câmara de Recursos")}</div>
     </div>
     <div class="fsec">RESERVADO À GERÊNCIA DE CONTROLE DA ARRECADAÇÃO</div>
-    <table class="ftab">
-      <tr>
-        ${[1,2,3].map(() => `<td><span class="frot">Número do DAE:</span><br><br><span class="frot">Data de emissão:</span><br><br><span class="frot">Valor (R$):</span><br><br><span class="frot">Data de validade:</span><br>&nbsp;</td>`).join("")}
-      </tr>
+    <table class="ftab fgca">
+      <tr class="fcab"><td>Número do DAE</td><td>Valor em Reais</td><td>Data de Emissão</td><td>Data de validade</td></tr>
+      ${[1,2,3,4,5].map(() => `<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>`).join("")}
     </table>`;
 
   const imgBrasao = document.getElementById("img-brasao");
@@ -1000,6 +1514,25 @@ function imprimeFormularioDae(){
     new Promise(resolve => { img.addEventListener("load", resolve, { once: true }); img.addEventListener("error", resolve, { once: true }); })
   )).then(() => window.print());
 }
+
+definirPaisForm("BR");
+atualizaCamposPorInfracaoForm();
+
+// Tab num <input type=date> do Chrome, depois do segmento do ano, pode parar
+// no ícone do calendário antes de ir pro próximo campo. Interceptamos o Tab
+// e movemos o foco na mão pro controle seguinte/anterior real do formulário,
+// sempre pulando o ícone.
+document.querySelectorAll("#form-fdae input[type=date]").forEach(inp => {
+  inp.addEventListener("keydown", e => {
+    if(e.key !== "Tab") return;
+    const focaveis = [...document.querySelectorAll("#form-fdae input, #form-fdae select, #form-fdae button")]
+      .filter(el => !el.disabled && el.offsetParent !== null);
+    const idx = focaveis.indexOf(inp);
+    if(idx === -1) return;
+    const alvo = e.shiftKey ? focaveis[idx - 1] : focaveis[idx + 1];
+    if(alvo){ e.preventDefault(); alvo.focus(); }
+  });
+});
 
 // =====================================================================
 // ABA DADOS DE REFERÊNCIA
