@@ -7,7 +7,7 @@
 <link rel="icon" href="favicon.ico">
 <script>
   // Bump a cada deploy: força o navegador a buscar css/js novos (evita cache de CDN/navegador).
-  const APP_VERSION = "2026.07.21-28";
+  const APP_VERSION = "2026.07.21-29";
   document.write('<link rel="stylesheet" href="css/main.css?v=' + APP_VERSION + '">');
 </script>
 </head>
@@ -494,9 +494,9 @@ GDV/GIP: AR da relatoria 1ª instância">?</span></label>
         <div class="campo" style="flex:2"><label>Logradouro *</label><input type="text" id="fd-logradouro"></div>
         <div class="campo" style="flex:0 0 160px"><label>Número *</label><input type="text" id="fd-numero"></div>
       </div>
-      <div class="linha">
-        <div class="campo" style="flex:0 0 220px"><label>Complemento</label><input type="text" id="fd-complemento"></div>
-        <div class="campo" style="flex:1"><label id="lbl-fd-bairro">Bairro * <span class="ajuda" data-tip="Não obrigatório para endereço internacional.">?</span></label><input type="text" id="fd-bairro"></div>
+      <div class="linha" style="display:grid;grid-template-columns:1fr 1fr 110px 1fr 1fr;gap:16px">
+        <div class="campo" style="grid-column:1/5"><label>Complemento</label><input type="text" id="fd-complemento"></div>
+        <div class="campo" style="grid-column:5/6"><label id="lbl-fd-bairro">Bairro * <span class="ajuda" data-tip="Não obrigatório para endereço internacional.">?</span></label><input type="text" id="fd-bairro"></div>
       </div>
       <div class="linha">
         <div class="campo" style="flex:1"><label>Município/UF *</label><input type="text" id="fd-mun" readonly placeholder="preenchido pelo CEP"></div>
