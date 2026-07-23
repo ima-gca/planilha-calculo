@@ -113,10 +113,13 @@ const MESES_EXTENSO = ["janeiro","fevereiro","março","abril","maio","junho","ju
 const dataExtenso = s => { const [a,m,d] = s.split("-").map(Number); return `${d} de ${MESES_EXTENSO[m-1]} de ${a}`; };
 const _PREP_MINUSCULAS = new Set(["de","da","do","das","dos","e"]);
 const _SIGLAS = new Set(["LTDA","ME","EPP","EIRELI","SA","S/A","MEI","CIA","SS"]);
+// Numeral romano "de verdade": só I/V/X/L/C/D/M — evita capitalizar errado
+// nomes/logradouros com "II", "III", "IV" etc. (ex.: "Papa João Paulo II").
+const _ROMANO = /^[IVXLCDM]+$/;
 const capitalizaNome = nome => nome.trim().split(/\s+/).map(p => {
   const min = p.toLowerCase();
   const maiuscula = p.toUpperCase();
-  if(_SIGLAS.has(maiuscula)) return maiuscula;
+  if(_SIGLAS.has(maiuscula) || _ROMANO.test(maiuscula)) return maiuscula;
   return _PREP_MINUSCULAS.has(min) ? min : min.charAt(0).toUpperCase() + min.slice(1);
 }).join(" ");
 const ymDe = s => s.slice(0,7);
@@ -1518,20 +1521,49 @@ function imprimeFormularioDae(){
 definirPaisForm("BR");
 atualizaCamposPorInfracaoForm();
 
-// Tab num <input type=date> do Chrome, depois do segmento do ano, pode parar
-// no ícone do calendário antes de ir pro próximo campo. Interceptamos o Tab
-// e movemos o foco na mão pro controle seguinte/anterior real do formulário,
-// sempre pulando o ícone.
-document.querySelectorAll("#form-fdae input[type=date]").forEach(inp => {
-  inp.addEventListener("keydown", e => {
-    if(e.key !== "Tab") return;
-    const focaveis = [...document.querySelectorAll("#form-fdae input, #form-fdae select, #form-fdae button")]
-      .filter(el => !el.disabled && el.offsetParent !== null);
-    const idx = focaveis.indexOf(inp);
-    if(idx === -1) return;
-    const alvo = e.shiftKey ? focaveis[idx - 1] : focaveis[idx + 1];
-    if(alvo){ e.preventDefault(); alvo.focus(); }
-  });
+// O ícone nativo do calendário, em alguns Chrome/Edge, entra na sequência de
+// Tab — o usuário NUNCA quer isso, só clique do mouse deve abrir o seletor.
+// Escondemos o ícone nativo (CSS) e trocamos por um botão próprio com
+// tabindex="-1", que por definição nunca recebe foco via teclado.
+function blindarIconeCalendario(input){
+  if(input.dataset.calBlindado) return;
+  input.dataset.calBlindado = "1";
+  const wrap = document.createElement("span");
+  wrap.className = "data-wrap";
+  input.parentNode.insertBefore(wrap, input);
+  wrap.appendChild(input);
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.className = "data-abrir-calendario";
+  btn.tabIndex = -1;
+  btn.title = "Abrir calendário";
+  // SVG embutido (não emoji) — mesmo ícone "calendário" escolhido pelo
+  // usuário nos outros apps; sem depender de fonte de ícones externa.
+  btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><rect x="4" y="5" width="16" height="16" rx="2"/><line x1="16" y1="3" x2="16" y2="7"/><line x1="8" y1="3" x2="8" y2="7"/><line x1="4" y1="11" x2="20" y2="11"/><circle cx="8" cy="15.5" r=".6" fill="currentColor" stroke="none"/><circle cx="12" cy="15.5" r=".6" fill="currentColor" stroke="none"/><circle cx="16" cy="15.5" r=".6" fill="currentColor" stroke="none"/></svg>';
+  btn.addEventListener("click", () => { try { input.showPicker(); } catch(e){} });
+  wrap.appendChild(btn);
+}
+document.querySelectorAll('input[type="date"]').forEach(blindarIconeCalendario);
+
+// Regra padrão do app (promovida de #form-fdae pra TODO o documento —
+// 2026-07 — vale também nas calculadoras AI/Leite/DAE): Tab num
+// <input type=date>, DEPOIS de dia+mês+ano já preenchidos, pode parar no
+// ícone do calendário do Chrome antes de ir pro próximo campo. Só
+// intercepta quando o valor já está completo (`value` é uma data válida):
+// enquanto o usuário ainda está preenchendo dia/mês/ano, o Tab precisa
+// continuar navegando ENTRE ESSES SEGMENTOS normalmente (nativo do
+// navegador) — interceptar cedo demais quebra isso. Delegado no document:
+// vale pra qualquer campo de data, atual ou futuro, sem precisar registrar
+// campo por campo.
+document.addEventListener("keydown", e => {
+  if(e.key !== "Tab" || e.target.tagName !== "INPUT" || e.target.type !== "date") return;
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(e.target.value)) return;
+  const focaveis = [...document.querySelectorAll("input, select, button, textarea, [tabindex]")]
+    .filter(el => !el.disabled && el.tabIndex !== -1 && el.offsetParent !== null);
+  const idx = focaveis.indexOf(e.target);
+  if(idx === -1) return;
+  const alvo = e.shiftKey ? focaveis[idx - 1] : focaveis[idx + 1];
+  if(alvo){ e.preventDefault(); alvo.focus(); }
 });
 
 // =====================================================================
